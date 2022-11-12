@@ -300,7 +300,7 @@ Using the {substitution}
 
 ### Attributes
 
-An attribute is written inside square brackets after an empty line and apply to the following paragraph or block.
+An attribute is written inside square brackets and apply to the following paragraph or block.
 
 Additional attributes can be applied using commas to separate them.
 
@@ -313,6 +313,11 @@ Example:
     This is XML text which 
     can be colourized
   </element>
+
+[NOTE]
+====
+This is important.
+====
 ```
 
 If the attribute starts with a dot "." and a stylesheet is defined, the specified style class is applied.
@@ -324,4 +329,25 @@ Example:
 ```
 This paragraph contains [.underline]#underlined
 text# inside.
+```
+
+### Block Title
+
+A block title starts with a dot "." on its own line. It comes before the attributes.
+
+If the block title is used with an image, it is used as caption. 
+Additionally, if the image caption contains a link then clicking 
+on the image loads the (first) link.
+
+Example:
+
+```
+.Fruit basket
+,===
+apples,oranges,pears
+,===
+
+.A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
+[size=200x100]
+![Sunset](sunset.jpg)
 ```
