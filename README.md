@@ -1,2 +1,281 @@
+![logo](Arcdown%20logo.png)
 # Arcdown
+
 A lightweight markup language to format documents using plain text
+
+## Syntax
+
+The syntax of Arcdown is heavily inspired by AsciiDoc and by Markdown.
+
+### Headers
+
+```
+= Document Title
+
+== Level 1 Section Title
+
+=== Level 2 Section Title...
+```
+
+Use "=" in front of the header, repeated as needed to increase the level.
+
+There must be only one document title in the document. The document title may be followed immediately by an
+optional document header which contains metadata related to the document, such 
+as the authors or a marker for the generator to insert a table of contents.
+
+Example:
+
+```
+= Document title
+:author: Author Name <author@email.org>
+:version: v2.0, 2019-03-22
+:toc:
+```
+
+### Paragraphs
+
+A sequence of non-empty lines form a paragraph.
+
+To force a line break in the middle of a paragraph, end the line with "+".
+
+Example:
+
+```
+This is part of a single
+paragraph spread over
+multiple lines of text. +
+Because of the line break, this goes on a separate line.
+```
+
+Paragraphs may be grouped in a free block by enclosing them with "--".
+
+Example:
+
+```
+--
+This is the first paragraph.
+
+Another paragraph is added
+to the block.
+--
+```
+
+### Text Formatting
+
+```
+This is *bold*
+
+This is _italic_
+
+This is `monospaced`
+
+This is ^superscript^
+
+This is ~subscript~
+
+This is #highlighted#
+
+This is +_normal text_ (no style)+
+```
+
+Styles can be combined. Any style can be used in the middle of a word by 
+doubling the format markers, except for superscript and subscript which
+don't require doubling.
+
+Example:
+
+```
+*_Combine bold and italic_*
+the "it" is __it__alic
+superscri^pt^ for "pt"
+```
+
+To enter text which contains format markers, enclose the text with "+" to prevent
+the generator from interpreting them.
+
+### Breaks
+
+Horizontal line:
+
+```
+'''
+```
+
+Page break (does not appear if the output is a HTML document):
+
+```
+<<<
+```
+
+### Hyperlinks
+
+```
+[#anchor]:
+Part 1: This text is selected by the anchor.
+
+[Go to Part 1](#anchor)
+
+[Go to Products page on this site](/Products.html)
+
+[Go to Offers page in current path](Offers.html)
+
+[Go to an arbitrary webpage](https://www.github.com)
+```
+
+The text inside square brackets becomes a hyperlink which loads the content
+specified in the round brackets.
+
+When the output format allows it, footnotes are also hyperlinks.
+
+Example:
+
+```
+There are contractual implications to this statement.[^terms]
+
+[^terms]:
+Please refer to our [Terms and Conditions page](TandC.html) for more information.
+```
+
+### Inline Content
+
+To insert an image or a multimedia file, use an hyperlink with "!" in front 
+of the square brackets. The hyperlink text will be used as the "alt" label.
+
+Double the "!" to make the image in line with the text rather than in a new block.
+
+Example:
+
+```
+![Arcdown logo](Arcdown-logo.png)
+
+The Github mascot: !![image](octocat.jpg)
+```
+
+To insert the contents of another Arcdown file at the current location, use 
+the "include" attribute before an hyperlink. Note that for security reasons, 
+including a file from an arbitrary location is disabled by default.
+
+Example:
+
+```
+[include]
+[](Shared-menu.arcd)
+```
+
+### Lists
+
+```
+. Number one
+. Number two
+. Number three
+
+* First bullet
+* Second bullet
+* Third bullet
+
+Item 1:: First description
+Item 2:: Second description
+Item 3:: Third description
+```
+
+Ordered and unordered list markers can be repeated to indicate the level, just like [headers](#headers).
+
+The nesting level of a description list can be increased by adding another ":".
+
+Lists can nest inside each other. Leading whitespace has no effect.
+
+Example:
+
+```
+. This is number one
+** It has two bullets
+** This is the second bullet
+
+. This is number two
+  .. This is a sublist
+  .. with three elements
+  .. This is the third element
+```
+
+Use "+" to force a list item on multiple lines. If it is used on an empty line, that starts a new paragraph.
+Note that indented code blocks don't require a "+" to be included in a list item.
+
+Use a line with an empty 
+attribute "[ ]" before it to force the first item to start a new list when
+it follows an existing list.
+
+### Styled Blocks
+
+```
+  indented text is
+  added to a code
+  block
+
+----
+Another way to create
+a code block using "-"
+----
+
+____
+Quote text using
+underscores
+____
+
+====
+Example block used to
+enclose an example
+====
+
+****
+Sidebar block used to
+expand on a topic or
+highlight an idea
+****
+```
+
+### Tables
+
+```
+|===
+| Header 1 \
+| Header 2 \
+| Header 3
+
+| Row 1 Column 1
+| Row 1 Column 2
+| Row 1 Column 3
+
+| Row 2 Column 1
+2+| Row 2 Merged columns 2 and 3
+|===
+```
+
+```
+,===
+Header 1,Header 2,Header 3
+
+Row 1 Column 1,Row 1 Column 2,Row 1 Column 3
+,===
+```
+
+```
+:===
+Header 1:Header 2:Header 3
+
+Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
+:===
+```
+
+### Substitutions
+
+Substitution values can be defined and reused.
+
+Example:
+
+```
+:substitution: value to be inserted
+
+Using the {substitution}
+
+[{substitution}](/index.html)
+```
