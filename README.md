@@ -208,16 +208,30 @@ it follows an existing list.
 
 ### Styled Blocks
 
+Code blocks (monospaced):
+
 ```
-  indented text is
-  added to a code
-  block
+  Indented text without
+  line breaks is added 
+  to a code block
 
 ----
-Another way to create
-a code block using "-"
+Another way to
+create a code 
+block using "-"
 ----
 
+  ----
+  A delimited code block
+  can also be indented.
+  
+  It allows empty lines
+  ----
+```
+
+Other blocks:
+
+```
 ____
 Quote text using
 underscores
@@ -328,7 +342,7 @@ Example:
 
 ```
 This paragraph contains [.underline]#underlined
-text# inside.
+text inside#.
 ```
 
 ### Block Title
