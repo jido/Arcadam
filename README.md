@@ -250,6 +250,12 @@ highlight an idea
 |===
 ```
 
+All the headers must be on the same line, or "\\" must be used to escape the 
+line breaks otherwise the table is generated without a header row.
+
+An empty line indicates a new row but it is optional after second row (since
+the generator knows the number of columns then).
+
 ```
 ,===
 Header 1,Header 2,Header 3
@@ -266,6 +272,11 @@ Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
 :===
 ```
 
+### Escape character
+
+The backslash "\\" is used to prevent the generator from interpreting the
+following character specially.
+
 ### Substitutions
 
 Substitution values can be defined and reused.
@@ -278,4 +289,32 @@ Example:
 Using the {substitution}
 
 [{substitution}](/index.html)
+```
+
+### Attributes
+
+An attribute is written inside square brackets after an empty line and apply to the following paragraph or block.
+
+Additional attributes can be applied using commas to separate them.
+
+Example:
+
+```
+[source,xml]
+<root>
+  <element>
+    This is XML text which 
+    can be colourized
+  </element>
+```
+
+If the attribute starts with a dot "." and a stylesheet is defined, the specified style class is applied.
+
+Some attributes, such as the style class attribute, can be used in the middle of the text by highlighting the part of the text they apply to.
+
+Example:
+
+```
+This paragraph contains [.underline]#underlined
+text# inside.
 ```
