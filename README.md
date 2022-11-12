@@ -86,7 +86,9 @@ Example:
 
 ```
 *_Combine bold and italic_*
+
 the "it" is __it__alic
+
 superscri^pt^ for "pt"
 ```
 
@@ -261,6 +263,7 @@ the generator knows the number of columns then).
 Header 1,Header 2,Header 3
 
 Row 1 Column 1,Row 1 Column 2,Row 1 Column 3
+Row 2 Column 1,Row 2 Column 2,Row 2 Column 3
 ,===
 ```
 
@@ -269,6 +272,7 @@ Row 1 Column 1,Row 1 Column 2,Row 1 Column 3
 Header 1:Header 2:Header 3
 
 Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
+Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
 ```
 
@@ -276,6 +280,9 @@ Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
 
 The backslash "\\" is used to prevent the generator from interpreting the
 following character specially.
+
+See also [Text Formatting](#text-formatting) to prevent format markers from
+being interpreted over a span of text using "+".
 
 ### Substitutions
 
