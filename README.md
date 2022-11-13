@@ -222,7 +222,6 @@ Example:
 . This is number one
 ** It has two bullets
 ** This is the second bullet
-
 . This is number two
   .. This is a sublist
   .. with three elements
@@ -234,7 +233,7 @@ line, that starts a new paragraph. Note that indented code blocks don't
 require a "+".
 
 A line with an empty attribute "\[ ]" forces the next list item to start 
-a new list instead of nesting when it comes after an existing list.
+a new list instead of continuing the previous list or nesting inside it.
 
 ### Styled Blocks
 
