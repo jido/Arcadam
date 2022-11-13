@@ -140,11 +140,10 @@ Please refer to our [Terms and Conditions page](TandC.html) for more information
 
 ### Inline Content
 
-* To insert an image or a multimedia file, use a hyperlink with "!" in front
+To insert an image or a multimedia file, use a hyperlink with "!" in front.
+Double the "!" to make the image in line with the text rather than in a new block.
 
 The hyperlink text will be used as the "alt" label.
-
-Double the "!" to make the image in line with the text rather than in a new block.
 
 Example:
 
@@ -154,40 +153,7 @@ Example:
 The Github mascot: !![image](octocat.jpg)
 ```
 
-* To insert the contents of another Arcdown file, use the "include" attribute
-
-It should come before a hyperlink with the location of the file. Note that 
-for security reasons, including a file from an arbitrary location is disabled 
-by default.
-
-The file contents are inserted at the location of the include.
-
-The hyperlink text can be used to specify a tag so only the tagged region of 
-the Arcdown file is included.
-
-Example:
-
-```
-[include]
-[region](Tagged-file.arcd)
-```
-
-A tagged region is defined using begin and end labels:
-
-```
-[begin region]:
-This text can be included
-on its own
-
-[end region]:
-----
-Inside a delimited code block, the tagged
-  // ---- begin::coderegion ----
-region is defined using begin:: and end:: between
-code block markers at the end of a code line.
-  // ---- end::coderegion ----
-----
-```
+See also [Include](#include).
 
 ### Lists
 
@@ -340,6 +306,44 @@ Example:
 Using the {substitution}
 
 [{substitution}](/index.html)
+```
+
+### Include
+
+To insert the contents of another Arcdown file, use the "include" attribute.
+It should come before a hyperlink which gives the location of the file. 
+
+Note that for security reasons, including a file from an arbitrary location 
+is disabled by default.
+
+The file contents are inserted at the location of the "include".
+The hyperlink text may be used to specify a tag name so only the designated 
+region of the Arcdown file is included instead of the whole contents.
+
+Example:
+
+```
+[include]
+[region](Shared-file.arcd)
+```
+
+### Tags
+
+A tagged region is defined using begin and end labels:
+
+```
+[begin region]:
+This text can be included
+on its own
+
+[end region]:
+----
+Inside a delimited code block, the tagged
+  // ---- begin::coderegion ----
+region is defined using begin:: and end:: between
+code block markers at the end of a code line.
+  // ---- end::coderegion ----
+----
 ```
 
 ### Attributes
