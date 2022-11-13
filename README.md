@@ -103,7 +103,7 @@ Horizontal line:
 '''
 ```
 
-Page break (does not appear if the output is a HTML document):
+Page break (not visible in the browser if the output is a HTML document):
 
 ```
 <<<
@@ -299,7 +299,8 @@ All the headers must be on the same line, or "\\" must be used to escape the
 line breaks otherwise the table is generated without a header row.
 
 An empty line indicates a new row but it is optional after second row (since
-the generator knows the number of columns then).
+the generator knows the number of columns then, either from the header row
+or the first content row).
 
 ```
 ,===
@@ -376,11 +377,12 @@ text inside#.
 
 ### Block Title
 
-A block title starts with a dot "." on its own line. It comes before the attributes.
+A block title starts with a dot "." on its own line. It comes before the
+attributes.
 
 If the block title is used with an image, it is used as caption. 
-Additionally, if the image caption contains a link then clicking 
-on the image loads the (first) link.
+Additionally, if the image caption contains a link then clicking on the 
+image loads the (first) link.
 
 Example:
 
