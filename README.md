@@ -27,7 +27,7 @@ Example:
 
 ```
 = Document title
-:author: Author Name <author@email.org>
+:authors: Author Name <author@email.org>
 :version: v2.0, 2019-03-22
 :toc:
 ```
@@ -140,8 +140,9 @@ Please refer to our [Terms and Conditions page](TandC.html) for more information
 
 ### Inline Content
 
-To insert an image or a multimedia file, use an hyperlink with "!" in front 
-of the square brackets. The hyperlink text will be used as the "alt" label.
+* To insert an image or a multimedia file, use a hyperlink with "!" in front
+
+The hyperlink text will be used as the "alt" label.
 
 Double the "!" to make the image in line with the text rather than in a new block.
 
@@ -153,15 +154,39 @@ Example:
 The Github mascot: !![image](octocat.jpg)
 ```
 
-To insert the contents of another Arcdown file at the current location, use 
-the "include" attribute before an hyperlink. Note that for security reasons, 
-including a file from an arbitrary location is disabled by default.
+* To insert the contents of another Arcdown file, use the "include" attribute
+
+It should come before a hyperlink with the location of the file. Note that 
+for security reasons, including a file from an arbitrary location is disabled 
+by default.
+
+The file contents are inserted at the location of the include.
+
+The hyperlink text can be used to specify a tag so only the tagged region of 
+the Arcdown file is included.
 
 Example:
 
 ```
 [include]
-[](Shared-menu.arcd)
+[region](Tagged-file.arcd)
+```
+
+A tagged region is defined using begin and end labels:
+
+```
+[begin region]:
+This text can be included
+on its own
+
+[end region]:
+----
+Inside a delimited code block, the tagged
+  // ---- begin::coderegion ----
+region is defined using begin:: and end:: between
+code block markers at the end of a code line.
+  // ---- end::coderegion ----
+----
 ```
 
 ### Lists
@@ -180,11 +205,16 @@ Item 2:: Second description
 Item 3:: Third description
 ```
 
-Ordered and unordered list markers can be repeated to indicate the level, just like [headers](#headers).
+A list that immediately follows an item from another list is automatically 
+nested. Leading whitespace has no effect.
 
-The nesting level of a description list can be increased by adding another ":".
+Ordered and unordered list markers can be repeated to indicate the level, 
+just like [headers](#headers). Additional levels can be used in a 
+description list by adding another ":" each time.
 
-Lists can nest inside each other. Leading whitespace has no effect.
+However the levels are not enforced so you could have a list level 1 (\*)
+nested inside a list level 2 (\*\*). It is good style to match the marker
+level with the nesting level of the list.
 
 Example:
 
@@ -199,12 +229,12 @@ Example:
   .. This is the third element
 ```
 
-Use "+" to force a list item on multiple lines. If it is used on an empty line, that starts a new paragraph.
-Note that indented code blocks don't require a "+" to be included in a list item.
+Use "+" to force a list item on multiple lines. If it is used on an empty 
+line, that starts a new paragraph. Note that indented code blocks don't 
+require a "+".
 
-Use a line with an empty 
-attribute "[ ]" before it to force the first item to start a new list when
-it follows an existing list.
+A line with an empty attribute "\[ ]" forces the next list item to start 
+a new list instead of nesting when it comes after an existing list.
 
 ### Styled Blocks
 
