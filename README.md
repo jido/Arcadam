@@ -413,25 +413,27 @@ image loads the (first) link.
 The generator applies the following steps in order to transform the
 contents of the document:
 
-> _specialchars_ - step that replaces <, >, and & with their corresponding entities for HTML. For source blocks, this transformation step enables syntax highlighting as well
+> _specialchars_ - replace special characters with their corresponding entities (`<`, `>` and `&` for HTML). In source blocks, this step also enables syntax highlighting
 > 
-> _format_ - step that applies inline text formatting
+> _format_ - apply inline text formatting
 > 
-> _substitute_ - step that replaces references with substitution values
+> _substitute_ - replace references with substitution values
 > 
-> _apply_ - step that applies attributes to blocks and inline text
+> _symbols_ - replace sequences of characters with symbols, for example replace `->` with →
 > 
-> _linebreaks_ - step that processes the line break character (+)
+> _apply_ - apply the attributes on blocks and on inline text
+> 
+> _linebreaks_ - process the line break character `+`
 
 The current style class controls which transformation steps are 
 applied. For example, code blocks use the ".verbatim" style class 
 which only does the _specialchars_ transformation.
 
 To choose which steps are applied for a particular style class, define
-a special substitution "steps" followed by the style class name.
+a special substitution "steps" followed by the style class.
 
 Example:
 
 ```
-:steps.formatted: format,substitute
+:steps.formatted: substitute,format,symbols
 ```
