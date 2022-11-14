@@ -340,11 +340,11 @@ is disabled by default.
 The begin and end tags define a named region:
 
 ```
-[begin region]:
+[:begin region]:
 This text can be included
 on its own
 
-[end region]:
+[:end region]:
 
 ----
 Inside a delimited code block, the named
