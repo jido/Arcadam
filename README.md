@@ -413,7 +413,7 @@ image loads the (first) link.
 The generator applies the following steps in order to transform the
 contents of the document:
 
-> _specialchars_ - replace special characters with their corresponding entities (`<`, `>` and `&` for HTML). In source blocks, this step also enables syntax highlighting
+> _specialchars_ - replace special characters with their corresponding entities (`<`, `>` and `&` for HTML). In code blocks, this step also enables syntax highlighting
 > 
 > _format_ - apply inline text formatting
 > 
@@ -430,7 +430,7 @@ applied. For example, code blocks use the ".verbatim" style class
 which only does the _specialchars_ transformation.
 
 To choose which steps are applied for a particular style class, define
-a special substitution "steps" followed by the style class.
+a special substitution called "steps" followed by the style class.
 
 Example:
 
