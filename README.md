@@ -112,16 +112,16 @@ Page break (not visible in the browser if the output is a HTML document):
 ### Hyperlinks
 
 ```
-[#anchor]:
-Part 1: This text is selected by the anchor.
-
-[Go to Part 1](#anchor)
-
 [Go to Products page on this site](/Products.html)
 
 [Go to Offers page in current path](Offers.html)
 
 [Go to an arbitrary webpage](https://www.github.com)
+
+[#anchor]:
+Part 1: This text is selected by the anchor.
+
+[Go to Part 1](#anchor)
 ```
 
 The text inside square brackets becomes a hyperlink which loads the content
@@ -140,21 +140,19 @@ Please refer to our [Terms and Conditions page](TandC.html) for more information
 
 ### Inline Content
 
-To insert an image or a multimedia file, use a hyperlink with "!" in front.
-Double the "!" to make the image in line with the text rather than in a new block.
-
-The hyperlink text will be used as the "alt" label.
-
-Captions are set using a [Block Title](#block-title).
-
-Example:
-
 ```
 .sample image
 ![Arcdown logo](Arcdown-logo.png)
 
 The Github mascot: !![image](octocat.jpg)
 ```
+
+Use "!" in front of a hyperlink to insert an image or a multimedia file.
+Double the "!" to make the image in line with the text rather than in a new block.
+
+The hyperlink text will be used as the "alt" label.
+
+Captions are set using a [Block Title](#block-title).
 
 See also [Include](#include).
 
@@ -271,6 +269,8 @@ An empty line indicates a new row but it is optional after second row (since
 the generator knows the number of columns then, either from the header row
 or the first content row).
 
+Other table styles:
+
 ```
 ,===
 Header 1,Header 2,Header 3
@@ -305,13 +305,15 @@ being interpreted over a span of text using "+".
 
 ### Substitutions
 
-Substitution values can be defined and reused.
+```
+:substitution: value to be inserted
+```
+
+Once defined, substitution values can be reused anywhere.
 
 Example:
 
 ```
-:substitution: value to be inserted
-
 Using the {substitution}
 
 [{substitution}](/index.html)
@@ -319,22 +321,19 @@ Using the {substitution}
 
 ### Include
 
-To insert the contents of another Arcdown file, apply the "include" attribute
-to a hyperlink.
-
-Note that for security reasons, including a file from an arbitrary location 
-is disabled by default.
-
-The file contents are inserted at the location of the "include".
-The hyperlink text may be used to specify a tag name so only the designated 
-region of the Arcdown file is included instead of the whole contents.
-
-Example:
-
 ```
 [include]
 [region](Shared-file.arcd)
 ```
+
+Use the "include" attribute to substitute the hyperlink with the contents 
+of an Arcdown file found at the specified location.
+
+The hyperlink text may be used to provide a tag name so only the designated 
+region of the Arcdown file is inserted instead of the whole contents.
+
+Note that for security reasons, including a file from an arbitrary location 
+is disabled by default.
 
 ### Tags
 
@@ -346,6 +345,7 @@ This text can be included
 on its own
 
 [end region]:
+
 ----
 Inside a delimited code block, the named
   // ---- begin::coderegion ----
@@ -390,15 +390,6 @@ text inside#.
 
 ### Block Title
 
-A block title starts with a dot "." on its own line. It comes before the
-attributes.
-
-If the block title is used with an image, it is used as caption. 
-Additionally, if the image caption contains a link then clicking on the 
-image loads the (first) link.
-
-Example:
-
 ```
 .Fruit basket
 ,===
@@ -409,3 +400,10 @@ apples,oranges,pears
 [size=200x100]
 ![Sunset](sunset.jpg)
 ```
+
+A block title starts with a dot "." on its own line. It comes before the
+attributes.
+
+If the block title is used with an image, it is used as caption. 
+Additionally, if the image caption contains a link then clicking on the 
+image loads the (first) link.
