@@ -289,6 +289,26 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
 ```
 
+### Block Title
+
+```
+.Fruit basket
+,===
+apples,oranges,pears
+,===
+
+.A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
+[size=200x100]
+![Sunset](sunset.jpg)
+```
+
+A block title starts with a dot "." on its own line. It comes before the
+attributes.
+
+If the block title is used with an image, it is used as caption. 
+Additionally, if the image caption contains a link then clicking on the 
+image loads the (first) link.
+
 ### Escape character
 
 The backslash "\\" is used to prevent the generator from interpreting the
@@ -337,7 +357,7 @@ is disabled by default.
 
 ### Tags
 
-The begin and end tags define a named region:
+The begin and end tags define a named region for include:
 
 ```
 [:begin region]:
@@ -347,11 +367,12 @@ on its own
 [:end region]:
 
 ----
-Inside a delimited code block, the named
-  // ---- begin::coderegion ----
-region is defined using begin:: and end:: between
-code block markers at the end of a code line.
-  // ---- end::coderegion ----
+Inside a code block, a named region is
+  //-- begin::coderegion ----
+defined using begin:: and end:: tags after 
+hyphens and before a code block marker 
+that ends the line.
+  //-- end::coderegion ----
 ----
 ```
 
@@ -387,26 +408,6 @@ Example:
 This paragraph contains [.underline]#underlined
 text inside#.
 ```
-
-### Block Title
-
-```
-.Fruit basket
-,===
-apples,oranges,pears
-,===
-
-.A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
-[size=200x100]
-![Sunset](sunset.jpg)
-```
-
-A block title starts with a dot "." on its own line. It comes before the
-attributes.
-
-If the block title is used with an image, it is used as caption. 
-Additionally, if the image caption contains a link then clicking on the 
-image loads the (first) link.
 
 ### Transformation Steps
 
