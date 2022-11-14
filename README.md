@@ -153,6 +153,8 @@ Example:
 The Github mascot: !![image](octocat.jpg)
 ```
 
+Captions are set using [Block Titles](#block-titles).
+
 See also [Include](#include).
 
 ### Lists
@@ -192,14 +194,14 @@ Example:
   .. This is a sublist
   .. with three elements
   .. This is the third element
+[]
+. The empty attribute [] forces a
+  new list to start up
 ```
 
 Use "+" to force a list item on multiple lines. If it is used on an empty 
 line, that starts a new paragraph. Note that indented code blocks don't 
 require a "+".
-
-A line with an empty attribute "\[ ]" forces the next list item to start 
-a new list instead of continuing the previous list or nesting inside it.
 
 ### Styled Blocks
 
@@ -291,6 +293,12 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 The backslash "\\" is used to prevent the generator from interpreting the
 following character specially.
 
+Example:
+
+```
+\* not a bullet list!
+```
+
 See also [Text Formatting](#text-formatting) to prevent format markers from
 being interpreted over a span of text using "+".
 
@@ -310,8 +318,8 @@ Using the {substitution}
 
 ### Include
 
-To insert the contents of another Arcdown file, use the "include" attribute.
-It should come before a hyperlink which gives the location of the file. 
+To insert the contents of another Arcdown file, apply the "include" attribute
+to a hyperlink.
 
 Note that for security reasons, including a file from an arbitrary location 
 is disabled by default.
@@ -329,7 +337,7 @@ Example:
 
 ### Tags
 
-A tagged region is defined using begin and end labels:
+The begin and end tags define a named region:
 
 ```
 [begin region]:
@@ -338,7 +346,7 @@ on its own
 
 [end region]:
 ----
-Inside a delimited code block, the tagged
+Inside a delimited code block, the named
   // ---- begin::coderegion ----
 region is defined using begin:: and end:: between
 code block markers at the end of a code line.
