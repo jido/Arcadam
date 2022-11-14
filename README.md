@@ -339,6 +339,39 @@ Using the {substitution}
 [{substitution}](/index.html)
 ```
 
+### Attributes
+
+An attribute is written inside square brackets and applies to the following paragraph or block.
+
+Additional attributes can be applied using commas to separate them.
+
+Example:
+
+```
+[source,xml]
+<root>
+  <element>
+    This is XML text which 
+    can be colourized
+  </element>
+
+[NOTE]
+====
+This is important.
+====
+```
+
+If the attribute starts with a dot "." and a stylesheet is defined, the specified style class is applied.
+
+Some attributes, such as the style class attribute, can be used in the middle of the text by highlighting the part of the text they apply to.
+
+Example:
+
+```
+This paragraph contains [.underline]#underlined
+text inside#.
+```
+
 ### Include
 
 ```
@@ -376,39 +409,6 @@ that ends the line.
 ----
 ```
 
-### Attributes
-
-An attribute is written inside square brackets and apply to the following paragraph or block.
-
-Additional attributes can be applied using commas to separate them.
-
-Example:
-
-```
-[source,xml]
-<root>
-  <element>
-    This is XML text which 
-    can be colourized
-  </element>
-
-[NOTE]
-====
-This is important.
-====
-```
-
-If the attribute starts with a dot "." and a stylesheet is defined, the specified style class is applied.
-
-Some attributes, such as the style class attribute, can be used in the middle of the text by highlighting the part of the text they apply to.
-
-Example:
-
-```
-This paragraph contains [.underline]#underlined
-text inside#.
-```
-
 ### Callouts
 
 ```
@@ -428,20 +428,22 @@ end
 (3):: HTTP response body
 ```
 
-The callouts are inserted in the line above and the entire line
-which contains callouts is deleted.
+Callouts are inserted in the line above and the entire line which
+contains the callouts is deleted.
 
 If the deleted line starts with a known block comment marker, the 
 generator looks for a matched closing comment marker at the 
-beginning of next line and deletes it too (like `/*` `*/` in C
-or `<!--` `-->` in XML).
+beginning of next line and deletes that too. (like `/*` `*/` in C
+or `<!--` `-->` in XML)
 
 ### Transformation Steps
 
 The generator applies the following steps in order to transform the
 contents of the document:
 
-> _specialchars_ - replace special characters with their corresponding entities (`<`, `>` and `&` for HTML). In code blocks, this step also enables syntax highlighting
+> _specialchars_ - replace special characters with their corresponding 
+> entities (`<`, `>` and `&` for HTML). In code blocks, this step also 
+> enables syntax highlighting
 > 
 > _callouts_ - process callouts and code tags
 > 
@@ -449,7 +451,8 @@ contents of the document:
 > 
 > _substitute_ - replace references with substitution values
 > 
-> _symbols_ - replace sequences of characters with symbols, for example replace `->` with →
+> _symbols_ - replace sequences of characters with symbols, for example 
+> replace `->` with →
 > 
 > _apply_ - apply the attributes on blocks and on inline text
 > 
