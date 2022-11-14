@@ -145,15 +145,16 @@ Double the "!" to make the image in line with the text rather than in a new bloc
 
 The hyperlink text will be used as the "alt" label.
 
+Captions are set using a [Block Title](#block-title).
+
 Example:
 
 ```
+.sample image
 ![Arcdown logo](Arcdown-logo.png)
 
 The Github mascot: !![image](octocat.jpg)
 ```
-
-Captions are set using [Block Titles](#block-titles).
 
 See also [Include](#include).
 
