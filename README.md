@@ -409,12 +409,41 @@ This paragraph contains [.underline]#underlined
 text inside#.
 ```
 
+### Callouts
+
+```
+[source,ruby]
+----
+require 'sinatra'
+// :1 ----
+
+get '/hi' do 
+  // :2 ----
+  "Hello World!"
+  // :3 ----
+end
+----
+(1):: Library import
+(2):: URL mapping
+(3):: HTTP response body
+```
+
+The callouts are inserted in the line above and the entire line
+which contains callouts is deleted.
+
+If the deleted line starts with a known block comment marker, the 
+generator looks for a matched closing comment marker at the 
+beginning of next line and deletes it too (like `/*` `*/` in C
+or `<!--` `-->` in XML).
+
 ### Transformation Steps
 
 The generator applies the following steps in order to transform the
 contents of the document:
 
 > _specialchars_ - replace special characters with their corresponding entities (`<`, `>` and `&` for HTML). In code blocks, this step also enables syntax highlighting
+> 
+> _callouts_ - process callouts and code tags
 > 
 > _format_ - apply inline text formatting
 > 
