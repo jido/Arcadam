@@ -150,7 +150,7 @@ The Github mascot: !![image](octocat.jpg)
 Use "!" in front of a hyperlink to insert an image or a multimedia file.
 Double the "!" to make the image in line with the text rather than in a new block.
 
-The hyperlink text will be used as the "alt" label.
+The hyperlink text will be used as the "alt" label in HTML.
 
 Captions are set using a [Block Title](#block-title).
 
@@ -407,3 +407,31 @@ attributes.
 If the block title is used with an image, it is used as caption. 
 Additionally, if the image caption contains a link then clicking on the 
 image loads the (first) link.
+
+### Transformation Steps
+
+The generator applies the following steps in order to transform the
+contents of the document:
+
+> _specialchars_ - step that replaces <, >, and & with their corresponding entities for HTML. For source blocks, this transformation step enables syntax highlighting as well
+> 
+> _format_ - step that applies inline text formatting
+> 
+> _substitute_ - step that replaces references with substitution values
+> 
+> _apply_ - step that applies attributes to blocks and inline text
+> 
+> _linebreaks_ - step that processes the line break character (+)
+
+The current style class controls which transformation steps are 
+applied. For example, code blocks use the ".verbatim" style class 
+which only does the _specialchars_ transformation.
+
+To choose which steps are applied for a particular style class, define
+a special substitution "steps" followed by the style class name.
+
+Example:
+
+```
+:steps.formatted: format,substitute
+```
