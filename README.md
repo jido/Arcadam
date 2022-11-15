@@ -125,7 +125,8 @@ Part 1: This text is selected by the anchor.
 ```
 
 The text inside square brackets becomes a hyperlink which loads the content
-specified in the round brackets.
+specified in the round brackets. If the round brackets are empty and the 
+text matches a section title then the link goes to that section.
 
 When the output format allows it, footnotes are also hyperlinks.
 
@@ -435,11 +436,76 @@ generator looks for a matched closing comment marker at the
 beginning of next line and deletes that too. (like `/*` `*/` in C
 or `<!--` `-->` in XML)
 
+### Comments
+
+```
+// Line comment
+
+////
+Comment 
+block
+////
+```
+
+Comments are for information only.
+
+### Localisation
+
+Arcdown documents can be localised for an international audience.
+
+Define the "translate" substitution to enable it:
+
+```
+:translate: cn en es fr jp kr ru
+```
+
+This tells the generator to look for translations in the listed
+directories.
+
+Localisation files contain the text to translate with
+synchronisation marks `@` which serve as placeholders for
+untranslatable text. These marks always appear at the start of 
+a line.
+
+The following are included in the translation:
+
+* formatting
+* hyperlinks and inline content
+* labels (footnotes and anchors)
+* callouts
+* user-defined substitutions
+* comments
+
+By default, code blocks are excluded. To include a code block
+use the "localize" attribute:
+
+```
+[localize=Y]
+----
+This will be translated.
+----
+```
+
+Similarly, the same attribute can be used to prevent translation 
+of text:
+
+```
+[localize=N]
+This must not be translated.
+```
+
+If applied to an include, it prevents the generator from looking
+for a matching localisation file. Instead, the include link is
+added to the translation so that it can be customised for each 
+locale.
+
 ### Transformation Steps
 
 The generator applies the following steps in order to transform the
 contents of the document:
 
+> _translate_ - apply localisations to the text (if enabled)
+> 
 > _specialchars_ - replace special characters with their corresponding 
 > entities (`<`, `>` and `&` for HTML). In code blocks, this step also 
 > enables syntax highlighting
