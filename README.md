@@ -363,7 +363,7 @@ This is important.
 
 If the attribute starts with a dot "." and a stylesheet is defined, the specified style class is applied.
 
-Some attributes, such as the style class attribute, can be used in the middle of the text by highlighting the part of the text they apply to.
+Some attributes, such as the style class attribute, can be used in the middle of text by highlighting the part of the text they apply to.
 
 Example:
 
@@ -470,6 +470,7 @@ a line.
 The following are included in the translation:
 
 * formatting
+* in-line attributes
 * hyperlinks and inline content
 * labels (footnotes and anchors)
 * callouts
