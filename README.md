@@ -179,7 +179,7 @@ Ordered and unordered list markers can be repeated to indicate the level,
 just like [headers](#headers). Additional levels can be used in a 
 description list by adding another ":" each time.
 
-However the levels are not enforced so you could have a list level 1 (\*)
+However these levels are not enforced so there could be a list level 1 (\*)
 nested inside a list level 2 (\*\*). It is good style to match the marker
 level with the nesting level of the list.
 
@@ -253,8 +253,7 @@ highlight an idea
 | Header 2 \
 | Header 3
 
-| Row 1 Column 1
-| Row 1 Column 2
+| Row 1 Column 1 | Row 1 Column 2
 | Row 1 Column 3
 
 | Row 2 Column 1
@@ -415,12 +414,12 @@ that ends the line.
 [source,ruby]
 ----
 require 'sinatra'
-// :1 ----
+# :1 ----
 
 get '/hi' do 
-  // :2 ----
+  # :2 ----
   "Hello World!"
-  // :3 ----
+  # :3 ----
 end
 ----
 (1):: Library import
@@ -460,7 +459,7 @@ contents of the document:
 
 The current style class controls which transformation steps are 
 applied. For example, code blocks use the ".verbatim" style class 
-which only does the _specialchars_ transformation.
+which only does the _specialchars_ and _callouts_ transformations.
 
 To choose which steps are applied for a particular style class, define
 a special substitution called "steps" followed by the style class.
