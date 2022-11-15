@@ -25,7 +25,7 @@ as the authors or a marker for the generator to insert a table of contents.
 
 Example:
 
-```
+```IDL
 = Document title
 :authors: Author Name <author@email.org>
 :version: v2.0, 2019-03-22
@@ -62,7 +62,7 @@ to the block.
 
 ### Text Formatting
 
-```
+```asciidoc
 This is *bold*
 
 This is _italic_
@@ -84,7 +84,7 @@ don't require doubling.
 
 Example:
 
-```
+```asciidoc
 *_Combine bold and italic_*
 
 the "it" is __it__alic
@@ -111,7 +111,7 @@ Page break (not visible in the browser if the output is a HTML document):
 
 ### Hyperlinks
 
-```
+```markdown
 [Go to Products page on this site](/Products.html)
 
 [Go to Offers page in current path](Offers.html)
@@ -131,7 +131,7 @@ When the output format allows it, footnotes are also hyperlinks.
 
 Example:
 
-```
+```markdown
 There are contractual implications to this statement.[^terms]
 
 [^terms]:
@@ -140,7 +140,7 @@ Please refer to our [Terms and Conditions page](TandC.html) for more information
 
 ### Inline Content
 
-```
+```markdown
 .sample image
 ![Arcdown logo](Arcdown-logo.png)
 
@@ -158,7 +158,7 @@ See also [Include](#include).
 
 ### Lists
 
-```
+```IDL
 . Number one
 . Number two
 . Number three
@@ -247,7 +247,7 @@ highlight an idea
 
 ### Tables
 
-```
+```IDL
 |===
 | Header 1 \
 | Header 2 \
@@ -257,7 +257,7 @@ highlight an idea
 | Row 1 Column 3
 
 | Row 2 Column 1
-2+| Row 2 Merged columns 2 and 3
+2+| Row 2 Merged columns 2, 3
 |===
 ```
 
@@ -290,7 +290,7 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 
 ### Block Title
 
-```
+```markdown
 .Fruit basket
 ,===
 apples,oranges,pears
@@ -324,7 +324,7 @@ being interpreted over a span of text using "+".
 
 ### Substitutions
 
-```
+```IDL
 :substitution: value to be inserted
 ```
 
@@ -332,7 +332,7 @@ Once defined, substitution values can be reused anywhere.
 
 Example:
 
-```
+```markdown
 Using the {substitution}
 
 [{substitution}](/index.html)
@@ -346,7 +346,7 @@ Additional attributes can be applied using commas to separate them.
 
 Example:
 
-```
+```XML
 [source,xml]
 <root>
   <element>
@@ -373,7 +373,7 @@ text inside#.
 
 ### Include
 
-```
+```markdown
 [include]
 [region](Shared-file.arcd)
 ```
@@ -391,7 +391,7 @@ is disabled by default.
 
 The begin and end tags define a named region for include:
 
-```
+```C
 [:begin region]:
 This text can be included
 on its own
@@ -410,7 +410,7 @@ that ends the line.
 
 ### Callouts
 
-```
+```Eiffel
 [source,ruby]
 ----
 require 'sinatra'
@@ -466,6 +466,6 @@ a special substitution called "steps" followed by the style class.
 
 Example:
 
-```
+```IDL
 :steps.formatted: substitute,format,symbols
 ```
