@@ -453,10 +453,10 @@ Comments are for information only.
 
 Arcdown documents can be localised for an international audience.
 
-Define the "translate" substitution to enable it:
+Define the "translations" substitution to enable it:
 
 ```
-:translate: cn en es fr jp kr ru
+:translations: cn en es fr jp kr ru
 ```
 
 This tells the generator to look for translations in the listed
@@ -487,8 +487,8 @@ This will be translated.
 ----
 ```
 
-Similarly, the same attribute can be used to prevent translation 
-of text:
+Similarly, the same attribute can be used to prevent the
+translation of text:
 
 ```
 [localize=N]
@@ -505,7 +505,7 @@ locale.
 The generator applies the following steps in order to transform the
 contents of the document:
 
-> _translate_ - apply localisations to the text (if enabled)
+> _localize_ - apply translations to the text (if enabled)
 > 
 > _specialchars_ - replace special characters with their corresponding 
 > entities (`<`, `>` and `&` for HTML). In code blocks, this step also 
