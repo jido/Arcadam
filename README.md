@@ -480,15 +480,22 @@ The following are included in the translation:
 By default, code blocks are excluded. To include a code block
 use the "localize" attribute:
 
-```
+```c
 [localize=Y]
 ----
 This will be translated.
 ----
+
+----
+Use a localize:: tag inside a
+code block to select N lines
+  //-- localize::Y-2 ----
+above the tag to translate
+----
 ```
 
-Similarly, the same attribute can be used to prevent the
-translation of text:
+Conversely, the attribute can be used to prevent the translation 
+of text:
 
 ```
 [localize=N]
