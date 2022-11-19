@@ -1,5 +1,7 @@
 open Belt
 
+let backtick = "`"
+
 let source = `
 Arcdown
 A lightweight markup language to format documents using plain text
@@ -49,7 +51,7 @@ This is *bold*
 
 This is _italic_
 
-This is monospaced
+This is ${backtick}monospaced${backtick}
 
 This is ^superscript^
 
@@ -350,27 +352,29 @@ This must not be translated.
 If applied to an include, it prevents the generator from looking for a matching localisation file. Instead, the include link is added to the translation so that it can be customised for each locale.
 `
 
-let lines = Js.String.split("\n", source)
+let lines = "\n"->Js.String.split(source)
 
 let firstChar = %re("/^(.)/")
 
 for lnum in 1 to Array.length(lines) {
-  let someline = lines[lnum - 1]
-  switch someline {
-  | Some(line) => {
-      let regexout = firstChar->Js.Re.exec_(line)
-      switch regexout {
-      | Some(result) =>
-        switch Js.Nullable.toOption(Js.Re.captures(result)[0]->Option.getExn) {
-        | Some("#") => Js.log("Maybe a title")
+  switch lines[lnum - 1] {
+  | Some(line) =>
+    let regexout = firstChar->Js.Re.exec_(line)
+    switch regexout {
+    | Some(result) =>
+      let first = Js.Re.captures(result)[0]
+      switch first {
+      | Some(chara) =>
+        switch Js.Nullable.toOption(chara) {
+        | Some("=") => Js.log("Maybe a title")
         | Some(":") => Js.log("Maybe a substitution")
         | Some("[") => Js.log("Maybe an attribute")
         | _ => Js.log("Something else")
         }
       | None => ()
       }
+    | None => ()
     }
-
   | None => ()
   }
 }
