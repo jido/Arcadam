@@ -357,24 +357,25 @@ let lines = "\n"->Js.String.split(source)
 let firstChar = %re("/^(.)/")
 
 for lnum in 1 to Array.length(lines) {
-  switch lines[lnum - 1] {
-  | Some(line) =>
-    let regexout = firstChar->Js.Re.exec_(line)
-    switch regexout {
-    | Some(result) =>
-      let first = Js.Re.captures(result)[0]
-      switch first {
-      | Some(chara) =>
-        switch Js.Nullable.toOption(chara) {
-        | Some("=") => Js.log("Maybe a title")
-        | Some(":") => Js.log("Maybe a substitution")
-        | Some("[") => Js.log("Maybe an attribute")
-        | _ => Js.log("Something else")
-        }
-      | None => ()
+  let _ =
+    lines[lnum - 1]
+    ->Option.flatMap(firstChar->Js.Re.exec_(_))
+    ->Option.flatMap(result => Js.Re.captures(result)[0])
+    ->Option.flatMap(Js.Nullable.toOption(_))
+    ->Option.flatMap(chara =>
+      switch chara {
+      | "=" =>
+        Js.log("Maybe a title")
+        None
+      | ":" =>
+        Js.log("Maybe a substitution")
+        None
+      | "[" =>
+        Js.log("Maybe an attribute")
+        None
+      | _ =>
+        Js.log("Something else")
+        None
       }
-    | None => ()
-    }
-  | None => ()
-  }
+    )
 }

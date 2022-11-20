@@ -3,6 +3,7 @@
 
 var Js_string = require("rescript/lib/js/js_string.js");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
+var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 
 var backtick = "`";
@@ -16,36 +17,32 @@ var lines = Js_string.split("\n", source);
 var firstChar = /^(.)/;
 
 for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
-  var line = Belt_Array.get(lines, lnum - 1 | 0);
-  if (line !== undefined) {
-    var regexout = firstChar.exec(line);
-    if (regexout !== null) {
-      var first = Belt_Array.get(regexout, 0);
-      if (first !== undefined) {
-        var chara = Caml_option.valFromOption(first);
-        if (chara == null) {
-          console.log("Something else");
-        } else {
+  Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Array.get(lines, lnum - 1 | 0), (function (param) {
+                      return Caml_option.null_to_opt(firstChar.exec(param));
+                    })), (function (result) {
+                  return Belt_Array.get(result, 0);
+                })), (function (__x) {
+              if (__x == null) {
+                return ;
+              } else {
+                return Caml_option.some(__x);
+              }
+            })), (function (chara) {
           switch (chara) {
             case ":" :
                 console.log("Maybe a substitution");
-                break;
+                return ;
             case "=" :
                 console.log("Maybe a title");
-                break;
+                return ;
             case "[" :
                 console.log("Maybe an attribute");
-                break;
+                return ;
             default:
               console.log("Something else");
+              return ;
           }
-        }
-      }
-      
-    }
-    
-  }
-  
+        }));
 }
 
 exports.backtick = backtick;
