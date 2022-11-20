@@ -356,39 +356,54 @@ let lines = "\n"->Js.String.split(source)
 
 let firstChar = %re("/^./")
 
-let isTitle = line => {
-  let titleLine = %re("/=+\s+([^\s].*)/")
+let ifMatches = (regex, line, which, action) => {
   line
-  ->Option.flatMap(titleLine->Js.Re.exec_(_))
-  ->Option.flatMap(result => Js.Re.captures(result)[1])
+  ->Option.flatMap(regex->Js.Re.exec_(_))
+  ->Option.flatMap(result => Js.Re.captures(result)[which])
   ->Option.flatMap(Js.Nullable.toOption(_))
+  ->Option.flatMap(action)
+  ->Option.isSome
+}
+
+let isTitle = (line, action) => {
+  let titleLine = %re("/=+\s+([^\s].*)/")
+  titleLine->ifMatches(line, 1, action)
+}
+
+let isSubstitution = (line, action) => {
+  let substLine = %re("/:([a-zA-Z][a-zA-Z0-9]*(\.[a-zA-Z0-9]+)*):\s+(.*)/")
+  substLine->ifMatches(line, 0, action)
+}
+
+let isAttribute = (line, action) => {
+  let attrLine = %re("/\[([^\]]*)\]\s*$/")
+  attrLine->ifMatches(line, 1, action)
 }
 
 for lnum in 1 to Array.length(lines) {
   let line = lines[lnum - 1]
-  let _ =
-    line
-    ->Option.flatMap(firstChar->Js.Re.exec_(_))
-    ->Option.flatMap(result => Js.Re.captures(result)[0])
-    ->Option.flatMap(Js.Nullable.toOption(_))
-    ->Option.flatMap(chara =>
-      switch chara {
-      | "=" =>
-        Js.log("Maybe a title")
-        let _ = switch isTitle(line) {
-        | Some(title) => Js.log("TITLE: " ++ title)
-        | None => Js.log("unmatched " ++ line->Option.getWithDefault("n/a"))
-        }
+  let _ = firstChar->ifMatches(line, 0, chara => {
+    let _ = switch chara {
+    | "=" =>
+      Js.log("Maybe a title")
+      let _ = isTitle(line, title => {
+        Js.log("TITLE: " ++ title)
+        Some(title)
+      })
+    | ":" =>
+      Js.log("Maybe a substitution")
+      let _ = isSubstitution(line, substitution => {
+        Js.log("SUBST: " ++ substitution)
         None
-      | ":" =>
-        Js.log("Maybe a substitution")
-        None
-      | "[" =>
-        Js.log("Maybe an attribute")
-        None
-      | _ =>
-        Js.log("Something else")
-        None
-      }
-    )
+      })
+    | "[" =>
+      Js.log("Maybe an attribute")
+      let _ = isAttribute(line, attributes => {
+        Js.log("ATTR: " ++ attributes)
+        Some(attributes)
+      })
+    | _ => Js.log("Something else")
+    }
+    None
+  })
 }

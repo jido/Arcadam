@@ -16,54 +16,62 @@ var lines = Js_string.split("\n", source);
 
 var firstChar = /^./;
 
-function isTitle(line) {
+function ifMatches(regex, line, which, action) {
+  return Belt_Option.isSome(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(line, (function (param) {
+                                return Caml_option.null_to_opt(regex.exec(param));
+                              })), (function (result) {
+                            return Belt_Array.get(result, which);
+                          })), (function (__x) {
+                        if (__x == null) {
+                          return ;
+                        } else {
+                          return Caml_option.some(__x);
+                        }
+                      })), action));
+}
+
+function isTitle(line, action) {
   var titleLine = /=+\s+([^\s].*)/;
-  return Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(line, (function (param) {
-                        return Caml_option.null_to_opt(titleLine.exec(param));
-                      })), (function (result) {
-                    return Belt_Array.get(result, 1);
-                  })), (function (__x) {
-                if (__x == null) {
-                  return ;
-                } else {
-                  return Caml_option.some(__x);
-                }
-              }));
+  return ifMatches(titleLine, line, 1, action);
+}
+
+function isSubstitution(line, action) {
+  var substLine = /:([a-zA-Z][a-zA-Z0-9]*(\.[a-zA-Z0-9]+)*):\s+(.*)/;
+  return ifMatches(substLine, line, 0, action);
+}
+
+function isAttribute(line, action) {
+  var attrLine = /\[([^\]]*)\]\s*$/;
+  return ifMatches(attrLine, line, 1, action);
 }
 
 for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
   var line = Belt_Array.get(lines, lnum - 1 | 0);
-  Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(line, (function (param) {
-                      return Caml_option.null_to_opt(firstChar.exec(param));
-                    })), (function (result) {
-                  return Belt_Array.get(result, 0);
-                })), (function (__x) {
-              if (__x == null) {
-                return ;
-              } else {
-                return Caml_option.some(__x);
-              }
-            })), (function(line){
+  ifMatches(firstChar, line, 0, (function(line){
       return function (chara) {
         switch (chara) {
           case ":" :
               console.log("Maybe a substitution");
-              return ;
+              isSubstitution(line, (function (substitution) {
+                      console.log("SUBST: " + substitution);
+                    }));
+              break;
           case "=" :
               console.log("Maybe a title");
-              var title = isTitle(line);
-              if (title !== undefined) {
-                console.log("TITLE: " + title);
-              } else {
-                console.log("unmatched " + Belt_Option.getWithDefault(line, "n/a"));
-              }
-              return ;
+              isTitle(line, (function (title) {
+                      console.log("TITLE: " + title);
+                      return title;
+                    }));
+              break;
           case "[" :
               console.log("Maybe an attribute");
-              return ;
+              isAttribute(line, (function (attributes) {
+                      console.log("ATTR: " + attributes);
+                      return attributes;
+                    }));
+              break;
           default:
             console.log("Something else");
-            return ;
         }
       }
       }(line)));
@@ -73,5 +81,8 @@ exports.backtick = backtick;
 exports.source = source;
 exports.lines = lines;
 exports.firstChar = firstChar;
+exports.ifMatches = ifMatches;
 exports.isTitle = isTitle;
+exports.isSubstitution = isSubstitution;
+exports.isAttribute = isAttribute;
 /* lines Not a pure module */
