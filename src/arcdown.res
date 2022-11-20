@@ -354,51 +354,72 @@ If applied to an include, it prevents the generator from looking for a matching 
 
 let lines = "\n"->Js.String.split(source)
 
+let alpha = "A-Za-z"
+let alnum = `0-9${alpha}`
 let firstChar = %re("/^./")
 
-let ifMatches = (regex, line, which, action) => {
-  line
-  ->Option.flatMap(regex->Js.Re.exec_(_))
-  ->Option.flatMap(result => Js.Re.captures(result)[which])
-  ->Option.flatMap(Js.Nullable.toOption(_))
-  ->Option.flatMap(action)
-  ->Option.isSome
-}
+let ifMatches = (regex, someline, action) =>
+  switch someline {
+  | Some(line) =>
+    switch regex->Js.Re.exec_(line) {
+    | Some(result) => {
+        let captures =
+          Js.Re.captures(result)->Array.map(x =>
+            Js.Nullable.toOption(x)->Option.getWithDefault(_, "")
+          )
+        let whole = captures[0]
+        let first = captures[1]
+        let second = captures[2]
+        let third = captures[3]
+        let _ = action(
+          whole->Option.getWithDefault(""),
+          first->Option.getWithDefault(""),
+          second->Option.getWithDefault(""),
+          third->Option.getWithDefault(""),
+        )
+        true
+      }
+
+    | None => false
+    }
+  | None => false
+  }
 
 let isTitle = (line, action) => {
   let titleLine = %re("/=+\s+([^\s].*)/")
-  titleLine->ifMatches(line, 1, action)
+  titleLine->ifMatches(line, action)
 }
 
 let isSubstitution = (line, action) => {
-  let substLine = %re("/:([a-zA-Z][a-zA-Z0-9]*(\.[a-zA-Z0-9]+)*):\s+(.*)/")
-  substLine->ifMatches(line, 0, action)
+  let pattern = `:([${alpha}][_${alnum}]*\\.?[_${alnum}]*):(\\s+(.*))?`
+  let substLine = Js.Re.fromString(pattern)
+  substLine->ifMatches(line, action)
 }
 
 let isAttribute = (line, action) => {
   let attrLine = %re("/\[([^\]]*)\]\s*$/")
-  attrLine->ifMatches(line, 1, action)
+  attrLine->ifMatches(line, action)
 }
 
 for lnum in 1 to Array.length(lines) {
   let line = lines[lnum - 1]
-  let _ = firstChar->ifMatches(line, 0, chara => {
+  let _ = firstChar->ifMatches(line, (chara, _, _, _) => {
     let _ = switch chara {
     | "=" =>
       Js.log("Maybe a title")
-      let _ = isTitle(line, title => {
+      let _ = isTitle(line, (_, title, _, _) => {
         Js.log("TITLE: " ++ title)
         Some(title)
       })
     | ":" =>
       Js.log("Maybe a substitution")
-      let _ = isSubstitution(line, substitution => {
-        Js.log("SUBST: " ++ substitution)
-        None
+      let _ = isSubstitution(line, (_, name, _, value) => {
+        Js.log("SUBST: " ++ name ++ " --> " ++ value)
+        Some(name)
       })
     | "[" =>
       Js.log("Maybe an attribute")
-      let _ = isAttribute(line, attributes => {
+      let _ = isAttribute(line, (_, attributes, _, _) => {
         Js.log("ATTR: " ++ attributes)
         Some(attributes)
       })
