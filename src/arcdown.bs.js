@@ -14,10 +14,28 @@ var source = "\nArcdown\nA lightweight markup language to format documents using
 
 var lines = Js_string.split("\n", source);
 
-var firstChar = /^(.)/;
+var firstChar = /^./;
+
+function isTitle(line) {
+  var titleLine = /=+\s([^\s].*)/;
+  var matches = Belt_Option.flatMap(line, (function (param) {
+          return Caml_option.null_to_opt(titleLine.exec(param));
+        }));
+  if (matches !== undefined) {
+    return Belt_Option.flatMap(Belt_Array.get(Caml_option.valFromOption(matches), 1), (function (__x) {
+                  if (__x == null) {
+                    return ;
+                  } else {
+                    return Caml_option.some(__x);
+                  }
+                }));
+  }
+  
+}
 
 for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
-  Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Array.get(lines, lnum - 1 | 0), (function (param) {
+  var line = Belt_Array.get(lines, lnum - 1 | 0);
+  Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(line, (function (param) {
                       return Caml_option.null_to_opt(firstChar.exec(param));
                     })), (function (result) {
                   return Belt_Array.get(result, 0);
@@ -27,26 +45,35 @@ for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
               } else {
                 return Caml_option.some(__x);
               }
-            })), (function (chara) {
-          switch (chara) {
-            case ":" :
-                console.log("Maybe a substitution");
-                return ;
-            case "=" :
-                console.log("Maybe a title");
-                return ;
-            case "[" :
-                console.log("Maybe an attribute");
-                return ;
-            default:
-              console.log("Something else");
+            })), (function(line){
+      return function (chara) {
+        switch (chara) {
+          case ":" :
+              console.log("Maybe a substitution");
               return ;
-          }
-        }));
+          case "=" :
+              console.log("Maybe a title");
+              var title = isTitle(line);
+              if (title !== undefined) {
+                console.log("TITLE: " + title);
+              } else {
+                console.log("unmatched " + Belt_Option.getWithDefault(line, "n/a"));
+              }
+              return ;
+          case "[" :
+              console.log("Maybe an attribute");
+              return ;
+          default:
+            console.log("Something else");
+            return ;
+        }
+      }
+      }(line)));
 }
 
 exports.backtick = backtick;
 exports.source = source;
 exports.lines = lines;
 exports.firstChar = firstChar;
+exports.isTitle = isTitle;
 /* lines Not a pure module */

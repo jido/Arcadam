@@ -354,11 +354,21 @@ If applied to an include, it prevents the generator from looking for a matching 
 
 let lines = "\n"->Js.String.split(source)
 
-let firstChar = %re("/^(.)/")
+let firstChar = %re("/^./")
+
+let isTitle = line => {
+  let titleLine = %re("/=+\s([^\s].*)/")
+  let matches = line->Option.flatMap(titleLine->Js.Re.exec_(_))
+  switch matches {
+  | Some(result) => Js.Re.captures(result)[1]->Option.flatMap(Js.Nullable.toOption(_))
+  | None => None
+  }
+}
 
 for lnum in 1 to Array.length(lines) {
+  let line = lines[lnum - 1]
   let _ =
-    lines[lnum - 1]
+    line
     ->Option.flatMap(firstChar->Js.Re.exec_(_))
     ->Option.flatMap(result => Js.Re.captures(result)[0])
     ->Option.flatMap(Js.Nullable.toOption(_))
@@ -366,6 +376,10 @@ for lnum in 1 to Array.length(lines) {
       switch chara {
       | "=" =>
         Js.log("Maybe a title")
+        let _ = switch isTitle(line) {
+        | Some(title) => Js.log("TITLE: " ++ title)
+        | None => Js.log("unmatched " ++ line->Option.getWithDefault("n/a"))
+        }
         None
       | ":" =>
         Js.log("Maybe a substitution")
