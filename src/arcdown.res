@@ -356,7 +356,7 @@ let lines = "\n"->Js.String.split(source)
 
 let alpha = "A-Za-z"
 let alnum = `0-9${alpha}`
-let firstChar = %re("/^./")
+let firstChar = %re("/^(.)/")
 
 let ifMatches = (regex, someline, action) =>
   switch someline {
@@ -367,12 +367,12 @@ let ifMatches = (regex, someline, action) =>
           Js.Re.captures(result)->Array.map(x =>
             Js.Nullable.toOption(x)->Option.getWithDefault(_, "")
           )
-        let whole = captures[0]
+        //let whole = captures[0]
         let first = captures[1]
         let second = captures[2]
         let third = captures[3]
         let _ = action(
-          whole->Option.getWithDefault(""),
+          //whole->Option.getWithDefault(""),
           first->Option.getWithDefault(""),
           second->Option.getWithDefault(""),
           third->Option.getWithDefault(""),
@@ -391,7 +391,7 @@ let isTitle = (line, action) => {
 }
 
 let isSubstitution = (line, action) => {
-  let pattern = `:([${alpha}][_${alnum}]*\\.?[_${alnum}]*):(\\s+(.*))?`
+  let pattern = `:([${alpha}][._${alnum}]*):(\\s+(.*))?`
   let substLine = Js.Re.fromString(pattern)
   substLine->ifMatches(line, action)
 }
@@ -403,23 +403,23 @@ let isAttribute = (line, action) => {
 
 for lnum in 1 to Array.length(lines) {
   let line = lines[lnum - 1]
-  let _ = firstChar->ifMatches(line, (chara, _, _, _) => {
+  let _ = firstChar->ifMatches(line, (chara, _, _) => {
     let _ = switch chara {
     | "=" =>
       Js.log("Maybe a title")
-      let _ = isTitle(line, (_, title, _, _) => {
+      let _ = isTitle(line, (title, _, _) => {
         Js.log("TITLE: " ++ title)
         Some(title)
       })
     | ":" =>
       Js.log("Maybe a substitution")
-      let _ = isSubstitution(line, (_, name, _, value) => {
+      let _ = isSubstitution(line, (name, _, value) => {
         Js.log("SUBST: " ++ name ++ " --> " ++ value)
         Some(name)
       })
     | "[" =>
       Js.log("Maybe an attribute")
-      let _ = isAttribute(line, (_, attributes, _, _) => {
+      let _ = isAttribute(line, (attributes, _, _) => {
         Js.log("ATTR: " ++ attributes)
         Some(attributes)
       })

@@ -19,7 +19,7 @@ var alpha = "A-Za-z";
 
 var alnum = "0-9" + alpha + "";
 
-var firstChar = /^./;
+var firstChar = /^(.)/;
 
 function ifMatches(regex, someline, action) {
   if (someline === undefined) {
@@ -32,11 +32,10 @@ function ifMatches(regex, someline, action) {
   var captures = Belt_Array.map(result, (function (x) {
           return Belt_Option.getWithDefault((x == null) ? undefined : Caml_option.some(x), "");
         }));
-  var whole = Belt_Array.get(captures, 0);
   var first = Belt_Array.get(captures, 1);
   var second = Belt_Array.get(captures, 2);
   var third = Belt_Array.get(captures, 3);
-  Curry._4(action, Belt_Option.getWithDefault(whole, ""), Belt_Option.getWithDefault(first, ""), Belt_Option.getWithDefault(second, ""), Belt_Option.getWithDefault(third, ""));
+  Curry._3(action, Belt_Option.getWithDefault(first, ""), Belt_Option.getWithDefault(second, ""), Belt_Option.getWithDefault(third, ""));
   return true;
 }
 
@@ -46,7 +45,7 @@ function isTitle(line, action) {
 }
 
 function isSubstitution(line, action) {
-  var pattern = ":([" + alpha + "][_" + alnum + "]*\\.?[_" + alnum + "]*):(\\s+(.*))?";
+  var pattern = ":([" + alpha + "][._" + alnum + "]*):(\\s+(.*))?";
   var substLine = new RegExp(pattern);
   return ifMatches(substLine, line, action);
 }
@@ -59,25 +58,25 @@ function isAttribute(line, action) {
 for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
   var line = Belt_Array.get(lines, lnum - 1 | 0);
   ifMatches(firstChar, line, (function(line){
-      return function (chara, param, param$1, param$2) {
+      return function (chara, param, param$1) {
         switch (chara) {
           case ":" :
               console.log("Maybe a substitution");
-              isSubstitution(line, (function (param, name, param$1, value) {
+              isSubstitution(line, (function (name, param, value) {
                       console.log("SUBST: " + name + " --> " + value);
                       return name;
                     }));
               break;
           case "=" :
               console.log("Maybe a title");
-              isTitle(line, (function (param, title, param$1, param$2) {
+              isTitle(line, (function (title, param, param$1) {
                       console.log("TITLE: " + title);
                       return title;
                     }));
               break;
           case "[" :
               console.log("Maybe an attribute");
-              isAttribute(line, (function (param, attributes, param$1, param$2) {
+              isAttribute(line, (function (attributes, param, param$1) {
                       console.log("ATTR: " + attributes);
                       return attributes;
                     }));
