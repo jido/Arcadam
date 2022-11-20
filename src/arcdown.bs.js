@@ -17,20 +17,18 @@ var lines = Js_string.split("\n", source);
 var firstChar = /^./;
 
 function isTitle(line) {
-  var titleLine = /=+\s([^\s].*)/;
-  var matches = Belt_Option.flatMap(line, (function (param) {
-          return Caml_option.null_to_opt(titleLine.exec(param));
-        }));
-  if (matches !== undefined) {
-    return Belt_Option.flatMap(Belt_Array.get(Caml_option.valFromOption(matches), 1), (function (__x) {
-                  if (__x == null) {
-                    return ;
-                  } else {
-                    return Caml_option.some(__x);
-                  }
-                }));
-  }
-  
+  var titleLine = /=+\s+([^\s].*)/;
+  return Belt_Option.flatMap(Belt_Option.flatMap(Belt_Option.flatMap(line, (function (param) {
+                        return Caml_option.null_to_opt(titleLine.exec(param));
+                      })), (function (result) {
+                    return Belt_Array.get(result, 1);
+                  })), (function (__x) {
+                if (__x == null) {
+                  return ;
+                } else {
+                  return Caml_option.some(__x);
+                }
+              }));
 }
 
 for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){

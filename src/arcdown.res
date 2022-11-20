@@ -357,12 +357,11 @@ let lines = "\n"->Js.String.split(source)
 let firstChar = %re("/^./")
 
 let isTitle = line => {
-  let titleLine = %re("/=+\s([^\s].*)/")
-  let matches = line->Option.flatMap(titleLine->Js.Re.exec_(_))
-  switch matches {
-  | Some(result) => Js.Re.captures(result)[1]->Option.flatMap(Js.Nullable.toOption(_))
-  | None => None
-  }
+  let titleLine = %re("/=+\s+([^\s].*)/")
+  line
+  ->Option.flatMap(titleLine->Js.Re.exec_(_))
+  ->Option.flatMap(result => Js.Re.captures(result)[1])
+  ->Option.flatMap(Js.Nullable.toOption(_))
 }
 
 for lnum in 1 to Array.length(lines) {
