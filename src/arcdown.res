@@ -356,75 +356,68 @@ let lines = "\n"->Js.String.split(source)
 
 let alpha = "A-Za-z"
 let alnum = `0-9${alpha}`
-let firstChar = %re("/^(.)/")
 
-let ifMatches = (regex, someline, action) =>
+let getMatches = (regex, someline) =>
   switch someline {
   | Some(line) =>
     switch regex->Js.Re.exec_(line) {
-    | Some(result) => {
-        let captures =
-          Js.Re.captures(result)->Array.map(x =>
-            Js.Nullable.toOption(x)->Option.getWithDefault(_, "")
-          )
-        //let whole = captures[0]
-        let first = captures[1]
-        let second = captures[2]
-        let third = captures[3]
-        let _ = action(
-          //whole->Option.getWithDefault(""),
-          first->Option.getWithDefault(""),
-          second->Option.getWithDefault(""),
-          third->Option.getWithDefault(""),
-        )
-        true
-      }
+    | Some(result) =>
+      Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->Option.getWithDefault(_, ""))
 
-    | None => false
+    | None => []
     }
-  | None => false
+  | None => []
   }
 
-let isTitle = (line, action) => {
+let isTitle = line => {
   let titleLine = %re("/=+\s+([^\s].*)/")
-  titleLine->ifMatches(line, action)
+  titleLine->getMatches(line)
 }
 
-let isSubstitution = (line, action) => {
-  let pattern = `:([${alpha}][._${alnum}]*):(\\s+(.*))?`
+let isSubstitution = line => {
+  let pattern = `:([${alpha}](\.[_${alnum}]*)):(\\s+(.*))?`
   let substLine = Js.Re.fromString(pattern)
-  substLine->ifMatches(line, action)
+  substLine->getMatches(line)
 }
 
-let isAttribute = (line, action) => {
+let isAttribute = line => {
   let attrLine = %re("/\[([^\]]*)\]\s*$/")
-  attrLine->ifMatches(line, action)
+  attrLine->getMatches(line)
 }
 
 for lnum in 1 to Array.length(lines) {
   let line = lines[lnum - 1]
-  let _ = firstChar->ifMatches(line, (chara, _, _) => {
-    let _ = switch chara {
-    | "=" =>
-      Js.log("Maybe a title")
-      let _ = isTitle(line, (title, _, _) => {
-        Js.log("TITLE: " ++ title)
-        Some(title)
-      })
-    | ":" =>
-      Js.log("Maybe a substitution")
-      let _ = isSubstitution(line, (name, _, value) => {
-        Js.log("SUBST: " ++ name ++ " --> " ++ value)
-        Some(name)
-      })
-    | "[" =>
-      Js.log("Maybe an attribute")
-      let _ = isAttribute(line, (attributes, _, _) => {
-        Js.log("ATTR: " ++ attributes)
-        Some(attributes)
-      })
-    | _ => Js.log("Something else")
+  let firstChar = %re("/^./")
+  let m = firstChar->getMatches(line)
+  switch m {
+  | [chara] => {
+      let _ = switch chara {
+      | "=" =>
+        Js.log("Maybe a title")
+        let result = isTitle(line)
+        if result->Array.length == 2 {
+          let [_, title] = result // TODO: silence warning
+          Js.log("TITLE: " ++ title)
+        }
+      | ":" =>
+        Js.log("Maybe a substitution")
+        let result = isSubstitution(line)
+        if result->Array.length == 5 {
+          let [_, name, _, _, value] = result // TODO: silence warning
+          Js.log("SUBST: " ++ name ++ " --> " ++ value)
+        }
+      | "[" =>
+        Js.log("Maybe an attribute")
+        let result = isAttribute(line)
+        if result->Array.length == 2 {
+          let [_, attributes] = result // TODO: silence warning
+          Js.log("ATTR: " ++ attributes)
+        }
+      | _ => Js.log("Something else")
+      }
     }
-    None
-  })
+
+  | [] => Js.log("<empty>")
+  | _ => Js.log("Unexpected! " ++ Array.length(m)->string_of_int)
+  }
 }
