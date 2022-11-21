@@ -440,8 +440,9 @@ end
 (3):: HTTP response body
 --
 
-Callouts are inserted in the line above and the entire line which
-contains the callouts is deleted.
+When it encounters callouts in a code block, the generator inserts 
+the callout symbols in the line above and the entire line which 
+contains callouts is deleted.
 
 If the deleted line starts with a known block comment marker, the 
 generator looks for a matched closing comment marker at the 
@@ -501,8 +502,8 @@ This will be translated.
 
 ----
 Use a localize:: tag inside a
-code block to select N lines
-  //-- localize::Y-2 ----
+code block to select n lines
+//-- localize::Y-2 ----
 above the tag to translate
 ----
 --
