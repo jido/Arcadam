@@ -347,7 +347,7 @@ This will be translated.
 ----
 Similarly, the same attribute can be used to prevent the translation of text:
 
-[localize=N]
+[   [localize=N]
 This must not be translated.
 If applied to an include, it prevents the generator from looking for a matching localisation file. Instead, the include link is added to the translation so that it can be customised for each locale.
 `
@@ -370,19 +370,24 @@ let getMatches = (regex, someline) =>
   }
 
 let isTitle = line => {
-  let titleLine = %re("/=+\s+([^\s].*)/")
+  let titleLine = %re("/^=+\s+([^\s].*)/")
   titleLine->getMatches(line)
 }
 
 let isSubstitution = line => {
-  let pattern = `:([${alpha}](\.[_${alnum}]*)):(\\s+(.*))?`
+  let pattern = `^:([${alpha}](\.[_${alnum}]*)):(\\s+(.*))?`
   let substLine = Js.Re.fromString(pattern)
   substLine->getMatches(line)
 }
 
 let isAttribute = line => {
-  let attrLine = %re("/\[([^\]]*)\]\s*$/")
+  let attrLine = %re("/^\[\s*([^\[\]]*)\]\s*$/")
   attrLine->getMatches(line)
+}
+
+let isExampleBlock = line => {
+  let blockLine = %re("/^====/")
+  blockLine->getMatches(line)
 }
 
 for lnum in 1 to Array.length(lines) {
@@ -398,6 +403,11 @@ for lnum in 1 to Array.length(lines) {
         if result->Array.length == 2 {
           let [_, title] = result // TODO: silence warning
           Js.log("TITLE: " ++ title)
+        } else {
+          let result = isExampleBlock(line)
+          if result->Array.length == 1 {
+            Js.log("Start of Example block")
+          }
         }
       | ":" =>
         Js.log("Maybe a substitution")
