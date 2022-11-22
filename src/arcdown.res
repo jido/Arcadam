@@ -347,7 +347,7 @@ This will be translated.
 ----
 Similarly, the same attribute can be used to prevent the translation of text:
 
-[   [localize=N]
+[localize=N]
 This must not be translated.
 If applied to an include, it prevents the generator from looking for a matching localisation file. Instead, the include link is added to the translation so that it can be customised for each locale.
 `
@@ -363,36 +363,65 @@ let getMatches = (regex, someline) =>
     switch regex->Js.Re.exec_(line) {
     | Some(result) =>
       Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->Option.getWithDefault(_, ""))
-
     | None => []
     }
   | None => []
   }
 
-let isTitle = line => {
+let consumeTitle = (lnum, subs) => {
   let titleLine = %re("/^=+\s+([^\s].*)/")
-  titleLine->getMatches(line)
+  switch titleLine->getMatches(lines[lnum - 1]) {
+  | [_, title] =>
+    Js.log("TITLE: " ++ title)
+    (lnum + 1, subs)
+  | _ => (lnum, subs)
+  }
 }
 
-let isSubstitution = line => {
+let consumeSubstitution = (lnum, subs) => {
   let pattern = `^:([${alpha}](\\.[_${alnum}]*)):(\\s+(.*))?`
   let substLine = Js.Re.fromString(pattern)
-  substLine->getMatches(line)
+  switch substLine->getMatches(lines[lnum - 1]) {
+  | [_, name, _, _, value] =>
+    Js.log("SUBST: " ++ name ++ " --> " ++ value)
+    (lnum + 1, subs->List.add((name, value)))
+  | _ => (lnum, subs)
+  }
 }
 
-let isAttribute = line => {
+let consumeAttribute = (lnum, subs) => {
   let attrLine = %re("/^\[\s*([^\[\]]*)\]\s*$/")
-  attrLine->getMatches(line)
+  switch attrLine->getMatches(lines[lnum - 1]) {
+  | [_, attributes] => (lnum + 1, subs, attributes)
+  | _ => (lnum, subs, "")
+  }
 }
 
-let isExampleBlock = line => {
-  let blockLine = %re("/^====/")
-  blockLine->getMatches(line)
+let consumeExampleBlock = (lnum, subs, attrs) => {
+  let blockLine = %re("/^====\s*$/")
+  switch blockLine->getMatches(lines[lnum - 1]) {
+  | [_] =>
+    Js.log("BLOCK: Example with attributes: " ++ attrs)
+    let l = ref(lnum + 1)
+    while (
+      Array.length(blockLine->getMatches(lines[l.contents - 1])) == 0 &&
+        l.contents < lines->Array.length
+    ) {
+      Js.log("|| " ++ lines[l.contents - 1]->Option.getWithDefault("."))
+      l := l.contents + 1
+    }
+    (l.contents + 1, subs)
+  | _ => (lnum, subs)
+  }
 }
 
-@@warning("-8")
-for lnum in 1 to Array.length(lines) {
-  let line = lines[lnum - 1]
+type substitutions_type = {arcdown_version: string}
+let subs = ref(list{})
+let attrs = ref("")
+let lnum = ref(1)
+
+while lnum.contents <= Array.length(lines) {
+  let line = lines[lnum.contents - 1]
   let firstChar = %re("/^./")
   let m = firstChar->getMatches(line)
   switch m {
@@ -400,36 +429,53 @@ for lnum in 1 to Array.length(lines) {
       let _ = switch chara {
       | "=" =>
         Js.log("Maybe a title")
-        let result = isTitle(line)
-        if result->Array.length == 2 {
-          let [_, title] = result
-          Js.log("TITLE: " ++ title)
+        let (next, newsubs) = consumeTitle(lnum.contents, subs.contents)
+        if next > lnum.contents {
+          lnum := next
+          subs := newsubs
         } else {
-          let result = isExampleBlock(line)
-          if result->Array.length == 1 {
-            Js.log("Start of Example block")
+          let (next, newsubs) = consumeExampleBlock(lnum.contents, subs.contents, attrs.contents)
+          if next > lnum.contents {
+            Js.log("End of Example block")
+            lnum := next
+            subs := newsubs
+            attrs := ""
+          } else {
+            lnum := lnum.contents + 1
           }
         }
       | ":" =>
         Js.log("Maybe a substitution")
-        let result = isSubstitution(line)
-        if result->Array.length == 5 {
-          let [_, name, _, _, value] = result
-          Js.log("SUBST: " ++ name ++ " --> " ++ value)
+        let (next, newsubs) = consumeSubstitution(lnum.contents, subs.contents)
+        if next > lnum.contents {
+          lnum := next
+          subs := newsubs
+        } else {
+          lnum := lnum.contents + 1
         }
       | "[" =>
         Js.log("Maybe an attribute")
-        let result = isAttribute(line)
-        if result->Array.length == 2 {
-          let [_, attributes] = result
+        let (next, newsubs, attributes) = consumeAttribute(lnum.contents, subs.contents)
+        if next > lnum.contents {
           Js.log("ATTR: " ++ attributes)
+          lnum := next
+          subs := newsubs
+          attrs := attributes
+        } else {
+          lnum := lnum.contents + 1
         }
-      | _ => Js.log("Something else")
+      | _ =>
+        Js.log("Something else")
+        lnum := lnum.contents + 1
+        attrs := ""
       }
     }
 
-  | [] => Js.log("<empty>")
-  | _ => Js.log("Unexpected! " ++ Array.length(m)->string_of_int)
+  | [] =>
+    Js.log("<empty>")
+    lnum := lnum.contents + 1
+  | _ =>
+    Js.log("Unexpected! " ++ Array.length(m)->string_of_int)
+    lnum := lnum.contents + 1
   }
 }
-@@warning("+8")
