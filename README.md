@@ -289,6 +289,76 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
 ```
 
+### Forms
+
+```
+[form]
+====
+[input,value="Initial contents"]
+Field label
+
+[checkbox,checked]
+Description
+
+[choice,value="choice 2"]
+* choice 1
+* choice 2
+* choice 3
+
+[picker]
+.Picker label
+Any valid Arcdown content
+====
+```
+
+A form layout has two columns, one for labels and one for form elements.
+An input field label or a picker label appears in the first column while
+a checkbox description or a choice item appears in the second column.
+
+All form elements can have a value. If an element also has an id, then a
+substitution is defined from the id of the element to its value. In case
+of a checkbox, the substitution is empty instead of the element value 
+when the checkbox is not checked.
+
+### Tabs
+
+```
+[tabs]
+--
+[choice,id="tab"]
+* Products
+* Portfolio
+* Contact
+
+[on,Products={tab}]
+****
+This is the products tab
+****
+
+[on,Portfolio={tab}]
+****
+This is the portfolio tab
+****
+
+[on,Contact={tab}]
+****
+This is the contact tab
+****
+--
+```
+
+The list of tabs must be in a choice form element. The choice value 
+cannot contain spaces. A numbered list can be used instead of a bullet 
+list to choose the tab by number, or a description list to choose it by
+description.
+
+If a block title is defined for a tab then that replaces the item in the 
+choice list for the tab title.
+
+When the output format allows user interaction then only the chosen tab
+is displayed. In other cases, the generator outputs all the tabs in the
+tab list.
+
 ### Block Title
 
 ```markdown
