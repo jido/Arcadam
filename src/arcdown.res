@@ -375,7 +375,7 @@ let isTitle = line => {
 }
 
 let isSubstitution = line => {
-  let pattern = `^:([${alpha}](\.[_${alnum}]*)):(\\s+(.*))?`
+  let pattern = `^:([${alpha}](\\.[_${alnum}]*)):(\\s+(.*))?`
   let substLine = Js.Re.fromString(pattern)
   substLine->getMatches(line)
 }
@@ -390,6 +390,7 @@ let isExampleBlock = line => {
   blockLine->getMatches(line)
 }
 
+@@warning("-8")
 for lnum in 1 to Array.length(lines) {
   let line = lines[lnum - 1]
   let firstChar = %re("/^./")
@@ -401,7 +402,7 @@ for lnum in 1 to Array.length(lines) {
         Js.log("Maybe a title")
         let result = isTitle(line)
         if result->Array.length == 2 {
-          let [_, title] = result // TODO: silence warning
+          let [_, title] = result
           Js.log("TITLE: " ++ title)
         } else {
           let result = isExampleBlock(line)
@@ -413,14 +414,14 @@ for lnum in 1 to Array.length(lines) {
         Js.log("Maybe a substitution")
         let result = isSubstitution(line)
         if result->Array.length == 5 {
-          let [_, name, _, _, value] = result // TODO: silence warning
+          let [_, name, _, _, value] = result
           Js.log("SUBST: " ++ name ++ " --> " ++ value)
         }
       | "[" =>
         Js.log("Maybe an attribute")
         let result = isAttribute(line)
         if result->Array.length == 2 {
-          let [_, attributes] = result // TODO: silence warning
+          let [_, attributes] = result
           Js.log("ATTR: " ++ attributes)
         }
       | _ => Js.log("Something else")
@@ -431,3 +432,4 @@ for lnum in 1 to Array.length(lines) {
   | _ => Js.log("Unexpected! " ++ Array.length(m)->string_of_int)
   }
 }
+@@warning("+8")

@@ -38,7 +38,7 @@ function isTitle(line) {
 }
 
 function isSubstitution(line) {
-  var pattern = "^:([" + alpha + "](\.[_" + alnum + "]*)):(\\s+(.*))?";
+  var pattern = "^:([" + alpha + "](\\.[_" + alnum + "]*)):(\\s+(.*))?";
   var substLine = new RegExp(pattern);
   return getMatches(substLine, line);
 }
@@ -76,7 +76,7 @@ for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "arcdown.res",
-                      416,
+                      417,
                       14
                     ],
                     Error: new Error()
@@ -96,7 +96,7 @@ for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "arcdown.res",
-                      404,
+                      405,
                       14
                     ],
                     Error: new Error()
@@ -121,7 +121,7 @@ for(var lnum = 1 ,lnum_finish = lines.length; lnum <= lnum_finish; ++lnum){
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "arcdown.res",
-                      423,
+                      424,
                       14
                     ],
                     Error: new Error()
