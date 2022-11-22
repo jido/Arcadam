@@ -330,17 +330,17 @@ when the checkbox is not checked.
 * Portfolio
 * Contact
 
-[tab,on="Products::{maintab}"]
+[tab,on="{maintab}::Products"]
 ****
 This is the products tab
 ****
 
-[tab,on="Portfolio::{maintab}"]
+[tab,on="{maintab}::Portfolio"]
 ****
 This is the portfolio tab
 ****
 
-[tab,on="Contact::{maintab}"]
+[tab,on="{maintab}::Contact"]
 ****
 This is the contact tab
 ****
