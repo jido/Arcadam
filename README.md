@@ -60,6 +60,12 @@ to the block.
 --
 ```
 
+A paragraph must be followed by an empty line or an indented line. If the
+paragraph is at the end of a block, then the empty or indented line can
+come after the end block marker. In practice, that means it is better to
+separate paragraphs with empty lines and always leave an empty line after
+a block.
+
 ### Text Formatting
 
 ```asciidoc
@@ -196,7 +202,7 @@ Example:
   .. This is the third element
 []
 . The empty attribute [] forces a
-  new list to start up
+new list to start up
 ```
 
 Use "+" to force a list item on multiple lines. If it is used on an empty 
@@ -267,7 +273,9 @@ line breaks otherwise the table is generated without a header row.
 
 An empty line indicates a new row but it is optional after second row (since
 the generator knows the number of columns then, either from the header row
-or the first content row).
+or the first content row). Use "+" at the end of a line to force the cell
+content to continue on a new line. If "+" is at the end of an empty line it
+starts a new paragraph inside the cell.
 
 Other table styles:
 
