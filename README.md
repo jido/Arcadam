@@ -323,24 +323,24 @@ when the checkbox is not checked.
 ### Tabs
 
 ```
-[tabs]
+[tabset]
 --
-[choice,id="tab"]
+[choice,id="maintab"]
 * Products
 * Portfolio
 * Contact
 
-[on,Products={tab}]
+[tab,on="Products::{maintab}"]
 ****
 This is the products tab
 ****
 
-[on,Portfolio={tab}]
+[tab,on="Portfolio::{maintab}"]
 ****
 This is the portfolio tab
 ****
 
-[on,Contact={tab}]
+[tab,on="Contact::{maintab}"]
 ****
 This is the contact tab
 ****
@@ -356,8 +356,11 @@ If a block title is defined for a tab then that replaces the item in the
 choice list for the tab title.
 
 When the output format allows user interaction then the chosen tab is
-displayed and other tabs display only their titles. In other cases, the 
-generator outputs all the tabs in the tab list.
+displayed and other tabs display only their titles. Tabset content that
+is not a tab is not displayed.
+
+In other cases, the generator outputs all the tabs in the tab list as
+well as tabset content except for the tab list. That allows page breaks.
 
 ### Block Title
 
