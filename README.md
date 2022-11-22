@@ -294,7 +294,7 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 ```
 [form]
 ====
-[input,value="Initial contents"]
+[input,value="Default contents"]
 Field label
 
 [checkbox,checked]
@@ -347,7 +347,7 @@ This is the contact tab
 --
 ```
 
-The list of tabs must be in a choice form element. The choice value 
+The list of tabs must be in a choice form element. A tab choice value 
 cannot contain spaces. A numbered list can be used instead of a bullet 
 list to choose the tab by number, or a description list to choose it by
 description.
@@ -355,9 +355,9 @@ description.
 If a block title is defined for a tab then that replaces the item in the 
 choice list for the tab title.
 
-When the output format allows user interaction then only the chosen tab
-is displayed. In other cases, the generator outputs all the tabs in the
-tab list.
+When the output format allows user interaction then the chosen tab is
+displayed and other tabs display only their titles. In other cases, the 
+generator outputs all the tabs in the tab list.
 
 ### Block Title
 
