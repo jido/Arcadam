@@ -273,14 +273,15 @@ highlight an idea
 |===
 ----
 
-All the headers must be on the same line, or "\" must be used to escape the 
-line breaks otherwise the table is generated without a header row.
+All the headers must be on the same line, or "\\" must be used to escape the
+line breaks otherwise the table is generated without a header row. There
+should be an empty line before the second table row and each new row should
+start on a new line.
 
-An empty line indicates a new row but it is optional after second row (since
-the generator knows the number of columns then, either from the header row
-or the first content row). Use "+" at the end of a line to force the cell
-content to continue on a new line. If "+" is at the end of an empty line it
-starts a new paragraph inside the cell.
+When the contents of a cell are written on multiple lines then the start of
+next cell must be on a new line. If there is no space between "|" and the
+text then the generator doesn't interpret the contents until another "|" or
+the end of the line.
 
 Other table styles:
 
