@@ -225,9 +225,9 @@ Code blocks (monospaced):
   starts here
 
 ----
-Another way to
-create a code 
-block using "-"
+Another way to create
+a code block delimited
+with "----"
 ----
 
   ----
@@ -320,8 +320,8 @@ Description
 * choice 2
 * choice 3
 
-[picker]
 .Picker label
+[picker]
 Any valid Arcdown content
 ====
 ```
@@ -340,7 +340,7 @@ checked.
 ```
 [tabset]
 --
-[options,id="maintab"]
+[options,id=maintab]
 * Products
 * Portfolio
 * Contact
@@ -386,7 +386,7 @@ apples,oranges,pears
 ,===
 
 .A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
-[size=200x100]
+[width=200,height=100]
 ![Sunset](sunset.jpg)
 ```
 
@@ -429,19 +429,19 @@ Using the {substitution}
 
 ### Attributes
 
-An attribute is written inside square brackets and applies to the following paragraph or block.
+An attribute is written inside square brackets and applies to the immediate following paragraph or block.
 
 Additional attributes can be applied using commas to separate them.
 
 Example:
 
 ```XML
-[source,xml]
-<root>
-  <element>
-    This is XML text which 
-    can be colourized
-  </element>
+[code=xml,.extract]
+  <root>
+    <element>
+      This is XML text which 
+      can be colourized
+    </element>
 
 [NOTE]
 ====
@@ -449,9 +449,17 @@ This is important.
 ====
 ```
 
-If the attribute starts with a dot "." and a stylesheet is defined, the specified style class is applied.
+Some attributes can take a value. If the value contains any special characters it should be enclosed in double quotes.
 
-Some attributes, such as the style class attribute, can be used in the middle of text by highlighting the part of the text they apply to.
+Example:
+
+```
+[rows=">h,^,^"]
+```
+
+If the attribute name starts with a dot "." and a stylesheet is defined, the specified style class is applied.
+
+Some attributes, such as a style class attribute, can be used in the middle of text by highlighting the part of the text they apply to.
 
 Example:
 
@@ -500,7 +508,7 @@ that ends the line.
 ### Callouts
 
 ```Eiffel
-[source,ruby]
+[code=ruby]
 ----
 require 'sinatra'
 # :1 ----
