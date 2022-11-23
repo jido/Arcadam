@@ -200,8 +200,9 @@ Example:
   .. This is a sublist
   .. with three elements
   .. This is the third element
-[]
-. The empty attribute [] forces a
+
+[list]
+. The list attribute forces a
 new list to start up
 ```
 
@@ -217,6 +218,11 @@ Code blocks (monospaced):
   Indented text without
   line breaks is added 
   to a code block
+  
+  Normal text after a code block
+  
+  A second code block
+  starts here
 
 ----
 Another way to
@@ -309,7 +315,7 @@ Field label
 [checkbox,checked]
 Description
 
-[choice,value="choice 2"]
+[options,value="choice 2"]
 * choice 1
 * choice 2
 * choice 3
@@ -322,19 +328,19 @@ Any valid Arcdown content
 
 A form layout has two columns, one for labels and one for form elements.
 An input field label or a picker label appears in the first column while
-a checkbox description or a choice item appears in the second column.
+a checkbox description or text for an option appears in the second column.
 
 All form elements can have a value. If an element also has an id, then a
 substitution is defined from the id of the element to its value. In case
-of a checkbox, the substitution is empty instead of the element value 
-when the checkbox is not checked.
+of a checkbox, the substitution is only defined when the checkbox is 
+checked.
 
 ### Tabs
 
 ```
 [tabset]
 --
-[choice,id="maintab"]
+[options,id="maintab"]
 * Products
 * Portfolio
 * Contact
@@ -356,13 +362,13 @@ This is the contact tab
 --
 ```
 
-The list of tabs must be in a choice form element. A tab choice value 
+The list of tabs must be in an options form element. The values in the tab list
 cannot contain spaces. A numbered list can be used instead of a bullet 
-list to choose the tab by number, or a description list to choose it by
-description.
+list to select the tab by a number, or a description list to select it by
+a term.
 
 If a block title is defined for a tab then that replaces the item in the 
-choice list for the tab title.
+options list for the tab title.
 
 When the output format allows user interaction then the chosen tab is
 displayed and other tabs display only their titles. Tabset content that
