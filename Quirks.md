@@ -107,4 +107,72 @@ Use "`5+|`" to merge 5 cells horizontally. With a dot in front, cells are merged
 
 The content alignment of a merged cell can be set at the same time. Alignment symbols must follow the same pattern as the cell numbers, for example "`2+<|`" or "`.4+.^|`" or "`5.3+>.>|`".
 
+```
+|not interpreted: 2+<| there is no merge in this cell
+```
+
 If a cell starts without a space between "`|`" and the content then it is not interpreted and the repeat/merge instructions for next cell will not work if they are on the same line. 
+
+## Block boundaries
+
+Unlike Asciidoc, the number of repeated characters in a block boundary is fixed (length 4) and cannot be increased.
+AsciiDoc uses matched boundary lengths for block nesting.
+
+Nesting of the same block is supported in Arcdown by adding an attribute in the line immediately before the start of the block.
+
+The attributes for the default use of each kind of block are:
+
+```
+[division]
+--
+
+[example]
+====
+
+[sidebar]
+****
+
+[table]
+|===
+
+[comment]
+////
+```
+
+Code blocks cannot nest inside each other and are not shown in the list above.
+
+Example:
+
+```
+[NOTE]
+====
+This is how to start a new example 
+block within this block:
+
+.Nested block
+[example]
+====
+A small example
+====
+====
+```
+
+A block can start after different elements, but attributes must be last before the start of the block or they are ignored.
+
+A block header could look like:
+
+```
+.Title
+[#anchor]:
+[:begin region]:
+:substitution: value
+[division]
+--
+```
+
+The same applies to other elements like a paragraph, a list or a heading.
+
+Note that a block title or a substitution is not recognised in the middle of a paragraph. 
+It is recommended to always leave an empty line after the end of a paragraph.
+
+A block boundary *without* an attribute in the line above can be either a block ending or the start of a non-nested block.
