@@ -101,17 +101,20 @@ Vertical alignment can only be set at row level or on a vertically merged cell (
 
 Use the [rows] attribute to format rows, like the [cols] attribute for columns. 
 
-Use "`5*|`" to repeat a cell 5 times horizontally. With a dot in front, it is repeated vertically or it can repeat in both directions with "`5.3*|`".
+Use "`5*|`" to repeat a cell 5 times horizontally.
+With a dot in front, the cell is repeated vertically or it can repeat in both directions with "`5.3*|`".
 
-Use "`5+|`" to merge 5 cells horizontally. With a dot in front, cells are merged vertically or both can be combined as in "`5.3+|`".
+Use "`5+|`" to merge 5 cells horizontally. 
+With a dot in front, cells are merged vertically or both can be combined as in "`5.3+|`".
 
-The content alignment of a merged cell can be set at the same time. Alignment symbols must follow the same pattern as the cell numbers, for example "`2+<|`" or "`.4+.^|`" or "`5.3+>.>|`".
+The merge span and the content alignment of a cell can be set at the same time. 
+Alignment symbols must follow the same pattern as the cell numbers, for example "`2+<|`" or "`.4+.^|`" or "`5.3+>.>|`".
 
 ```
 |not interpreted: 2+<| there is no merge in this cell
 ```
 
-If a cell starts without a space between "`|`" and the content then it is not interpreted and the repeat/merge instructions for next cell will not work if they are on the same line. 
+If the cell starts without a space between "`|`" and the content then it is not interpreted and the repeat/merge instructions that follow for next cell will not work. 
 
 ## Block boundaries
 
