@@ -76,3 +76,21 @@ Note that if that was a code block, the second line would still be part of the c
 If the first indented line is a list item (starts with dots, stars or contains ":: ") then it is treated as an indented paragraph.
 
 ## Tables
+
+Arcdown does not support all the table formatting options of AsciiDoc. 
+
+The only supported format letter is "h" (header row or column).
+
+Horizontal alignment can only be set at column level or on a horizontally merged cell (see below). It does not apply to header rows. 
+
+Vertical alignment can only be set at row level or on a vertically merged cell (see below). It does not apply to header columns. 
+
+Use the [rows] attribute to format rows, like the [cols] attribute for columns. 
+
+Use "5*|" to repeat a cell 5 times horizontally. With a dot in front, it is repeated vertically or it can repeat in both directions with "5.3*|".
+
+Use "5+|" to merge 5 cells horizontally. With a dot in front, cells are merged vertically or both can be combined with "5.3+|".
+
+The content alignment of a merged cell can be set at the same time. Alignment symbols must follow the same pattern as the cell numbers, for example "2+<|" or ".4+.^|" or "5.3+>.>|".
+
+If a cell starts without a space between "|" and the content then it is not interpreted and the repeat/merge instructions for next cell will not work if they are on the same line. 
