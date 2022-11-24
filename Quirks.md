@@ -14,14 +14,13 @@ Let us go through this.
 
 * Indented code block: it can be a delimited or a non-delimited code block and must not start like a list item
 * Same indent: the indent of a code block is decided by its first line (the delimiter line if the block is delimited),
-the indent of a paragraph must be the same throughout
-* Follows: a non-delimited code block ends with an empty line or a non-indented line, since we are talking about an 
-indented block the paragraph must be after an empty line in this case.
+the paragraph must start with the same indent
+* Follows: in case of a non-delimited code block the paragraph must be after an empty line.
 For a delimited block it must be after the end delimiter or an empty line
 
 ### More notes:
 
-Arcdown commands, such as attribute line, substitution definition, block title and comments count as empty lines.
+Arcdown commands, such as attribute line, substitution definition, block title and comments count as empty lines (no indent).
 
 ```
     This code block indent
@@ -53,27 +52,28 @@ it is missing an end delimiter
 ```
 
 This document is really broken. Because of the non-indented line, the code block ends early. 
-The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter.
+The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter instead.
 
-Hopefully that issue is easy to spot.
+Hopefully that issue is easy to spot for writers.
 
 ```
   A code block
   
   A normal paragraph
-    This is another code block
+    with uneven indent
+A new paragraph
 ```
 
-Since all lines in an indented paragraph must have the same indent, the increased (or decreased) indent means that the next line is a code block.
+All lines in an indented paragraph are expected to have the same indent, so this is considered incorrectly formatted.
 
-Note that if that was a code block, the second line would still be part of the code block.
+A line with no indent after an indented line always starts a new paragraph, even if it follows a normal paragraph.
 
 ```
   . Item in a numbered list
   continued on the next line
 ```
 
-If the first indented line is a list item (starts with dots, stars or contains ":: ") then it is treated as an indented paragraph.
+If the first indented line is a list item (starts with dots, stars or contains ":: ") then it is treated as an indented paragraph and never as code.
 
 ## Tables
 
@@ -81,16 +81,30 @@ Arcdown does not support all the table formatting options of AsciiDoc.
 
 The only supported format letter is "h" (header row or column).
 
+```
+[cols="h,6*>",rows="h,^"]
+|===
+|| jan | feb | mar | apr | may | jun
+
+| Quarter +
+2022
+3+^| Q1 3+^| Q2
+| Km | 12.4 | 40.0 | 12.9 | 8.5 | 15.7 .3+.>| 38.8 (provisional)
+| Fz | 44.9 | 3.14 | 101.0 | 86.6 | 66.3
+| Tt | 6.2 | 6.9 | 5.6 | 10.1 | 4.4
+|===
+```
+
 Horizontal alignment can only be set at column level or on a horizontally merged cell (see below). It does not apply to header rows. 
 
 Vertical alignment can only be set at row level or on a vertically merged cell (see below). It does not apply to header columns. 
 
 Use the [rows] attribute to format rows, like the [cols] attribute for columns. 
 
-Use "5*|" to repeat a cell 5 times horizontally. With a dot in front, it is repeated vertically or it can repeat in both directions with "5.3*|".
+Use "`5*|`" to repeat a cell 5 times horizontally. With a dot in front, it is repeated vertically or it can repeat in both directions with "`5.3*|`".
 
-Use "5+|" to merge 5 cells horizontally. With a dot in front, cells are merged vertically or both can be combined with "5.3+|".
+Use "`5+|`" to merge 5 cells horizontally. With a dot in front, cells are merged vertically or both can be combined as in "`5.3+|`".
 
-The content alignment of a merged cell can be set at the same time. Alignment symbols must follow the same pattern as the cell numbers, for example "2+<|" or ".4+.^|" or "5.3+>.>|".
+The content alignment of a merged cell can be set at the same time. Alignment symbols must follow the same pattern as the cell numbers, for example "`2+<|`" or "`.4+.^|`" or "`5.3+>.>|`".
 
-If a cell starts without a space between "|" and the content then it is not interpreted and the repeat/merge instructions for next cell will not work if they are on the same line. 
+If a cell starts without a space between "`|`" and the content then it is not interpreted and the repeat/merge instructions for next cell will not work if they are on the same line. 
