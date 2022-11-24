@@ -12,12 +12,12 @@ The rule is:
 
 Let us go through this.
 
-* Indented code block: it can be a delimited or a non-delimited code block
+* Indented code block: it can be a delimited or a non-delimited code block and must not start like a list item
 * Same indent: the indent of a code block is decided by its first line (the delimiter line if the block is delimited),
-the indent of a peragraph must be the same throughout
+the indent of a paragraph must be the same throughout
 * Follows: a non-delimited code block ends with an empty line or a non-indented line, since we are talking about an 
 indented block the paragraph must be after an empty line in this case.
-For a delimited block it must be after the end delimiter
+For a delimited block it must be after the end delimiter or an empty line
 
 ### More notes:
 
@@ -66,7 +66,7 @@ Hopefully that issue is easy to spot.
 
 Since all lines in an indented paragraph must have the same indent, the increased (or decreased) indent means that the next line is a code block.
 
-Note that if we were in a code block, the second line would still be part of the code block.
+Note that if that was a code block, the second line would still be part of the code block.
 
 ```
   . Item in a numbered list
