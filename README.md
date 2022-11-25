@@ -496,12 +496,12 @@ on its own
 [:end region]:
 
 ----
-Inside a code block, a named region is
-  //-- begin::coderegion ----
-defined using begin:: and end:: tags after 
-hyphens and before a code block marker 
-that ends the line.
-  //-- end::coderegion ----
+Inside a code block, a named region
+  // begin::coderegion ----
+is defined using begin:: and end:: 
+tags before a code block marker that 
+ends the line.
+  // end::coderegion ----
 ----
 ```
 
@@ -523,6 +523,8 @@ end
 (2):: URL mapping
 (3):: HTTP response body
 ```
+
+For automatic callout numbering use `:()` instead of numbers.
 
 When it encounters callouts in a code block, the generator inserts 
 the callout symbols in the line above and the entire line which 
@@ -586,7 +588,7 @@ This will be translated.
 ----
 Use a localize:: tag inside a
 code block to select n lines
-//-- localize::Y-2 ----
+// localize::Y-2 ----
 above the tag to translate
 ----
 ```
