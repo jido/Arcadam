@@ -317,8 +317,9 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 [input,value="Default contents"]
 Field label
 
-[checkbox,checked]
-Description
+[checkbox]
+|+| Checkbox description
+| | Unchecked checkbox
 
 [options,value="choice 2"]
 * choice 1
@@ -338,7 +339,7 @@ a checkbox description or text for an option appears in the second column.
 All form elements can have a value. If an element also has an id, then a
 substitution is defined from the id of the element to its value. In case
 of a checkbox, the substitution is only defined when the checkbox is 
-checked.
+checked. Most symbols can be used to check it.
 
 === Tabs
 
@@ -511,8 +512,8 @@ Inside a code block, a named region
   // begin::coderegion ----
 is defined using begin:: and end::
 tags before a code block marker that
-ends the line.
   // end::coderegion ----
+ends the line.
 ----
 --
 
@@ -600,9 +601,9 @@ This will be translated.
 
 ----
 Use a localize:: tag inside a
+// localize::Y+2 ----
 code block to select n lines
-// localize::Y-2 ----
-above the tag to translate
+below the tag to translate
 ----
 --
 
