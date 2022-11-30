@@ -352,152 +352,193 @@ This must not be translated.
 If applied to an include, it prevents the generator from looking for a matching localisation file. Instead, the include link is added to the translation so that it can be customised for each locale.
 `
 
+open Promise
+
 let lines = "\n"->Js.String.split(source)
+
+exception EndOfFile(string)
+let nextLine = lnum =>
+  switch lines[lnum] {
+  | Some(line) => resolve((line, lnum + 1))
+  | None => reject(EndOfFile("EOF"))
+  }
 
 let alpha = "A-Za-z"
 let alnum = `0-9${alpha}`
 
 let getMatches = (regex, someline) =>
-  switch someline {
-  | Some(line) =>
-    switch regex->Js.Re.exec_(line) {
-    | Some(result) =>
-      Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->Option.getWithDefault(_, ""))
-    | None => []
-    }
+  switch regex->Js.Re.exec_(someline) {
+  | Some(result) =>
+    Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->Option.getWithDefault(_, ""))
   | None => []
   }
 
-let consumeTitle = (lnum, subs) => {
+let consumeTitle = (line, subs) => {
   let titleLine = %re("/^=+\s+([^\s].*)/")
-  switch titleLine->getMatches(lines[lnum - 1]) {
+  switch titleLine->getMatches(line) {
   | [_, title] =>
     Js.log("TITLE: " ++ title)
-    (lnum + 1, subs)
-  | _ => (lnum, subs)
+    (true, subs)
+  | _ => (false, subs)
   }
 }
 
-let consumeSubstitution = (lnum, subs) => {
+let consumeSubstitution = (line, lnum, subs) => {
   let pattern = `^:([${alpha}](\\.[_${alnum}]*)):(\\s+(.*))?`
   let substLine = Js.Re.fromString(pattern)
-  switch substLine->getMatches(lines[lnum - 1]) {
+  switch substLine->getMatches(line) {
   | [_, name, _, _, value] =>
     Js.log("SUBST: " ++ name ++ " --> " ++ value)
-    (lnum + 1, subs->List.add((name, value)))
+    (lnum, subs->List.add((name, value)))
   | _ => (lnum, subs)
   }
 }
 
-let consumeAttribute = (lnum, subs) => {
+let consumeAttribute = (line, subs) => {
   let attrLine = %re("/^\[\s*([^\[\]]*)\]\s*$/")
-  switch attrLine->getMatches(lines[lnum - 1]) {
-  | [_, attributes] => (lnum + 1, subs, attributes)
-  | _ => (lnum, subs, "")
+  switch attrLine->getMatches(line) {
+  | [_, attributes] => (true, subs, attributes)
+  | _ => (false, subs, "")
   }
 }
 
-let rec consumeExampleBlock = (lnum, subs, attrs) => {
+let consumeNormalLine = (line, _, _) => {
+  Js.log("TEXT: " ++ line)
+}
+
+exception EndOfBlock(string)
+let rec consumeExampleBlock = (line, lnum, subs, attrs) => {
   let blockLine = %re("/^====\s*$/")
-  switch blockLine->getMatches(lines[lnum - 1]) {
+  switch blockLine->getMatches(line) {
   | [_] =>
     Js.log("BLOCK: Example with attributes: " ++ attrs)
-    let l = ref(lnum + 1)
-    let s = ref(subs)
-    let a = ref("")
     let checkEndBlock = ln => {
-      blockLine->getMatches(lines[ln - 1])->Array.length != 0
+      blockLine->getMatches(ln)->Array.length != 0
     }
-    while (
-      l.contents <= Array.length(lines) &&
-        switch consumeLine(l.contents, s.contents, a.contents, "=", checkEndBlock) {
-        | (next, newsubs, attributes) =>
-          if next == l.contents {
-            Js.log("BLOCK: Example ended")
-            l := l.contents + 1
-            false
-          } else {
-            l := next
-            s := newsubs
-            a := attributes
-            true
-          }
+    let promi = ((lnum, subs, attrs)) =>
+      consumeLine(lnum, subs, attrs, "=", checkEndBlock)->catch(err =>
+        switch err {
+        | EndOfBlock(_) =>
+          Js.log("BLOCK: Example ended at line " ++ string_of_int(lnum))
+          resolve((lnum, subs, attrs))
+        | EndOfFile(_) =>
+          Js.log("WARNING: Example block not closed")
+          reject(err)
+        | _ =>
+          Js.log("WARNING: Unexpected error")
+          reject(err)
         }
-    ) {
-      () // empty loop body
-    }
-    (l.contents, s.contents)
-  | _ => (lnum, subs)
+      )
+    promi((lnum, subs, attrs))->then(promi)
+  | _ => resolve((lnum, subs, attrs))
   }
 }
 and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
   let firstChar = %re("/^./")
-  let m = firstChar->getMatches(lines[lnum - 1])
-  switch m {
-  | [chara] =>
-    if endchar == chara && confirm(lnum) {
-      (lnum, subs, attrs)
-    } else {
-      switch chara {
-      | "=" =>
-        Js.log("Maybe a title")
-        let (next, newsubs) = consumeTitle(lnum, subs)
-        if next > lnum {
-          (next, newsubs, "")
-        } else {
-          let (next, newsubs) = consumeExampleBlock(lnum, subs, attrs)
-          if next > lnum {
-            Js.log("End of Example block")
-            (next, newsubs, "")
+  nextLine(lnum)->then(((line, lnum)) => {
+    let m = firstChar->getMatches(line)
+    switch m {
+    | [chara] =>
+      if endchar == chara && confirm(line) {
+        reject(EndOfBlock("example"))
+      } else {
+        switch chara {
+        | "=" =>
+          Js.log("Maybe a title")
+          let (consumed, newsubs) = consumeTitle(line, subs)
+          if consumed {
+            resolve((lnum, newsubs, ""))
           } else {
-            (lnum + 1, subs, "")
+            consumeExampleBlock(line, lnum, subs, attrs)->then(((next, subs, attrs)) =>
+              if next > lnum {
+                resolve((next, subs, ""))
+              } else {
+                consumeNormalLine(line, subs, attrs)
+                resolve((lnum, subs, ""))
+              }
+            )
           }
+        | ":" =>
+          Js.log("Maybe a substitution")
+          let (next, newsubs) = consumeSubstitution(line, lnum, subs)
+          if next > lnum {
+            resolve((next, newsubs, ""))
+          } else {
+            consumeNormalLine(line, subs, attrs)
+            resolve((lnum, subs, ""))
+          }
+        | "[" =>
+          Js.log("Maybe an attribute")
+          let (consumed, newsubs, attributes) = consumeAttribute(line, subs)
+          if consumed {
+            Js.log("ATTR: " ++ attributes)
+            resolve((lnum, newsubs, attributes))
+          } else {
+            consumeNormalLine(line, subs, attrs)
+            resolve((lnum, subs, ""))
+          }
+        | _ =>
+          Js.log("Something else")
+          resolve((lnum, subs, "")) // TODO: preserve attributes for blank line
         }
-      | ":" =>
-        Js.log("Maybe a substitution")
-        let (next, newsubs) = consumeSubstitution(lnum, subs)
-        if next > lnum {
-          (next, newsubs, "")
-        } else {
-          (lnum + 1, subs, "")
-        }
-      | "[" =>
-        Js.log("Maybe an attribute")
-        let (next, newsubs, attributes) = consumeAttribute(lnum, subs)
-        if next > lnum {
-          Js.log("ATTR: " ++ attributes)
-          (next, newsubs, attributes)
-        } else {
-          (lnum + 1, subs, "")
-        }
-      | _ =>
-        Js.log("Something else")
-        (lnum + 1, subs, "") // TODO: preserve attributes for blank line
       }
+    | [] =>
+      Js.log("<empty>")
+      resolve((lnum, subs, attrs))
+    | _ =>
+      Js.log("Unexpected! " ++ Array.length(m)->string_of_int)
+      resolve((lnum, subs, ""))
     }
-  | [] =>
-    Js.log("<empty>")
-    (lnum + 1, subs, attrs)
-  | _ =>
-    Js.log("Unexpected! " ++ Array.length(m)->string_of_int)
-    (lnum + 1, subs, "")
+  })
+}
+
+let subs = list{}
+let attrs = ""
+let lnum = 0
+
+let promi = ((lnum, subs, attrs)) =>
+  consumeLine(lnum, subs, attrs, "$", _ => false)->catch(err =>
+    switch err {
+    | EndOfFile(_) =>
+      Js.log("DONE")
+      reject(err)
+    | _ =>
+      Js.log("Unexpected error")
+      reject(err)
+    }
+  )
+promi((lnum, subs, attrs))->then(promi)->ignore
+
+/*
+let createNumPromise = n => resolve(n)
+
+let printList = chain => {
+  for n in 1 to chain->Array.length {
+    switch chain[n - 1] {
+    | Some(num) => Js.log("item " ++ string_of_int(num))
+    | None => ()
+    }
   }
 }
 
-type substitutions_type = {arcdown_version: string}
-let subs = ref(list{})
-let attrs = ref("")
-let lnum = ref(1)
+let chain = []
+let five = createNumPromise(5)
 
-while lnum.contents <= Array.length(lines) {
-  let (next, newsubs, attributes) = consumeLine(
-    lnum.contents,
-    subs.contents,
-    attrs.contents,
-    "$",
-    _ => false,
-  )
-  lnum := next
-  subs := newsubs
-  attrs := attributes
-}
+let six = five->then(num => {
+  Js.log(num)
+  chain->Array.push(num)
+  createNumPromise(num + 1)
+})
+let seven = six->then(num => {
+  Js.log(num)
+  chain->Array.push(num)
+  createNumPromise(num + 1)
+})
+let end = seven->then(num => {
+  Js.log(num)
+  chain->Array.push(num)
+  printList(chain)
+  createNumPromise("")
+})
+end->ignore
+*/
