@@ -37,7 +37,7 @@ function nextLine(lnum) {
 
 var alpha = "A-Za-z";
 
-var alnum = "0-9" + alpha + "";
+var alnum = "0-9" + alpha;
 
 function getMatches(regex, someline) {
   var result = regex.exec(someline);
@@ -68,19 +68,21 @@ function consumeTitle(line, subs) {
 }
 
 function consumeSubstitution(line, lnum, subs) {
-  var pattern = "^:([" + alpha + "](\\.[_" + alnum + "]*)):(\\s+(.*))?";
+  var pattern = "^:([" + alpha + "]+(\\.[_" + alnum + "]+)*):\\s*(.*)";
   var substLine = new RegExp(pattern);
   var match = getMatches(substLine, line);
-  if (match.length !== 5) {
+  if (match.length !== 4) {
     return [
+            false,
             lnum,
             subs
           ];
   }
   var name = match[1];
-  var value = match[4];
+  var value = match[3];
   console.log("SUBST: " + name + " --> " + value);
   return [
+          true,
           lnum,
           Belt_List.add(subs, [
                 name,
@@ -131,11 +133,11 @@ function consumeExampleBlock(line, lnum, subs, attrs) {
     var attrs = param[2];
     var subs = param[1];
     var lnum = param[0];
-    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, "=", checkEndBlock), (function (err) {
+    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, "=", checkEndBlock).then(promi), (function (err) {
                   if (err.RE_EXN_ID === EndOfBlock) {
                     console.log("BLOCK: Example ended at line " + String(lnum));
                     return Promise.resolve([
-                                lnum,
+                                lnum + 1 | 0,
                                 subs,
                                 attrs
                               ]);
@@ -149,10 +151,10 @@ function consumeExampleBlock(line, lnum, subs, attrs) {
                 }));
   };
   return promi([
-                lnum,
-                subs,
-                attrs
-              ]).then(promi);
+              lnum,
+              subs,
+              attrs
+            ]);
 }
 
 function consumeLine(lnum, subs, attrs, endchar, confirm) {
@@ -190,11 +192,10 @@ function consumeLine(lnum, subs, attrs, endchar, confirm) {
                 case ":" :
                     console.log("Maybe a substitution");
                     var match = consumeSubstitution(line, lnum, subs);
-                    var next = match[0];
-                    if (next > lnum) {
+                    if (match[0]) {
                       return Promise.resolve([
-                                  next,
                                   match[1],
+                                  match[2],
                                   ""
                                 ]);
                     } else {
@@ -268,23 +269,23 @@ var attrs = "";
 
 function promi(param) {
   return $$Promise.$$catch(consumeLine(param[0], param[1], param[2], "$", (function (param) {
-                    return false;
-                  })), (function (err) {
-                if (err.RE_EXN_ID === EndOfFile) {
-                  console.log("DONE");
-                  return Promise.reject(err);
-                } else {
-                  console.log("Unexpected error");
-                  return Promise.reject(err);
-                }
-              }));
+                      return false;
+                    })), (function (err) {
+                  if (err.RE_EXN_ID === EndOfFile) {
+                    console.log("DONE");
+                    return Promise.reject(err);
+                  } else {
+                    console.log("Unexpected error");
+                    return Promise.reject(err);
+                  }
+                })).then(promi);
 }
 
 promi([
-        0,
-        /* [] */0,
-        attrs
-      ]).then(promi);
+      0,
+      /* [] */0,
+      attrs
+    ]);
 
 var subs = /* [] */0;
 

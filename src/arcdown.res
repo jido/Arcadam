@@ -364,7 +364,7 @@ let nextLine = lnum =>
   }
 
 let alpha = "A-Za-z"
-let alnum = `0-9${alpha}`
+let alnum = "0-9" ++ alpha
 
 let getMatches = (regex, someline) =>
   switch regex->Js.Re.exec_(someline) {
@@ -384,13 +384,13 @@ let consumeTitle = (line, subs) => {
 }
 
 let consumeSubstitution = (line, lnum, subs) => {
-  let pattern = `^:([${alpha}](\\.[_${alnum}]*)):(\\s+(.*))?`
+  let pattern = `^:([${alpha}]+(\\.[_${alnum}]+)*):\\s*(.*)`
   let substLine = Js.Re.fromString(pattern)
   switch substLine->getMatches(line) {
-  | [_, name, _, _, value] =>
+  | [_, name, _, value] =>
     Js.log("SUBST: " ++ name ++ " --> " ++ value)
-    (lnum, subs->List.add((name, value)))
-  | _ => (lnum, subs)
+    (true, lnum, subs->List.add((name, value)))
+  | _ => (false, lnum, subs)
   }
 }
 
@@ -415,12 +415,14 @@ let rec consumeExampleBlock = (line, lnum, subs, attrs) => {
     let checkEndBlock = ln => {
       blockLine->getMatches(ln)->Array.length != 0
     }
-    let promi = ((lnum, subs, attrs)) =>
-      consumeLine(lnum, subs, attrs, "=", checkEndBlock)->catch(err =>
+    let rec promi = ((lnum, subs, attrs)) =>
+      consumeLine(lnum, subs, attrs, "=", checkEndBlock)
+      ->then(promi)
+      ->catch(err =>
         switch err {
         | EndOfBlock(_) =>
           Js.log("BLOCK: Example ended at line " ++ string_of_int(lnum))
-          resolve((lnum, subs, attrs))
+          resolve((lnum + 1, subs, attrs))
         | EndOfFile(_) =>
           Js.log("WARNING: Example block not closed")
           reject(err)
@@ -429,7 +431,7 @@ let rec consumeExampleBlock = (line, lnum, subs, attrs) => {
           reject(err)
         }
       )
-    promi((lnum, subs, attrs))->then(promi)
+    promi((lnum, subs, attrs))
   | _ => resolve((lnum, subs, attrs))
   }
 }
@@ -460,8 +462,8 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
           }
         | ":" =>
           Js.log("Maybe a substitution")
-          let (next, newsubs) = consumeSubstitution(line, lnum, subs)
-          if next > lnum {
+          let (consumed, next, newsubs) = consumeSubstitution(line, lnum, subs)
+          if consumed {
             resolve((next, newsubs, ""))
           } else {
             consumeNormalLine(line, subs, attrs)
@@ -496,8 +498,9 @@ let subs = list{}
 let attrs = ""
 let lnum = 0
 
-let promi = ((lnum, subs, attrs)) =>
-  consumeLine(lnum, subs, attrs, "$", _ => false)->catch(err =>
+let rec promi = ((lnum, subs, attrs)) =>
+  consumeLine(lnum, subs, attrs, "$", _ => false)
+  ->catch(err =>
     switch err {
     | EndOfFile(_) =>
       Js.log("DONE")
@@ -507,7 +510,8 @@ let promi = ((lnum, subs, attrs)) =>
       reject(err)
     }
   )
-promi((lnum, subs, attrs))->then(promi)->ignore
+  ->then(promi)
+promi((lnum, subs, attrs))->ignore
 
 /*
 let createNumPromise = n => resolve(n)
