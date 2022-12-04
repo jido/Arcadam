@@ -10,7 +10,7 @@ var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n.Nested block\n[example]\n====\nA small example\n====\n====\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n.Nested block\n[example]\n====\nA small example\n====\n====\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[Go to Part 1](#anchor)\n";
 
 var lines = Js_string.split("\n", source);
 
@@ -102,6 +102,41 @@ function consumeAttribute(line, subs) {
           true,
           subs,
           attributes
+        ];
+}
+
+function consumeHyperlink(line, param, param$1) {
+  var hlinkLine = /\[\s*([^\]]*)\]\(\s*([^\s\)]*)\s*\)/;
+  var match = getMatches(hlinkLine, line);
+  if (match.length !== 3) {
+    return [
+            false,
+            "",
+            ""
+          ];
+  }
+  var text = match[1];
+  var link = match[2];
+  return [
+          true,
+          text,
+          link
+        ];
+}
+
+function consumeLabel(line) {
+  var labelLine = /^\[\s*([^\]]+)\]:\s*$/;
+  var match = getMatches(labelLine, line);
+  if (match.length !== 2) {
+    return [
+            false,
+            ""
+          ];
+  }
+  var label = match[1];
+  return [
+          true,
+          label
         ];
 }
 
@@ -246,6 +281,24 @@ function consumeLine(lnum, subs, attrs, endchar, confirm) {
                                   match$2[1],
                                   attributes
                                 ]);
+                    }
+                    var match$3 = consumeHyperlink(line, subs, attrs);
+                    if (match$3[0]) {
+                      console.log("LINK: <" + match$3[2] + "> with text: '" + match$3[1] + "' and attributes: " + attrs);
+                      return Promise.resolve([
+                                  lnum,
+                                  subs,
+                                  ""
+                                ]);
+                    }
+                    var match$4 = consumeLabel(line);
+                    if (match$4[0]) {
+                      console.log("LABEL: " + match$4[1]);
+                      return Promise.resolve([
+                                  lnum,
+                                  subs,
+                                  ""
+                                ]);
                     } else {
                       consumeNormalLine(line, subs, attrs);
                       return Promise.resolve([
@@ -306,6 +359,8 @@ exports.getMatches = getMatches;
 exports.consumeTitle = consumeTitle;
 exports.consumeSubstitution = consumeSubstitution;
 exports.consumeAttribute = consumeAttribute;
+exports.consumeHyperlink = consumeHyperlink;
+exports.consumeLabel = consumeLabel;
 exports.consumeNormalLine = consumeNormalLine;
 exports.EndOfBlock = EndOfBlock;
 exports.consumeExampleBlock = consumeExampleBlock;

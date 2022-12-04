@@ -14,6 +14,17 @@ block within this block:
 A small example
 ====
 ====
+
+[Go to Products page on this site](/Products.html)
+
+[Go to Offers page in current path](Offers.html)
+
+[Go to an arbitrary webpage](https://www.github.com)
+
+[#anchor]:
+Part 1: This text is selected by the anchor.
+
+[Go to Part 1](#anchor)
 `
 
 open Promise
@@ -69,6 +80,22 @@ let consumeAttribute = (line, subs) => {
   switch attrLine->getMatches(line) {
   | [_, attributes] => (true, subs, attributes)
   | _ => (false, subs, "")
+  }
+}
+
+let consumeHyperlink = (line, _, _) => {
+  let hlinkLine = %re("/\[\s*([^\]]*)\]\(\s*([^\s\)]*)\s*\)/")
+  switch hlinkLine->getMatches(line) {
+  | [_, text, link] => (true, text, link)
+  | _ => (false, "", "")
+  }
+}
+
+let consumeLabel = line => {
+  let labelLine = %re("/^\[\s*([^\]]+)\]:\s*$/")
+  switch labelLine->getMatches(line) {
+  | [_, label] => (true, label)
+  | _ => (false, "")
   }
 }
 
@@ -146,8 +173,20 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
             Js.log("ATTR: " ++ attributes)
             resolve((lnum, newsubs, attributes))
           } else {
-            consumeNormalLine(line, subs, attrs)
-            resolve((lnum, subs, ""))
+            let (consumed, text, link) = consumeHyperlink(line, subs, attrs)
+            if consumed {
+              Js.log("LINK: <" ++ link ++ "> with text: '" ++ text ++ "' and attributes: " ++ attrs)
+              resolve((lnum, subs, ""))
+            } else {
+              let (consumed, label) = consumeLabel(line)
+              if consumed {
+                Js.log("LABEL: " ++ label)
+                resolve((lnum, subs, ""))
+              } else {
+                consumeNormalLine(line, subs, attrs)
+                resolve((lnum, subs, ""))
+              }
+            }
           }
         | _ =>
           Js.log("Something else")
