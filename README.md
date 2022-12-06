@@ -28,8 +28,7 @@ Example:
 ```IDL
 = Document title
 :authors: Author Name <author@email.org>
-:revnumber: v2.0
-:revdate: 2019-03-22
+:revision: v2.0, 2019-03-22
 :toc:
 ```
 
@@ -309,6 +308,31 @@ Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
 Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
 ```
+
+### Mathematical Notation
+
+```
+.Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
+where {`a`}, {`b`} and {`c`} are the side lengths. 
+`===
+` msup((\( a + b \)) 2) ` = ` msup(c 2) + 4 ⋅ \( mfrac(1 / 2) a b \)
+
+` msup(a 2) + 2 a b + msup(b 2) ` = ` msup(c 2) + 2 a b
+` msup(a 2) + msup(b 2) ` = ` msup(c 2)
+`===
+
+`===
+y = (msup(x 2) " if " (x ≥ 1) " and " 2 " otherwise.")
+`===
+```
+
+The mathematical notation uses a human-readable form of MathML. Note 
+that MathML requires the typing of Unicode characters to write complex 
+formulas.
+
+The formulas can be aligned in a table-like matrix using the backtick
+"`" as cell separator. Spaces are required and headers and merged cells
+are not available.
 
 ### Forms
 
