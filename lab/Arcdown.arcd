@@ -285,14 +285,16 @@ highlight an idea
 ----
 
 All the headers must be on the same line, or "\" must be used to escape the
-line breaks otherwise the table is generated without a header row. There
-should be an empty line before the second table row and each new row should
-start on a new line.
+line breaks otherwise the table is generated without a header row.
 
-When the contents of a cell are written on multiple lines then the start of
-next cell must be on a new line. If there is no space between "|" and the
-text then the generator doesn't interpret the contents until another "|" or
-the end of the line.
+Each new row should start on a new line. An empty line before a new cell 
+marks the beginning of the second table row.
+
+Arcdown markup can be used inside a table cell. When the contents of a cell 
+are written on multiple lines then the start of next cell must be in a 
+normal paragraph or on a new line. If there is no space between "|" and the 
+text, the generator doesn't interpret the contents of the cell until another 
+"|" or the end of the line.
 
 Other table styles:
 
@@ -313,28 +315,6 @@ Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
 Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
 ----
-
-=== Mathematical Notation
-
-[source,bash]
-----
-.Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
-where {`a`}, {`b`} and {`c`} are the side lengths. 
-`===
-` (\( a + b \)) *^ 2 ` = ` c *^ 2 + 4 ⋅ \( mfrac(1 / 2) a b \)
-
-` msup(a 2) + 2 a b + msup(b 2) ` = ` msup(c 2) + 2 a b
-` msup(a 2) + msup(b 2) ` = ` msup(c 2)
-`===
-
-`===
-y = (msup(x 2) " if " (x ≥ 1) " and " 2 " otherwise.")
-`===
-----
-
-The mathematical notation uses a human-readable form of MathML. Note that MathML requires the typing of Unicode characters to write complex formulas.
-
-The formulas can be aligned in a table-like matrix using the backtick `"`"` as cell separator. Spaces are required and headers and merged cells are not available.
 
 === Forms
 
@@ -409,6 +389,28 @@ is not a tab is not displayed.
 
 In other cases, the generator outputs all the tabs in the tab list as
 well as tabset content except for the tab list. That allows page breaks.
+
+=== Mathematical Notation
+
+[source,bash]
+----
+.Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
+where {`a`}, {`b`} and {`c`} are the side lengths. 
+`===
+` (\( a + b \)) *^ 2 ` = ` c *^ 2 + 4 ⋅ \( mfrac(1 / 2) a b \)
+
+` msup(a 2) + 2 a b + msup(b 2) ` = ` msup(c 2) + 2 a b
+` msup(a 2) + msup(b 2) ` = ` msup(c 2)
+`===
+
+`===
+y = (msup(x 2) " if " (x ≥ 1) " and " 2 " otherwise.")
+`===
+----
+
+The mathematical notation uses a human-readable form of MathML. Note that MathML requires the typing of Unicode characters to write complex formulas.
+
+The formulas can be aligned in a table-like matrix using the backtick `"`"` as cell separator. Spaces are required and headers and merged cells are not available.
 
 === Block Title
 
