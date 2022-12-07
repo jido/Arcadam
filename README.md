@@ -216,7 +216,7 @@ new list to start up
 ```
 
 Use "+" to force a list item on multiple lines. If it is used on an empty 
-line, that starts a new paragraph. Note that indented code blocks don't 
+line, that starts a new paragraph. Note that indented blocks don't 
 require a "+".
 
 ### Styled Blocks
@@ -412,8 +412,7 @@ that MathML requires the typing of Unicode characters to write complex
 formulas.
 
 The formulas can be aligned in a table-like matrix using the backtick
-"`" as cell separator. Spaces are required and headers and merged cells
-are not available.
+"`" as cell separator. Spaces are required.
 
 ### Block Title
 
@@ -431,7 +430,7 @@ apples,oranges,pears
 A block title starts with a dot "." on its own line. It comes before the
 attributes.
 
-If the block title is used with an image, it is used as caption. 
+If a block title is added to a block image, it is used as caption. 
 Additionally, if the image caption contains a link then clicking on the 
 image loads the (first) link.
 
@@ -495,7 +494,7 @@ Example:
 [rows=">h,^,^"]
 ```
 
-If the attribute name starts with a dot "." and a stylesheet is defined, the specified style class is applied.
+If the attribute name starts with a dot "." and a stylesheet is defined then the specified style class is applied.
 
 Some attributes, such as a style class attribute, can be used in the middle of text by highlighting the part of the text they apply to.
 
@@ -530,7 +529,6 @@ The begin and end tags define a named region for include:
 [:begin region]:
 This text can be included
 on its own
-
 [:end region]:
 
 ----
@@ -570,8 +568,8 @@ contains callouts is deleted.
 
 If the deleted line starts with a known block comment marker, the 
 generator looks for a matched closing comment marker at the 
-beginning of next line and deletes that too. (like `/*` `*/` in C
-or `<!--` `-->` in XML)
+beginning of next line and deletes that too, for example `/*` and 
+the closing comment marker `*/` in C.
 
 ### Comments
 
@@ -609,12 +607,12 @@ The following are included in the translation:
 * formatting
 * in-line attributes
 * hyperlinks and inline content
-* labels (footnotes and anchors)
+* labels (references, footnotes and anchors)
 * callouts
 * user-defined substitutions
 * comments
 
-By default, code blocks are excluded. To include a code block
+By default, code and math blocks are excluded. To include a code block
 use the "localize" attribute:
 
 ```c
@@ -653,8 +651,8 @@ contents of the document:
 > enabled)
 > 
 > _specialchars_ - replace special characters with their corresponding 
-> entities (`<`, `>` and `&` for HTML). In code blocks, this step also 
-> enables syntax highlighting
+> entities (`<`, `>` and `&` for HTML). This step also
+> enables syntax highlighting in code blocks and MathML conversion in math blocks.
 > 
 > _callouts_ - process callouts and code tags
 > 
