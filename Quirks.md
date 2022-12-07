@@ -41,7 +41,7 @@ This is how to link to a heading in Markdown, which requires knowledge of how th
 
 ## Indented code block
 
-An important difference to note is the way indented text is handled in Arcdown.
+A notable difference is the way indented text is handled in Arcdown.
 
 The rule is:
 
@@ -132,11 +132,11 @@ The only supported format letter is "h" (header row or column).
 |===
 ```
 
-Horizontal alignment can only be set at column level or on a horizontally merged cell (see below). It does not apply to header rows. 
+Horizontal alignment can only be set at column level or on a horizontally merged cell (see below). Header rows are not affected by column level alignment. 
 
-Vertical alignment can only be set at row level or on a vertically merged cell (see below). It does not apply to header columns. 
+Vertical alignment can only be set at row level or on a vertically merged cell (see below). Header columns are not affected by row level alignment.
 
-Use the [rows] attribute to format rows, like the [cols] attribute for columns. 
+Use the "rows" attribute to format rows, like the "cols" attribute for columns. 
 
 Use "`5*|`" to repeat a cell 5 times horizontally.
 With a dot in front, the cell is repeated vertically or it can repeat in both directions with "`5.3*|`".
@@ -155,7 +155,7 @@ If the cell starts without a space between "`|`" and the content then it is not 
 
 ## Block boundaries
 
-Unlike Asciidoc, the number of repeated characters in a block boundary is fixed (length 4) and cannot be increased.
+Unlike Asciidoc, the number of repeated characters in a block boundary is fixed (length 4 or 2) and cannot be increased.
 AsciiDoctor uses matched boundary lengths for block nesting.
 
 Nesting of the same block is supported in Arcdown by adding an attribute in the line immediately before the start of the block.
@@ -179,7 +179,7 @@ The attributes for the default use of each kind of block are:
 ////
 ```
 
-Code blocks cannot nest inside each other and are not shown in the list above.
+Code and math blocks cannot nest inside themselves and are not shown in the list above.
 
 Example:
 
