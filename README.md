@@ -391,6 +391,7 @@ well as tabset content except for the tab list. That allows page breaks.
 .Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
 where {`a`}, {`b`} and {`c`} are the side lengths. 
 `===
+// Comments, references and callouts are allowed
 ` msup((\( a + b \)) 2) ` = ` msup(c 2) + 4 ⋅ \( mfrac(1 / 2) a b \)
 
 ` msup(a 2) + 2 a b + msup(b 2) ` = ` msup(c 2) + 2 a b
