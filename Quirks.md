@@ -73,8 +73,8 @@ In the output all three lines will be at the same level.
 For the next indented block to be a paragraph, it must match the indent of the first line.
 
 ```
-  A code block
-this is not part of the code block
+   A code block
+no-indent text is not part of the code block
 ```
 
 Unlike AsciiDoctor, all the lines of the code block must be indented. The second line above is a normal paragraph.
