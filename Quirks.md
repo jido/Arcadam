@@ -16,21 +16,25 @@ Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of fe
 
 This table shows Arcdown syntax:
 
-| feature                | linking it                           | target
-|------------------------|--------------------------------------|-------------------------------------
-| anchor                 | `[link text](#target)`               | `[#target]:` or
-|                        |                                      | `[=target]` *(inline)*
-| heading link           | `[Title Text]()`                     | `== Title Text`
-| footnote               | `[^note-name]`                       | `[^note-name]:`
-| bibliography reference | `[>reference]`                       | `[>reference]:` and
-|                        |                                      | `{:bibliography:}` where to place it
-| index item             | `{:index:}` where to place it        | `[[item]]` *(displayed)*
-| include region         | `[include]`                          | `[:begin region]:` then
-|                        | `[region](filepath)`                 | `[:end region]:`
+| feature                | linking it                           | target                              | AsciiDoctor
+|------------------------|--------------------------------------|-------------------------------------|--
+| anchor                 | `[link text](#target)`               | `[#target]:` or <br> `[=target]` *(inline)* | `<<target,link text>>` /<br> `[#target]` or `[[target]]` *(inline)*
+| heading link           | `[Title Text]()`                     | `== Title Text` | `<<Title Text>>` / `== Title Text`
+| footnote               | `[^note-name]`                       | `[^note-name]:`   | `footnote:[note text]` *(combined)*
+| bibliography reference | `[>reference]`                       | `[bibliography]` then <br> `[>reference]:` and <br> `{:bibliography:}` where to place it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then `- [[[reference]]]`
+| index item             | `{:index:}` where to place it        | `[[item]]`  | `[index]`<br>`== Index` / `((item))`
+| include region         | `[include]` <br> `[region](filepath)` | `[:begin region]:` then <br> `[:end region]:` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]`
+
+Markdown in Github flavour recently added footnotes with a syntax near identical to Arcdown.
+This is how to link to a title in Markdown:
+
+```
+[Title Text](#title-text)
+```
 
 ## Indented code block
 
-The first striking difference is the way indented text is handled in Arcdown.
+An important difference to note is the way indented text is handled in Arcdown.
 
 The rule is:
 
