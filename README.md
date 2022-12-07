@@ -115,6 +115,10 @@ Page break (not visible in the browser if the output is a HTML document):
 <<<
 ```
 
+Arcdown tries to break the text at a natural place between pages, like the end of a paragraph.
+Add ">>>" at the end of the line to prevent this behaviour in a specific place.
+That may force a page break in the middle of a paragraph.
+
 ### Hyperlinks
 
 ```markdown
@@ -154,13 +158,13 @@ Please refer to our Terms and Conditions [>T&C] for more information.
 
 ```markdown
 .sample image
-![Arcdown logo](Arcdown-logo.png)
+!![Arcdown logo](Arcdown-logo.png)
 
-The Github mascot: !![image](octocat.jpg)
+The Github mascot: ![image](octocat.jpg)
 ```
 
 Use "!" in front of a hyperlink to insert an image or a multimedia file.
-Double the "!" to make the image in line with the text rather than in a new block.
+Double the "!" to put the image in a new block rather than in line with the text.
 
 The hyperlink text will be used as the "alt" label in HTML.
 
@@ -421,7 +425,7 @@ apples,oranges,pears
 
 .A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
 [width=200,height=100]
-![Sunset](sunset.jpg)
+!![Sunset](sunset.jpg)
 ```
 
 A block title starts with a dot "." on its own line. It comes before the
