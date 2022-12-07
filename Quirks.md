@@ -16,16 +16,16 @@ Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of fe
 
 This table shows Arcdown syntax compared to AsciiDoc:
 
-| feature                | linking it             | target                                 | AsciiDoctor
+| feature                | linking it             | set target                             | AsciiDoctor
 |------------------------|------------------------|----------------------------------------|--
 | anchor                 | `[link text](#target)` | `[#target]:` or <br> `[id=target]`     | `<<target,link text>>` /<br> `[#target]` or `[[target]]`
 | heading link           | `[Title Text]()`       | `== Title Text`                        | `<<Title Text>>` / `== Title Text`
-| footnote               | `[^note-name]`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)*
+| foot note              | `[^note-name]`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)*
 | bibliography reference | `[>reference]`         | `[bibliography]` block with <br> `[>reference]:` and <br> `{:bibliography:}` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]`
 | index item             | `{:index:}` where to put it           | `[[item]]`              | `[index]` <br> `== Index` / `((item))`
 | include region         | `[include]` <br> `[region](filepath)` | `[:begin region]:` then <br> `[:end region]:` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]`
 
-AsciiDoc also has a link-like syntax for these, for example setting an anchor can be written:
+AsciiDoc also has a link-like syntax for these, for example setting an anchor target can be written:
 
 ```
 anchor:target[]
@@ -41,7 +41,7 @@ This is how to link to a heading in Markdown, which requires knowledge of how th
 
 ## Indented code block
 
-A notable difference is the way indented text is handled in Arcdown.
+A notable difference with AsciiDoc is the way indented text is handled.
 
 The rule is:
 
