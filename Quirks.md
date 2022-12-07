@@ -2,6 +2,32 @@
 
 Although the Arcdown syntax is superficially very similar to AsciiDoc with Markdown links, there are some important differences.
 
+## Links and macros
+
+AsciiDoc recognises hyperlinks as such; the text of the link is added after the link in square brackets `[]`.
+
+Arcdown prefers following the Markdown convention of putting the text of the link before the URI:
+
+```
+[This is the text to click](https://example.com)
+```
+
+Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of features are different in Arcdown.
+
+This table shows Arcdown syntax:
+
+| feature                | linking it                           | target
+|------------------------|--------------------------------------|-------------------------------------
+| anchor                 | `[link text](#target)`               | `[#target]:` or
+|                        |                                      | `[=target]` *(inline)*
+| heading link           | `[Title Text]()`                     | `== Title Text`
+| footnote               | `[^note-name]`                       | `[^note-name]:`
+| bibliography reference | `[>reference]`                       | `[>reference]:` and
+|                        |                                      | `{:bibliography:}` where to place it
+| index item             | `{:index:}` where to place it        | `[[item]]` *(displayed)*
+| include region         | `[include]`                          | `[:begin region]:` then
+|                        | `[region](filepath)`                 | `[:end region]:`
+
 ## Indented code block
 
 The first striking difference is the way indented text is handled in Arcdown.
@@ -40,7 +66,7 @@ For the next indented block to be a paragraph, it must match the indent of the f
 this is not part of the code block
 ```
 
-Unlike AsciiDoc, all the lines of the code block must be indented. The second line above is a normal paragraph.
+Unlike AsciiDoctor, all the lines of the code block must be indented. The second line above is a normal paragraph.
 
 ```
   ----
@@ -119,7 +145,7 @@ If the cell starts without a space between "`|`" and the content then it is not 
 ## Block boundaries
 
 Unlike Asciidoc, the number of repeated characters in a block boundary is fixed (length 4) and cannot be increased.
-AsciiDoc uses matched boundary lengths for block nesting.
+AsciiDoctor uses matched boundary lengths for block nesting.
 
 Nesting of the same block is supported in Arcdown by adding an attribute in the line immediately before the start of the block.
 
