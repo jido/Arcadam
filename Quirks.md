@@ -4,7 +4,7 @@ Although the Arcdown syntax is superficially very similar to AsciiDoc with Markd
 
 ## Links and macros
 
-AsciiDoc recognises hyperlinks as such; the text of the link is added after the link in square brackets `[]`.
+AsciiDoc can recognise a hyperlink as such; the text of the link is added after the URI in square brackets `[]`.
 
 Arcdown prefers following the Markdown convention of putting the text of the link before the URI:
 
@@ -12,21 +12,28 @@ Arcdown prefers following the Markdown convention of putting the text of the lin
 [This is the text to click](https://example.com)
 ```
 
-Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of features are different in Arcdown.
+Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of features are written differently in Arcdown.
 
-This table shows Arcdown syntax:
+This table shows Arcdown syntax compared to AsciiDoc:
 
-| feature                | linking it                           | target                              | AsciiDoctor
-|------------------------|--------------------------------------|-------------------------------------|--
-| anchor                 | `[link text](#target)`               | `[#target]:` or <br> `[=target]` *(inline)* | `<<target,link text>>` /<br> `[#target]` or `[[target]]` *(inline)*
-| heading link           | `[Title Text]()`                     | `== Title Text` | `<<Title Text>>` / `== Title Text`
-| footnote               | `[^note-name]`                       | `[^note-name]:`   | `footnote:[note text]` *(combined)*
-| bibliography reference | `[>reference]`                       | `[bibliography]` then <br> `[>reference]:` and <br> `{:bibliography:}` where to place it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then `- [[[reference]]]`
-| index item             | `{:index:}` where to place it        | `[[item]]`  | `[index]`<br>`== Index` / `((item))`
+| feature                | linking it             | target                                 | AsciiDoctor
+|------------------------|------------------------|----------------------------------------|--
+| anchor                 | `[link text](#target)` | `[#target]:` or <br> `[id=target]`     | `<<target,link text>>` /<br> `[#target]` or `[[target]]`
+| heading link           | `[Title Text]()`       | `== Title Text`                        | `<<Title Text>>` / `== Title Text`
+| footnote               | `[^note-name]`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)*
+| bibliography reference | `[>reference]`         | `[bibliography]` block with <br> `[>reference]:` and `{:bibliography:}` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]`
+| index item             | `{:index:}` where to put it           | `[[item]]`              | `[index]` <br> `== Index` / `((item))`
 | include region         | `[include]` <br> `[region](filepath)` | `[:begin region]:` then <br> `[:end region]:` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]`
 
+AsciiDoc also has a link-like syntax for these, for example setting an anchor can be written:
+
+```
+anchor:target[]
+```
+
 Markdown in Github flavour recently added footnotes with a syntax near identical to Arcdown.
-This is how to link to a title in Markdown:
+Most other features are not natively supported including setting a named anchor.
+This is how to link to a heading in Markdown, which requires knowledge of how the anchor name is built:
 
 ```
 [Title Text](#title-text)
