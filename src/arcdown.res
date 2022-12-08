@@ -25,6 +25,22 @@ A small example
 Part 1: This text is selected by the anchor.
 
 [Go to Part 1](#anchor)
+
+____
+Quote text using
+underscores
+____
+
+====
+Example block used to
+enclose an example
+====
+
+****
+Sidebar block used to
+expand on a topic or
+highlight an idea
+****
 `
 
 open Promise
@@ -104,6 +120,7 @@ let consumeNormalLine = (line, _, _) => {
 }
 
 exception EndOfBlock(string)
+
 let rec consumeExampleBlock = (line, lnum, subs, attrs) => {
   let blockLine = %re("/^====\s*$/")
   switch blockLine->getMatches(line) {
@@ -132,6 +149,62 @@ let rec consumeExampleBlock = (line, lnum, subs, attrs) => {
   | _ => resolve((lnum, subs, attrs))
   }
 }
+and consumeQuoteBlock = (line, lnum, subs, attrs) => {
+  let blockLine = %re("/^____\s*$/")
+  switch blockLine->getMatches(line) {
+  | [_] =>
+    Js.log("BLOCK: Quote with attributes: " ++ attrs)
+    let checkEndBlock = (ln, attrs) => {
+      attrs == "" && blockLine->getMatches(ln)->Array.length != 0
+    }
+    let rec promi = ((lnum, subs, attrs)) =>
+      consumeLine(lnum, subs, attrs, "_", checkEndBlock)
+      ->then(promi)
+      ->catch(err =>
+        switch err {
+        | EndOfBlock(_) =>
+          Js.log("BLOCK: Quote ended at line " ++ string_of_int(lnum))
+          resolve((lnum + 1, subs, attrs))
+        | EndOfFile(_) =>
+          Js.log("WARNING: Quote block not closed")
+          reject(err)
+        | _ =>
+          Js.log("WARNING: Unexpected error")
+          reject(err)
+        }
+      )
+    promi((lnum, subs, attrs))
+  | _ => resolve((lnum, subs, attrs))
+  }
+}
+and consumeSidebarBlock = (line, lnum, subs, attrs) => {
+  let blockLine = %re("/^\*\*\*\*\s*$/")
+  switch blockLine->getMatches(line) {
+  | [_] =>
+    Js.log("BLOCK: Sidebar with attributes: " ++ attrs)
+    let checkEndBlock = (ln, attrs) => {
+      attrs == "" && blockLine->getMatches(ln)->Array.length != 0
+    }
+    let rec promi = ((lnum, subs, attrs)) =>
+      consumeLine(lnum, subs, attrs, "*", checkEndBlock)
+      ->then(promi)
+      ->catch(err =>
+        switch err {
+        | EndOfBlock(_) =>
+          Js.log("BLOCK: Sidebar ended at line " ++ string_of_int(lnum))
+          resolve((lnum + 1, subs, attrs))
+        | EndOfFile(_) =>
+          Js.log("WARNING: Sidebar block not closed")
+          reject(err)
+        | _ =>
+          Js.log("WARNING: Unexpected error")
+          reject(err)
+        }
+      )
+    promi((lnum, subs, attrs))
+  | _ => resolve((lnum, subs, attrs))
+  }
+}
 and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
   let firstChar = %re("/^./")
   nextLine(lnum)->then(((line, lnum)) => {
@@ -139,7 +212,7 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
     switch m {
     | [chara] =>
       if endchar == chara && confirm(line, attrs) {
-        reject(EndOfBlock("example"))
+        reject(EndOfBlock(chara))
       } else {
         switch chara {
         | "=" =>
@@ -188,6 +261,26 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
               }
             }
           }
+        | "_" =>
+          Js.log("Maybe a quote block")
+          consumeQuoteBlock(line, lnum, subs, attrs)->then(((next, subs, attrs)) =>
+            if next > lnum {
+              resolve((next, subs, ""))
+            } else {
+              consumeNormalLine(line, subs, attrs)
+              resolve((lnum, subs, ""))
+            }
+          )
+        | "*" =>
+          Js.log("Maybe a list item")
+          consumeSidebarBlock(line, lnum, subs, attrs)->then(((next, subs, attrs)) =>
+            if next > lnum {
+              resolve((next, subs, ""))
+            } else {
+              consumeNormalLine(line, subs, attrs)
+              resolve((lnum, subs, ""))
+            }
+          )
         | _ =>
           Js.log("Something else")
           resolve((lnum, subs, "")) // TODO: preserve attributes for blank line

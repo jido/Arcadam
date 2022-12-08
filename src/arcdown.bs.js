@@ -10,7 +10,7 @@ var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n.Nested block\n[example]\n====\nA small example\n====\n====\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[Go to Part 1](#anchor)\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n.Nested block\n[example]\n====\nA small example\n====\n====\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[Go to Part 1](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n";
 
 var lines = Js_string.split("\n", source);
 
@@ -192,6 +192,98 @@ function consumeExampleBlock(line, lnum, subs, attrs) {
             ]);
 }
 
+function consumeQuoteBlock(line, lnum, subs, attrs) {
+  var blockLine = /^____\s*$/;
+  var match = getMatches(blockLine, line);
+  if (match.length !== 1) {
+    return Promise.resolve([
+                lnum,
+                subs,
+                attrs
+              ]);
+  }
+  console.log("BLOCK: Quote with attributes: " + attrs);
+  var checkEndBlock = function (ln, attrs) {
+    if (attrs === "") {
+      return getMatches(blockLine, ln).length !== 0;
+    } else {
+      return false;
+    }
+  };
+  var promi = function (param) {
+    var attrs = param[2];
+    var subs = param[1];
+    var lnum = param[0];
+    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, "_", checkEndBlock).then(promi), (function (err) {
+                  if (err.RE_EXN_ID === EndOfBlock) {
+                    console.log("BLOCK: Quote ended at line " + String(lnum));
+                    return Promise.resolve([
+                                lnum + 1 | 0,
+                                subs,
+                                attrs
+                              ]);
+                  } else if (err.RE_EXN_ID === EndOfFile) {
+                    console.log("WARNING: Quote block not closed");
+                    return Promise.reject(err);
+                  } else {
+                    console.log("WARNING: Unexpected error");
+                    return Promise.reject(err);
+                  }
+                }));
+  };
+  return promi([
+              lnum,
+              subs,
+              attrs
+            ]);
+}
+
+function consumeSidebarBlock(line, lnum, subs, attrs) {
+  var blockLine = /^\*\*\*\*\s*$/;
+  var match = getMatches(blockLine, line);
+  if (match.length !== 1) {
+    return Promise.resolve([
+                lnum,
+                subs,
+                attrs
+              ]);
+  }
+  console.log("BLOCK: Sidebar with attributes: " + attrs);
+  var checkEndBlock = function (ln, attrs) {
+    if (attrs === "") {
+      return getMatches(blockLine, ln).length !== 0;
+    } else {
+      return false;
+    }
+  };
+  var promi = function (param) {
+    var attrs = param[2];
+    var subs = param[1];
+    var lnum = param[0];
+    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, "*", checkEndBlock).then(promi), (function (err) {
+                  if (err.RE_EXN_ID === EndOfBlock) {
+                    console.log("BLOCK: Sidebar ended at line " + String(lnum));
+                    return Promise.resolve([
+                                lnum + 1 | 0,
+                                subs,
+                                attrs
+                              ]);
+                  } else if (err.RE_EXN_ID === EndOfFile) {
+                    console.log("WARNING: Sidebar block not closed");
+                    return Promise.reject(err);
+                  } else {
+                    console.log("WARNING: Unexpected error");
+                    return Promise.reject(err);
+                  }
+                }));
+  };
+  return promi([
+              lnum,
+              subs,
+              attrs
+            ]);
+}
+
 function consumeLine(lnum, subs, attrs, endchar, confirm) {
   var firstChar = /^./;
   return nextLine(lnum).then(function (param) {
@@ -220,10 +312,30 @@ function consumeLine(lnum, subs, attrs, endchar, confirm) {
               if (endchar === chara && Curry._2(confirm, line, attrs)) {
                 return Promise.reject({
                             RE_EXN_ID: EndOfBlock,
-                            _1: "example"
+                            _1: chara
                           });
               }
               switch (chara) {
+                case "*" :
+                    console.log("Maybe a list item");
+                    return consumeSidebarBlock(line, lnum, subs, attrs).then(function (param) {
+                                var subs = param[1];
+                                var next = param[0];
+                                if (next > lnum) {
+                                  return Promise.resolve([
+                                              next,
+                                              subs,
+                                              ""
+                                            ]);
+                                } else {
+                                  consumeNormalLine(line, subs, param[2]);
+                                  return Promise.resolve([
+                                              lnum,
+                                              subs,
+                                              ""
+                                            ]);
+                                }
+                              });
                 case ":" :
                     console.log("Maybe a substitution");
                     var match = consumeSubstitution(line, lnum, subs);
@@ -307,6 +419,26 @@ function consumeLine(lnum, subs, attrs, endchar, confirm) {
                                   ""
                                 ]);
                     }
+                case "_" :
+                    console.log("Maybe a quote block");
+                    return consumeQuoteBlock(line, lnum, subs, attrs).then(function (param) {
+                                var subs = param[1];
+                                var next = param[0];
+                                if (next > lnum) {
+                                  return Promise.resolve([
+                                              next,
+                                              subs,
+                                              ""
+                                            ]);
+                                } else {
+                                  consumeNormalLine(line, subs, param[2]);
+                                  return Promise.resolve([
+                                              lnum,
+                                              subs,
+                                              ""
+                                            ]);
+                                }
+                              });
                 default:
                   console.log("Something else");
                   return Promise.resolve([
@@ -364,6 +496,8 @@ exports.consumeLabel = consumeLabel;
 exports.consumeNormalLine = consumeNormalLine;
 exports.EndOfBlock = EndOfBlock;
 exports.consumeExampleBlock = consumeExampleBlock;
+exports.consumeQuoteBlock = consumeQuoteBlock;
+exports.consumeSidebarBlock = consumeSidebarBlock;
 exports.consumeLine = consumeLine;
 exports.subs = subs;
 exports.attrs = attrs;
