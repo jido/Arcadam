@@ -1,13 +1,14 @@
 open Belt
 
 let backtick = "`"
+let spaces = "      "
 
 let source = `
 [NOTE]
 ====
 This is how to start a new example
 block within this block:
-
+${spaces}
 .Nested block
 [example]
 ====
@@ -45,21 +46,6 @@ highlight an idea
 
 open Promise
 
-let lines = "\n"->Js.String.split(source)
-
-exception EndOfFile(string)
-let nextLine = lnum =>
-  switch lines[lnum] {
-  | Some(line) => resolve((line, lnum + 1))
-  | None => reject(EndOfFile("EOF"))
-  }
-
-type state = {
-  lnum: int,
-  attrs: string,
-  subs: list<(string, string)>,
-}
-
 let alpha = "A-Za-z"
 let alnum = "0-9" ++ alpha
 
@@ -68,6 +54,20 @@ let getMatches = (regex, someline) =>
   | Some(result) =>
     Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->Option.getWithDefault(_, ""))
   | None => []
+  }
+
+exception EndOfFile(string)
+let lines = "\n"->Js.String.split(source)
+
+let nextLine = lnum =>
+  switch lines[lnum] {
+  | Some(line) =>
+    let trimEnd = %re("/(\s*[^\s]+)*\s*/")
+    switch trimEnd->getMatches(line) {
+    | [_, line] => resolve((line, lnum + 1))
+    | _ => resolve(("", lnum + 1))
+    }
+  | None => reject(EndOfFile("EOF"))
   }
 
 let consumeTitle = (line, subs) => {
@@ -121,80 +121,24 @@ let consumeNormalLine = (line, _, _) => {
 
 exception EndOfBlock(string)
 
-let rec consumeExampleBlock = (line, lnum, subs, attrs) => {
-  let blockLine = %re("/^====\s*$/")
+let rec consumeRegularBlock = (name, firstChar, delimiter, line, lnum, subs, attrs) => {
+  let blockLine = Js.Re.fromString("^" ++ delimiter ++ "\s*$")
   switch blockLine->getMatches(line) {
   | [_] =>
-    Js.log("BLOCK: Example with attributes: " ++ attrs)
+    Js.log(`BLOCK: ${name} with attributes: ${attrs}`)
     let checkEndBlock = (ln, attrs) => {
       attrs == "" && blockLine->getMatches(ln)->Array.length != 0
     }
     let rec promi = ((lnum, subs, attrs)) =>
-      consumeLine(lnum, subs, attrs, "=", checkEndBlock)
+      consumeLine(lnum, subs, attrs, firstChar, checkEndBlock)
       ->then(promi)
       ->catch(err =>
         switch err {
         | EndOfBlock(_) =>
-          Js.log("BLOCK: Example ended at line " ++ string_of_int(lnum))
+          Js.log(`BLOCK: ${name} ended at line ${string_of_int(lnum)}`)
           resolve((lnum + 1, subs, attrs))
         | EndOfFile(_) =>
-          Js.log("WARNING: Example block not closed")
-          reject(err)
-        | _ =>
-          Js.log("WARNING: Unexpected error")
-          reject(err)
-        }
-      )
-    promi((lnum, subs, attrs))
-  | _ => resolve((lnum, subs, attrs))
-  }
-}
-and consumeQuoteBlock = (line, lnum, subs, attrs) => {
-  let blockLine = %re("/^____\s*$/")
-  switch blockLine->getMatches(line) {
-  | [_] =>
-    Js.log("BLOCK: Quote with attributes: " ++ attrs)
-    let checkEndBlock = (ln, attrs) => {
-      attrs == "" && blockLine->getMatches(ln)->Array.length != 0
-    }
-    let rec promi = ((lnum, subs, attrs)) =>
-      consumeLine(lnum, subs, attrs, "_", checkEndBlock)
-      ->then(promi)
-      ->catch(err =>
-        switch err {
-        | EndOfBlock(_) =>
-          Js.log("BLOCK: Quote ended at line " ++ string_of_int(lnum))
-          resolve((lnum + 1, subs, attrs))
-        | EndOfFile(_) =>
-          Js.log("WARNING: Quote block not closed")
-          reject(err)
-        | _ =>
-          Js.log("WARNING: Unexpected error")
-          reject(err)
-        }
-      )
-    promi((lnum, subs, attrs))
-  | _ => resolve((lnum, subs, attrs))
-  }
-}
-and consumeSidebarBlock = (line, lnum, subs, attrs) => {
-  let blockLine = %re("/^\*\*\*\*\s*$/")
-  switch blockLine->getMatches(line) {
-  | [_] =>
-    Js.log("BLOCK: Sidebar with attributes: " ++ attrs)
-    let checkEndBlock = (ln, attrs) => {
-      attrs == "" && blockLine->getMatches(ln)->Array.length != 0
-    }
-    let rec promi = ((lnum, subs, attrs)) =>
-      consumeLine(lnum, subs, attrs, "*", checkEndBlock)
-      ->then(promi)
-      ->catch(err =>
-        switch err {
-        | EndOfBlock(_) =>
-          Js.log("BLOCK: Sidebar ended at line " ++ string_of_int(lnum))
-          resolve((lnum + 1, subs, attrs))
-        | EndOfFile(_) =>
-          Js.log("WARNING: Sidebar block not closed")
+          Js.log(`WARNING: ${name} block not closed`)
           reject(err)
         | _ =>
           Js.log("WARNING: Unexpected error")
@@ -221,14 +165,17 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
           if consumed {
             resolve((lnum, newsubs, ""))
           } else {
-            consumeExampleBlock(line, lnum, subs, attrs)->then(((next, subs, attrs)) =>
-              if next > lnum {
-                resolve((next, subs, ""))
-              } else {
+            consumeRegularBlock("Example", chara, "====", line, lnum, subs, attrs)->then(((
+              next,
+              subs,
+              attrs,
+            )) => {
+              if next == lnum {
+                // No example block was consumed
                 consumeNormalLine(line, subs, attrs)
-                resolve((lnum, subs, ""))
               }
-            )
+              resolve((next, subs, ""))
+            })
           }
         | ":" =>
           Js.log("Maybe a substitution")
@@ -263,27 +210,33 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
           }
         | "_" =>
           Js.log("Maybe a quote block")
-          consumeQuoteBlock(line, lnum, subs, attrs)->then(((next, subs, attrs)) =>
-            if next > lnum {
-              resolve((next, subs, ""))
-            } else {
+          consumeRegularBlock("Quote", chara, "____", line, lnum, subs, attrs)->then(((
+            next,
+            subs,
+            attrs,
+          )) => {
+            if next == lnum {
+              // No quote block was consumed
               consumeNormalLine(line, subs, attrs)
-              resolve((lnum, subs, ""))
             }
-          )
+            resolve((next, subs, ""))
+          })
         | "*" =>
           Js.log("Maybe a list item")
-          consumeSidebarBlock(line, lnum, subs, attrs)->then(((next, subs, attrs)) =>
-            if next > lnum {
-              resolve((next, subs, ""))
-            } else {
+          consumeRegularBlock("Sidebar", chara, "\\*\\*\\*\\*", line, lnum, subs, attrs)->then(((
+            next,
+            subs,
+            attrs,
+          )) => {
+            if next == lnum {
+              // No sidebar block was consumed
               consumeNormalLine(line, subs, attrs)
-              resolve((lnum, subs, ""))
             }
-          )
+            resolve((next, subs, ""))
+          })
         | _ =>
           Js.log("Something else")
-          resolve((lnum, subs, "")) // TODO: preserve attributes for blank line
+          resolve((lnum, subs, ""))
         }
       }
     | [] =>

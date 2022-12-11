@@ -10,26 +10,9 @@ var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n.Nested block\n[example]\n====\nA small example\n====\n====\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[Go to Part 1](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n";
+var spaces = "      ";
 
-var lines = Js_string.split("\n", source);
-
-var EndOfFile = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfFile");
-
-function nextLine(lnum) {
-  var line = Belt_Array.get(lines, lnum);
-  if (line !== undefined) {
-    return Promise.resolve([
-                line,
-                lnum + 1 | 0
-              ]);
-  } else {
-    return Promise.reject({
-                RE_EXN_ID: EndOfFile,
-                _1: "EOF"
-              });
-  }
-}
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n" + spaces + "\n.Nested block\n[example]\n====\nA small example\n====\n====\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[Go to Part 1](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n";
 
 var alpha = "A-Za-z";
 
@@ -44,6 +27,33 @@ function getMatches(regex, someline) {
   } else {
     return [];
   }
+}
+
+var EndOfFile = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfFile");
+
+var lines = Js_string.split("\n", source);
+
+function nextLine(lnum) {
+  var line = Belt_Array.get(lines, lnum);
+  if (line === undefined) {
+    return Promise.reject({
+                RE_EXN_ID: EndOfFile,
+                _1: "EOF"
+              });
+  }
+  var trimEnd = /(\s*[^\s]+)*\s*/;
+  var match = getMatches(trimEnd, line);
+  if (match.length !== 2) {
+    return Promise.resolve([
+                "",
+                lnum + 1 | 0
+              ]);
+  }
+  var line$1 = match[1];
+  return Promise.resolve([
+              line$1,
+              lnum + 1 | 0
+            ]);
 }
 
 function consumeTitle(line, subs) {
@@ -146,8 +156,8 @@ function consumeNormalLine(line, param, param$1) {
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfBlock");
 
-function consumeExampleBlock(line, lnum, subs, attrs) {
-  var blockLine = /^====\s*$/;
+function consumeRegularBlock(name, firstChar, delimiter, line, lnum, subs, attrs) {
+  var blockLine = new RegExp("^" + delimiter + "\s*$");
   var match = getMatches(blockLine, line);
   if (match.length !== 1) {
     return Promise.resolve([
@@ -156,7 +166,7 @@ function consumeExampleBlock(line, lnum, subs, attrs) {
                 attrs
               ]);
   }
-  console.log("BLOCK: Example with attributes: " + attrs);
+  console.log("BLOCK: " + name + " with attributes: " + attrs + "");
   var checkEndBlock = function (ln, attrs) {
     if (attrs === "") {
       return getMatches(blockLine, ln).length !== 0;
@@ -168,108 +178,16 @@ function consumeExampleBlock(line, lnum, subs, attrs) {
     var attrs = param[2];
     var subs = param[1];
     var lnum = param[0];
-    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, "=", checkEndBlock).then(promi), (function (err) {
+    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, firstChar, checkEndBlock).then(promi), (function (err) {
                   if (err.RE_EXN_ID === EndOfBlock) {
-                    console.log("BLOCK: Example ended at line " + String(lnum));
+                    console.log("BLOCK: " + name + " ended at line " + String(lnum) + "");
                     return Promise.resolve([
                                 lnum + 1 | 0,
                                 subs,
                                 attrs
                               ]);
                   } else if (err.RE_EXN_ID === EndOfFile) {
-                    console.log("WARNING: Example block not closed");
-                    return Promise.reject(err);
-                  } else {
-                    console.log("WARNING: Unexpected error");
-                    return Promise.reject(err);
-                  }
-                }));
-  };
-  return promi([
-              lnum,
-              subs,
-              attrs
-            ]);
-}
-
-function consumeQuoteBlock(line, lnum, subs, attrs) {
-  var blockLine = /^____\s*$/;
-  var match = getMatches(blockLine, line);
-  if (match.length !== 1) {
-    return Promise.resolve([
-                lnum,
-                subs,
-                attrs
-              ]);
-  }
-  console.log("BLOCK: Quote with attributes: " + attrs);
-  var checkEndBlock = function (ln, attrs) {
-    if (attrs === "") {
-      return getMatches(blockLine, ln).length !== 0;
-    } else {
-      return false;
-    }
-  };
-  var promi = function (param) {
-    var attrs = param[2];
-    var subs = param[1];
-    var lnum = param[0];
-    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, "_", checkEndBlock).then(promi), (function (err) {
-                  if (err.RE_EXN_ID === EndOfBlock) {
-                    console.log("BLOCK: Quote ended at line " + String(lnum));
-                    return Promise.resolve([
-                                lnum + 1 | 0,
-                                subs,
-                                attrs
-                              ]);
-                  } else if (err.RE_EXN_ID === EndOfFile) {
-                    console.log("WARNING: Quote block not closed");
-                    return Promise.reject(err);
-                  } else {
-                    console.log("WARNING: Unexpected error");
-                    return Promise.reject(err);
-                  }
-                }));
-  };
-  return promi([
-              lnum,
-              subs,
-              attrs
-            ]);
-}
-
-function consumeSidebarBlock(line, lnum, subs, attrs) {
-  var blockLine = /^\*\*\*\*\s*$/;
-  var match = getMatches(blockLine, line);
-  if (match.length !== 1) {
-    return Promise.resolve([
-                lnum,
-                subs,
-                attrs
-              ]);
-  }
-  console.log("BLOCK: Sidebar with attributes: " + attrs);
-  var checkEndBlock = function (ln, attrs) {
-    if (attrs === "") {
-      return getMatches(blockLine, ln).length !== 0;
-    } else {
-      return false;
-    }
-  };
-  var promi = function (param) {
-    var attrs = param[2];
-    var subs = param[1];
-    var lnum = param[0];
-    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, "*", checkEndBlock).then(promi), (function (err) {
-                  if (err.RE_EXN_ID === EndOfBlock) {
-                    console.log("BLOCK: Sidebar ended at line " + String(lnum));
-                    return Promise.resolve([
-                                lnum + 1 | 0,
-                                subs,
-                                attrs
-                              ]);
-                  } else if (err.RE_EXN_ID === EndOfFile) {
-                    console.log("WARNING: Sidebar block not closed");
+                    console.log("WARNING: " + name + " block not closed");
                     return Promise.reject(err);
                   } else {
                     console.log("WARNING: Unexpected error");
@@ -318,23 +236,17 @@ function consumeLine(lnum, subs, attrs, endchar, confirm) {
               switch (chara) {
                 case "*" :
                     console.log("Maybe a list item");
-                    return consumeSidebarBlock(line, lnum, subs, attrs).then(function (param) {
+                    return consumeRegularBlock("Sidebar", chara, "\\*\\*\\*\\*", line, lnum, subs, attrs).then(function (param) {
                                 var subs = param[1];
                                 var next = param[0];
-                                if (next > lnum) {
-                                  return Promise.resolve([
-                                              next,
-                                              subs,
-                                              ""
-                                            ]);
-                                } else {
+                                if (next === lnum) {
                                   consumeNormalLine(line, subs, param[2]);
-                                  return Promise.resolve([
-                                              lnum,
-                                              subs,
-                                              ""
-                                            ]);
                                 }
+                                return Promise.resolve([
+                                            next,
+                                            subs,
+                                            ""
+                                          ]);
                               });
                 case ":" :
                     console.log("Maybe a substitution");
@@ -363,23 +275,17 @@ function consumeLine(lnum, subs, attrs, endchar, confirm) {
                                   ""
                                 ]);
                     } else {
-                      return consumeExampleBlock(line, lnum, subs, attrs).then(function (param) {
+                      return consumeRegularBlock("Example", chara, "====", line, lnum, subs, attrs).then(function (param) {
                                   var subs = param[1];
                                   var next = param[0];
-                                  if (next > lnum) {
-                                    return Promise.resolve([
-                                                next,
-                                                subs,
-                                                ""
-                                              ]);
-                                  } else {
+                                  if (next === lnum) {
                                     consumeNormalLine(line, subs, param[2]);
-                                    return Promise.resolve([
-                                                lnum,
-                                                subs,
-                                                ""
-                                              ]);
                                   }
+                                  return Promise.resolve([
+                                              next,
+                                              subs,
+                                              ""
+                                            ]);
                                 });
                     }
                 case "[" :
@@ -421,23 +327,17 @@ function consumeLine(lnum, subs, attrs, endchar, confirm) {
                     }
                 case "_" :
                     console.log("Maybe a quote block");
-                    return consumeQuoteBlock(line, lnum, subs, attrs).then(function (param) {
+                    return consumeRegularBlock("Quote", chara, "____", line, lnum, subs, attrs).then(function (param) {
                                 var subs = param[1];
                                 var next = param[0];
-                                if (next > lnum) {
-                                  return Promise.resolve([
-                                              next,
-                                              subs,
-                                              ""
-                                            ]);
-                                } else {
+                                if (next === lnum) {
                                   consumeNormalLine(line, subs, param[2]);
-                                  return Promise.resolve([
-                                              lnum,
-                                              subs,
-                                              ""
-                                            ]);
                                 }
+                                return Promise.resolve([
+                                            next,
+                                            subs,
+                                            ""
+                                          ]);
                               });
                 default:
                   console.log("Something else");
@@ -481,13 +381,14 @@ var subs = /* [] */0;
 var lnum = 0;
 
 exports.backtick = backtick;
+exports.spaces = spaces;
 exports.source = source;
-exports.lines = lines;
-exports.EndOfFile = EndOfFile;
-exports.nextLine = nextLine;
 exports.alpha = alpha;
 exports.alnum = alnum;
 exports.getMatches = getMatches;
+exports.EndOfFile = EndOfFile;
+exports.lines = lines;
+exports.nextLine = nextLine;
 exports.consumeTitle = consumeTitle;
 exports.consumeSubstitution = consumeSubstitution;
 exports.consumeAttribute = consumeAttribute;
@@ -495,9 +396,7 @@ exports.consumeHyperlink = consumeHyperlink;
 exports.consumeLabel = consumeLabel;
 exports.consumeNormalLine = consumeNormalLine;
 exports.EndOfBlock = EndOfBlock;
-exports.consumeExampleBlock = consumeExampleBlock;
-exports.consumeQuoteBlock = consumeQuoteBlock;
-exports.consumeSidebarBlock = consumeSidebarBlock;
+exports.consumeRegularBlock = consumeRegularBlock;
 exports.consumeLine = consumeLine;
 exports.subs = subs;
 exports.attrs = attrs;
