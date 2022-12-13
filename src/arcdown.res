@@ -121,16 +121,11 @@ let consumeNormalLine = (line, _, _) => {
 
 exception EndOfBlock(string)
 
-let rec consumeRegularBlock = (name, firstChar, delimiter, line, lnum, subs, attrs) => {
-  let blockLine = Js.Re.fromString("^" ++ delimiter ++ "\s*$")
-  switch blockLine->getMatches(line) {
-  | [_] =>
+let rec consumeRegularBlock = (name, delimiter, line, lnum, subs, attrs) => {
+  if line == delimiter {
     Js.log(`BLOCK: ${name} with attributes: ${attrs}`)
-    let checkEndBlock = (ln, attrs) => {
-      attrs == "" && blockLine->getMatches(ln)->Array.length != 0
-    }
     let rec promi = ((lnum, subs, attrs)) =>
-      consumeLine(lnum, subs, attrs, firstChar, checkEndBlock)
+      consumeLine(lnum, subs, attrs, delimiter)
       ->then(promi)
       ->catch(err =>
         switch err {
@@ -146,17 +141,20 @@ let rec consumeRegularBlock = (name, firstChar, delimiter, line, lnum, subs, att
         }
       )
     promi((lnum, subs, attrs))
-  | _ => resolve((lnum, subs, attrs))
+  } else {
+    resolve((lnum, subs, attrs))
   }
 }
-and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
-  let firstChar = %re("/^./")
+and consumeLine = (lnum, subs, attrs, delimiter) => {
+  //let firstChar = %re("/^./")
   nextLine(lnum)->then(((line, lnum)) => {
-    let m = firstChar->getMatches(line)
-    switch m {
-    | [chara] =>
-      if endchar == chara && confirm(line, attrs) {
-        reject(EndOfBlock(chara))
+    if line == "" {
+      Js.log("<empty>")
+      resolve((lnum, subs, attrs))
+    } else {
+      let chara = Js.String.charAt(0, line)
+      if attrs == "" && line == delimiter {
+        reject(EndOfBlock(delimiter))
       } else {
         switch chara {
         | "=" =>
@@ -165,7 +163,7 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
           if consumed {
             resolve((lnum, newsubs, ""))
           } else {
-            consumeRegularBlock("Example", chara, "====", line, lnum, subs, attrs)->then(((
+            consumeRegularBlock("Example", "====", line, lnum, subs, attrs)->then(((
               next,
               subs,
               attrs,
@@ -210,7 +208,7 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
           }
         | "_" =>
           Js.log("Maybe a quote block")
-          consumeRegularBlock("Quote", chara, "____", line, lnum, subs, attrs)->then(((
+          consumeRegularBlock("Quote", "____", line, lnum, subs, attrs)->then(((
             next,
             subs,
             attrs,
@@ -223,7 +221,7 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
           })
         | "*" =>
           Js.log("Maybe a list item")
-          consumeRegularBlock("Sidebar", chara, "\\*\\*\\*\\*", line, lnum, subs, attrs)->then(((
+          consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs)->then(((
             next,
             subs,
             attrs,
@@ -239,12 +237,6 @@ and consumeLine = (lnum, subs, attrs, endchar, confirm) => {
           resolve((lnum, subs, ""))
         }
       }
-    | [] =>
-      Js.log("<empty>")
-      resolve((lnum, subs, attrs))
-    | _ =>
-      Js.log("Unexpected! " ++ Array.length(m)->string_of_int)
-      resolve((lnum, subs, ""))
     }
   })
 }
@@ -254,7 +246,7 @@ let attrs = ""
 let lnum = 0
 
 let rec promi = ((lnum, subs, attrs)) =>
-  consumeLine(lnum, subs, attrs, "$", (_, _) => false)
+  consumeLine(lnum, subs, attrs, "")
   ->catch(err =>
     switch err {
     | EndOfFile(_) =>
