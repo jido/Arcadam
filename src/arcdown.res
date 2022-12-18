@@ -9,12 +9,15 @@ let source = `
 This is how to start a new example
 block within this block:
 ${spaces}
-.Nested block
+.Nested block<
 [example]
 ====
 A small example
 ====
 ====
+
+:subs: value&more
+== Arcdown Test ->> part 1
 
 [Go to Products page on this site](/Products.html)
 
@@ -25,7 +28,7 @@ A small example
 [#anchor]:
 Part 1: This text is selected by the anchor.
 
-[Go to Part 1](#anchor)
+[<Go to Part 1>](#anchor)
 
 ____
 Quote text using
@@ -62,18 +65,35 @@ let lines = "\n"->Js.String.split(source)
 let nextLine = lnum =>
   switch lines[lnum] {
   | Some(line) =>
-    let trimEnd = %re("/(\s*[^\s]+)*\s*/")
+    let trimEnd = %re("/^((\s*[^\s]+)*)\s*$/")
     switch trimEnd->getMatches(line) {
-    | [_, line] => resolve((line, lnum + 1))
+    | [_, line, _] => resolve((line, lnum + 1))
     | _ => resolve(("", lnum + 1))
     }
   | None => reject(EndOfFile("EOF"))
   }
 
+type formats =
+  | Html
+  | Asciidoc
+
+let outputFormat = Html
+
+let specialCharsStep = text => {
+  switch outputFormat {
+  | Html =>
+    let result = Js.String.replaceByRe(%re("/&/g"), "&amp;", text)
+    let result = Js.String.replaceByRe(%re("/</g"), "&lt;", result)
+    Js.String.replaceByRe(%re("/>/g"), "&gt;", result)
+  | Asciidoc => text
+  }
+}
+
 let consumeTitle = (line, subs) => {
   let titleLine = %re("/^=+\s+([^\s].*)/")
   switch titleLine->getMatches(line) {
   | [_, title] =>
+    let title = title->specialCharsStep
     Js.log("TITLE: " ++ title)
     (true, subs)
   | _ => (false, subs)
@@ -85,6 +105,7 @@ let consumeSubstitution = (line, lnum, subs) => {
   let substLine = Js.Re.fromString(pattern)
   switch substLine->getMatches(line) {
   | [_, name, _, value] =>
+    let value = value->specialCharsStep
     Js.log("SUBST: " ++ name ++ " --> " ++ value)
     (true, lnum, subs->List.add((name, value)))
   | _ => (false, lnum, subs)
@@ -102,7 +123,9 @@ let consumeAttribute = (line, subs) => {
 let consumeHyperlink = (line, _, _) => {
   let hlinkLine = %re("/\[\s*([^\]]*)\]\(\s*([^\s\)]*)\s*\)/")
   switch hlinkLine->getMatches(line) {
-  | [_, text, link] => (true, text, link)
+  | [_, text, link] =>
+    let text = text->specialCharsStep
+    (true, text, link)
   | _ => (false, "", "")
   }
 }
@@ -116,6 +139,7 @@ let consumeLabel = line => {
 }
 
 let consumeNormalLine = (line, _, _) => {
+  let line = line->specialCharsStep
   Js.log("TEXT: " ++ line)
 }
 

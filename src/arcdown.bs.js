@@ -11,7 +11,7 @@ var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
 var spaces = "      ";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n" + spaces + "\n.Nested block\n[example]\n====\nA small example\n====\n====\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[Go to Part 1](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n" + spaces + "\n.Nested block<\n[example]\n====\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to Part 1>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n";
 
 var alpha = "A-Za-z";
 
@@ -40,9 +40,9 @@ function nextLine(lnum) {
                 _1: "EOF"
               });
   }
-  var trimEnd = /(\s*[^\s]+)*\s*/;
+  var trimEnd = /^((\s*[^\s]+)*)\s*$/;
   var match = getMatches(trimEnd, line);
-  if (match.length !== 2) {
+  if (match.length !== 3) {
     return Promise.resolve([
                 "",
                 lnum + 1 | 0
@@ -55,6 +55,12 @@ function nextLine(lnum) {
             ]);
 }
 
+function specialCharsStep(text) {
+  var result = Js_string.replaceByRe(/&/g, "&amp;", text);
+  var result$1 = Js_string.replaceByRe(/</g, "&lt;", result);
+  return Js_string.replaceByRe(/>/g, "&gt;", result$1);
+}
+
 function consumeTitle(line, subs) {
   var titleLine = /^=+\s+([^\s].*)/;
   var match = getMatches(titleLine, line);
@@ -65,7 +71,8 @@ function consumeTitle(line, subs) {
           ];
   }
   var title = match[1];
-  console.log("TITLE: " + title);
+  var title$1 = specialCharsStep(title);
+  console.log("TITLE: " + title$1);
   return [
           true,
           subs
@@ -85,13 +92,14 @@ function consumeSubstitution(line, lnum, subs) {
   }
   var name = match[1];
   var value = match[3];
-  console.log("SUBST: " + name + " --> " + value);
+  var value$1 = specialCharsStep(value);
+  console.log("SUBST: " + name + " --> " + value$1);
   return [
           true,
           lnum,
           Belt_List.add(subs, [
                 name,
-                value
+                value$1
               ])
         ];
 }
@@ -126,9 +134,10 @@ function consumeHyperlink(line, param, param$1) {
   }
   var text = match[1];
   var link = match[2];
+  var text$1 = specialCharsStep(text);
   return [
           true,
-          text,
+          text$1,
           link
         ];
 }
@@ -150,7 +159,8 @@ function consumeLabel(line) {
 }
 
 function consumeNormalLine(line, param, param$1) {
-  console.log("TEXT: " + line);
+  var line$1 = specialCharsStep(line);
+  console.log("TEXT: " + line$1);
 }
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfBlock");
@@ -352,6 +362,8 @@ promi([
 
 var backtick = "`";
 
+var outputFormat = /* Html */0;
+
 var subs = /* [] */0;
 
 var lnum = 0;
@@ -365,6 +377,8 @@ exports.getMatches = getMatches;
 exports.EndOfFile = EndOfFile;
 exports.lines = lines;
 exports.nextLine = nextLine;
+exports.outputFormat = outputFormat;
+exports.specialCharsStep = specialCharsStep;
 exports.consumeTitle = consumeTitle;
 exports.consumeSubstitution = consumeSubstitution;
 exports.consumeAttribute = consumeAttribute;
