@@ -162,10 +162,9 @@ function consumeRegularLine(line, subs, attrs) {
   var chara = Js_string.charAt(0, line);
   var done;
   if (chara === "[") {
-    console.log("Maybe an hyperlink");
     var match = consumeHyperlink(line, subs, attrs);
     if (match[0]) {
-      console.log("LINK: <" + match[2] + "> with text: '" + match[1] + "' and attributes: " + attrs);
+      console.log("LINK: <" + match[2] + "> with text: '" + match[1] + "' and attributes [" + attrs + "]");
       done = true;
     } else {
       done = false;
@@ -190,7 +189,7 @@ function consumeRegularBlock(name, delimiter, line, lnum, subs, attrs) {
                 attrs
               ]);
   }
-  console.log("BLOCK: " + name + " with attributes: " + attrs + "");
+  console.log("BLOCK: " + name + " with attributes [" + attrs + "]");
   var promi = function (param) {
     var attrs = param[3];
     var subs = param[2];
@@ -227,7 +226,6 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
               var lnum = param[1];
               var line = param[0];
               if (line === "") {
-                console.log("<empty>");
                 return Promise.resolve([
                             true,
                             lnum,
@@ -244,7 +242,6 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
               var chara = Js_string.charAt(0, line);
               switch (chara) {
                 case "*" :
-                    console.log("Maybe a list item");
                     return consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs).then(function (param) {
                                 var subs = param[1];
                                 var next = param[0];
@@ -259,7 +256,6 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
                                           ]);
                               });
                 case ":" :
-                    console.log("Maybe a substitution");
                     var match = consumeSubstitution(line, lnum, subs);
                     if (match[0]) {
                       return Promise.resolve([
@@ -278,7 +274,6 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
                                 ]);
                     }
                 case "=" :
-                    console.log("Maybe a title");
                     var match$1 = consumeTitle(line, subs);
                     if (match$1[0]) {
                       return Promise.resolve([
@@ -303,7 +298,6 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
                                 });
                     }
                 case "[" :
-                    console.log("Maybe an attribute");
                     var match$2 = consumeAttribute(line, subs);
                     var attributes = match$2[2];
                     if (match$2[0]) {
@@ -334,7 +328,6 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
                                 ]);
                     }
                 case "_" :
-                    console.log("Maybe a quote block");
                     return consumeRegularBlock("Quote", "____", line, lnum, subs, attrs).then(function (param) {
                                 var subs = param[1];
                                 var next = param[0];
@@ -381,7 +374,6 @@ function consumeLine(lnum, subs, attrs, delimiter) {
               }
               var chara = Js_string.charAt(0, line);
               if (chara === "[") {
-                console.log("Maybe an attribute");
                 var match = consumeAttribute(line, subs);
                 var attributes = match[2];
                 if (match[0]) {
