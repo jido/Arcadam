@@ -101,7 +101,7 @@ let consumeTitle = (line, subs) => {
 }
 
 let consumeSubstitution = (line, lnum, subs) => {
-  let pattern = `^:([${alpha}]+(\\.[_${alnum}]+)*):\\s*(.*)`
+  let pattern = `^:([${alpha}]+(\\.[_${alnum}]+)*):\\s*(.*)\$`
   let substLine = Js.Re.fromString(pattern)
   switch substLine->getMatches(line) {
   | [_, name, _, value] =>
@@ -113,7 +113,7 @@ let consumeSubstitution = (line, lnum, subs) => {
 }
 
 let consumeAttribute = (line, subs) => {
-  let attrLine = %re("/^\[\s*([^\[\]]*)\]\s*$/")
+  let attrLine = %re("/^\[\s*([^\[\]]*)\]$/")
   switch attrLine->getMatches(line) {
   | [_, attributes] => (true, subs, attributes)
   | _ => (false, subs, "")
@@ -138,9 +138,24 @@ let consumeLabel = line => {
   }
 }
 
-let consumeNormalLine = (line, _, _) => {
-  let line = line->specialCharsStep
-  Js.log("TEXT: " ++ line)
+let consumeRegularLine = (line, subs, attrs) => {
+  let chara = Js.String.charAt(0, line)
+  let done = switch chara {
+  | "[" =>
+    Js.log("Maybe an hyperlink")
+    let (consumed, text, link) = consumeHyperlink(line, subs, attrs)
+    if consumed {
+      Js.log("LINK: <" ++ link ++ "> with text: '" ++ text ++ "' and attributes: " ++ attrs)
+      true
+    } else {
+      false
+    }
+  | _ => false
+  }
+  if !done {
+    let line = line->specialCharsStep
+    Js.log("TEXT: " ++ line)
+  }
 }
 
 exception EndOfBlock(string)
@@ -148,8 +163,12 @@ exception EndOfBlock(string)
 let rec consumeRegularBlock = (name, delimiter, line, lnum, subs, attrs) => {
   if line == delimiter {
     Js.log(`BLOCK: ${name} with attributes: ${attrs}`)
-    let rec promi = ((lnum, subs, attrs)) =>
-      consumeLine(lnum, subs, attrs, delimiter)
+    let rec promi = ((initial, lnum, subs, attrs)) =>
+      if initial {
+        consumeInitialLine(lnum, subs, attrs, delimiter)
+      } else {
+        consumeLine(lnum, subs, attrs, delimiter)
+      }
       ->then(promi)
       ->catch(err =>
         switch err {
@@ -164,102 +183,122 @@ let rec consumeRegularBlock = (name, delimiter, line, lnum, subs, attrs) => {
           reject(err)
         }
       )
-    promi((lnum, subs, attrs))
+    promi((true, lnum, subs, attrs))
   } else {
     resolve((lnum, subs, attrs))
   }
+}
+and consumeInitialLine = (lnum, subs, attrs, delimiter) => {
+  //let firstChar = %re("/^./")
+  nextLine(lnum)->then(((line, lnum)) => {
+    if line == "" {
+      Js.log("<empty>")
+      resolve((true, lnum, subs, attrs))
+    } else if attrs == "" && line == delimiter {
+      reject(EndOfBlock(delimiter))
+    } else {
+      let chara = Js.String.charAt(0, line)
+      switch chara {
+      | "=" =>
+        Js.log("Maybe a title")
+        let (consumed, newsubs) = consumeTitle(line, subs)
+        if consumed {
+          resolve((true, lnum, newsubs, ""))
+        } else {
+          consumeRegularBlock("Example", "====", line, lnum, subs, attrs)->then(((
+            next,
+            subs,
+            attrs,
+          )) => {
+            if next == lnum {
+              // No example block was consumed
+              consumeRegularLine(line, subs, attrs)
+            }
+            resolve((next != lnum, next, subs, ""))
+          })
+        }
+      | ":" =>
+        Js.log("Maybe a substitution")
+        let (consumed, next, newsubs) = consumeSubstitution(line, lnum, subs)
+        if consumed {
+          resolve((true, next, newsubs, ""))
+        } else {
+          consumeRegularLine(line, subs, attrs)
+          resolve((false, lnum, subs, ""))
+        }
+      | "[" =>
+        Js.log("Maybe an attribute")
+        let (consumed, newsubs, attributes) = consumeAttribute(line, subs)
+        if consumed {
+          Js.log("ATTR: " ++ attributes)
+          resolve((true, lnum, newsubs, attributes))
+        } else {
+          let (consumed, label) = consumeLabel(line)
+          if consumed {
+            Js.log("LABEL: " ++ label)
+            resolve((true, lnum, subs, ""))
+          } else {
+            consumeRegularLine(line, subs, attrs)
+            resolve((false, lnum, subs, ""))
+          }
+        }
+      | "_" =>
+        Js.log("Maybe a quote block")
+        consumeRegularBlock("Quote", "____", line, lnum, subs, attrs)->then(((
+          next,
+          subs,
+          attrs,
+        )) => {
+          if next == lnum {
+            // No quote block was consumed
+            consumeRegularLine(line, subs, attrs)
+          }
+          resolve((next != lnum, next, subs, ""))
+        })
+      | "*" =>
+        Js.log("Maybe a list item")
+        consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs)->then(((
+          next,
+          subs,
+          attrs,
+        )) => {
+          if next == lnum {
+            // No sidebar block was consumed
+            consumeRegularLine(line, subs, attrs)
+          }
+          resolve((next != lnum, next, subs, ""))
+        })
+      | _ =>
+        consumeRegularLine(line, subs, attrs)
+        resolve((false, lnum, subs, "")) // TODO: handle all cases
+      }
+    }
+  })
 }
 and consumeLine = (lnum, subs, attrs, delimiter) => {
   //let firstChar = %re("/^./")
   nextLine(lnum)->then(((line, lnum)) => {
     if line == "" {
       Js.log("<empty>")
-      resolve((lnum, subs, attrs))
+      resolve((true, lnum, subs, attrs))
+    } else if attrs == "" && line == delimiter {
+      reject(EndOfBlock(delimiter))
     } else {
       let chara = Js.String.charAt(0, line)
-      if attrs == "" && line == delimiter {
-        reject(EndOfBlock(delimiter))
-      } else {
-        switch chara {
-        | "=" =>
-          Js.log("Maybe a title")
-          let (consumed, newsubs) = consumeTitle(line, subs)
-          if consumed {
-            resolve((lnum, newsubs, ""))
-          } else {
-            consumeRegularBlock("Example", "====", line, lnum, subs, attrs)->then(((
-              next,
-              subs,
-              attrs,
-            )) => {
-              if next == lnum {
-                // No example block was consumed
-                consumeNormalLine(line, subs, attrs)
-              }
-              resolve((next, subs, ""))
-            })
-          }
-        | ":" =>
-          Js.log("Maybe a substitution")
-          let (consumed, next, newsubs) = consumeSubstitution(line, lnum, subs)
-          if consumed {
-            resolve((next, newsubs, ""))
-          } else {
-            consumeNormalLine(line, subs, attrs)
-            resolve((lnum, subs, ""))
-          }
-        | "[" =>
-          Js.log("Maybe an attribute")
-          let (consumed, newsubs, attributes) = consumeAttribute(line, subs)
-          if consumed {
-            Js.log("ATTR: " ++ attributes)
-            resolve((lnum, newsubs, attributes))
-          } else {
-            let (consumed, text, link) = consumeHyperlink(line, subs, attrs)
-            if consumed {
-              Js.log("LINK: <" ++ link ++ "> with text: '" ++ text ++ "' and attributes: " ++ attrs)
-              resolve((lnum, subs, ""))
-            } else {
-              let (consumed, label) = consumeLabel(line)
-              if consumed {
-                Js.log("LABEL: " ++ label)
-                resolve((lnum, subs, ""))
-              } else {
-                consumeNormalLine(line, subs, attrs)
-                resolve((lnum, subs, ""))
-              }
-            }
-          }
-        | "_" =>
-          Js.log("Maybe a quote block")
-          consumeRegularBlock("Quote", "____", line, lnum, subs, attrs)->then(((
-            next,
-            subs,
-            attrs,
-          )) => {
-            if next == lnum {
-              // No quote block was consumed
-              consumeNormalLine(line, subs, attrs)
-            }
-            resolve((next, subs, ""))
-          })
-        | "*" =>
-          Js.log("Maybe a list item")
-          consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs)->then(((
-            next,
-            subs,
-            attrs,
-          )) => {
-            if next == lnum {
-              // No sidebar block was consumed
-              consumeNormalLine(line, subs, attrs)
-            }
-            resolve((next, subs, ""))
-          })
-        | _ =>
-          Js.log("Something else")
-          resolve((lnum, subs, ""))
+      switch chara {
+      | "[" =>
+        Js.log("Maybe an attribute")
+        let (consumed, newsubs, attributes) = consumeAttribute(line, subs)
+        if consumed {
+          Js.log("ATTR: " ++ attributes)
+          resolve((true, lnum, newsubs, attributes))
+        } else {
+          consumeRegularLine(line, subs, attrs)
+          resolve((false, lnum, subs, ""))
         }
+      | _ =>
+        consumeRegularLine(line, subs, attrs)
+        resolve((false, lnum, subs, ""))
       }
     }
   })
@@ -269,8 +308,12 @@ let subs = list{}
 let attrs = ""
 let lnum = 0
 
-let rec promi = ((lnum, subs, attrs)) =>
-  consumeLine(lnum, subs, attrs, "")
+let rec promi = ((initial, lnum, subs, attrs)) =>
+  if initial {
+    consumeInitialLine(lnum, subs, attrs, "")
+  } else {
+    consumeLine(lnum, subs, attrs, "")
+  }
   ->catch(err =>
     switch err {
     | EndOfFile(_) =>
@@ -285,4 +328,4 @@ let rec promi = ((lnum, subs, attrs)) =>
   ->catch(_ => {
     resolve()
   })
-promi((lnum, subs, attrs))->ignore
+promi((true, lnum, subs, attrs))->ignore

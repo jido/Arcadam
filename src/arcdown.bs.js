@@ -80,7 +80,7 @@ function consumeTitle(line, subs) {
 }
 
 function consumeSubstitution(line, lnum, subs) {
-  var pattern = "^:([" + alpha + "]+(\\.[_" + alnum + "]+)*):\\s*(.*)";
+  var pattern = "^:([" + alpha + "]+(\\.[_" + alnum + "]+)*):\\s*(.*)\$";
   var substLine = new RegExp(pattern);
   var match = getMatches(substLine, line);
   if (match.length !== 4) {
@@ -105,7 +105,7 @@ function consumeSubstitution(line, lnum, subs) {
 }
 
 function consumeAttribute(line, subs) {
-  var attrLine = /^\[\s*([^\[\]]*)\]\s*$/;
+  var attrLine = /^\[\s*([^\[\]]*)\]$/;
   var match = getMatches(attrLine, line);
   if (match.length !== 2) {
     return [
@@ -158,7 +158,24 @@ function consumeLabel(line) {
         ];
 }
 
-function consumeNormalLine(line, param, param$1) {
+function consumeRegularLine(line, subs, attrs) {
+  var chara = Js_string.charAt(0, line);
+  var done;
+  if (chara === "[") {
+    console.log("Maybe an hyperlink");
+    var match = consumeHyperlink(line, subs, attrs);
+    if (match[0]) {
+      console.log("LINK: <" + match[2] + "> with text: '" + match[1] + "' and attributes: " + attrs);
+      done = true;
+    } else {
+      done = false;
+    }
+  } else {
+    done = false;
+  }
+  if (done) {
+    return ;
+  }
   var line$1 = specialCharsStep(line);
   console.log("TEXT: " + line$1);
 }
@@ -175,10 +192,12 @@ function consumeRegularBlock(name, delimiter, line, lnum, subs, attrs) {
   }
   console.log("BLOCK: " + name + " with attributes: " + attrs + "");
   var promi = function (param) {
-    var attrs = param[2];
-    var subs = param[1];
-    var lnum = param[0];
-    return $$Promise.$$catch(consumeLine(lnum, subs, attrs, delimiter).then(promi), (function (err) {
+    var attrs = param[3];
+    var subs = param[2];
+    var lnum = param[1];
+    return $$Promise.$$catch((
+                  param[0] ? consumeInitialLine(lnum, subs, attrs, delimiter) : consumeLine(lnum, subs, attrs, delimiter)
+                ).then(promi), (function (err) {
                   if (err.RE_EXN_ID === EndOfBlock) {
                     console.log("BLOCK: " + name + " ended at line " + String(lnum) + "");
                     return Promise.resolve([
@@ -196,31 +215,33 @@ function consumeRegularBlock(name, delimiter, line, lnum, subs, attrs) {
                 }));
   };
   return promi([
+              true,
               lnum,
               subs,
               attrs
             ]);
 }
 
-function consumeLine(lnum, subs, attrs, delimiter) {
+function consumeInitialLine(lnum, subs, attrs, delimiter) {
   return nextLine(lnum).then(function (param) {
               var lnum = param[1];
               var line = param[0];
               if (line === "") {
                 console.log("<empty>");
                 return Promise.resolve([
+                            true,
                             lnum,
                             subs,
                             attrs
                           ]);
               }
-              var chara = Js_string.charAt(0, line);
               if (attrs === "" && line === delimiter) {
                 return Promise.reject({
                             RE_EXN_ID: EndOfBlock,
                             _1: delimiter
                           });
               }
+              var chara = Js_string.charAt(0, line);
               switch (chara) {
                 case "*" :
                     console.log("Maybe a list item");
@@ -228,9 +249,10 @@ function consumeLine(lnum, subs, attrs, delimiter) {
                                 var subs = param[1];
                                 var next = param[0];
                                 if (next === lnum) {
-                                  consumeNormalLine(line, subs, param[2]);
+                                  consumeRegularLine(line, subs, param[2]);
                                 }
                                 return Promise.resolve([
+                                            next !== lnum,
                                             next,
                                             subs,
                                             ""
@@ -241,13 +263,15 @@ function consumeLine(lnum, subs, attrs, delimiter) {
                     var match = consumeSubstitution(line, lnum, subs);
                     if (match[0]) {
                       return Promise.resolve([
+                                  true,
                                   match[1],
                                   match[2],
                                   ""
                                 ]);
                     } else {
-                      consumeNormalLine(line, subs, attrs);
+                      consumeRegularLine(line, subs, attrs);
                       return Promise.resolve([
+                                  false,
                                   lnum,
                                   subs,
                                   ""
@@ -258,6 +282,7 @@ function consumeLine(lnum, subs, attrs, delimiter) {
                     var match$1 = consumeTitle(line, subs);
                     if (match$1[0]) {
                       return Promise.resolve([
+                                  true,
                                   lnum,
                                   match$1[1],
                                   ""
@@ -267,9 +292,10 @@ function consumeLine(lnum, subs, attrs, delimiter) {
                                   var subs = param[1];
                                   var next = param[0];
                                   if (next === lnum) {
-                                    consumeNormalLine(line, subs, param[2]);
+                                    consumeRegularLine(line, subs, param[2]);
                                   }
                                   return Promise.resolve([
+                                              next !== lnum,
                                               next,
                                               subs,
                                               ""
@@ -283,31 +309,25 @@ function consumeLine(lnum, subs, attrs, delimiter) {
                     if (match$2[0]) {
                       console.log("ATTR: " + attributes);
                       return Promise.resolve([
+                                  true,
                                   lnum,
                                   match$2[1],
                                   attributes
                                 ]);
                     }
-                    var match$3 = consumeHyperlink(line, subs, attrs);
+                    var match$3 = consumeLabel(line);
                     if (match$3[0]) {
-                      console.log("LINK: <" + match$3[2] + "> with text: '" + match$3[1] + "' and attributes: " + attrs);
+                      console.log("LABEL: " + match$3[1]);
                       return Promise.resolve([
-                                  lnum,
-                                  subs,
-                                  ""
-                                ]);
-                    }
-                    var match$4 = consumeLabel(line);
-                    if (match$4[0]) {
-                      console.log("LABEL: " + match$4[1]);
-                      return Promise.resolve([
+                                  true,
                                   lnum,
                                   subs,
                                   ""
                                 ]);
                     } else {
-                      consumeNormalLine(line, subs, attrs);
+                      consumeRegularLine(line, subs, attrs);
                       return Promise.resolve([
+                                  false,
                                   lnum,
                                   subs,
                                   ""
@@ -319,17 +339,19 @@ function consumeLine(lnum, subs, attrs, delimiter) {
                                 var subs = param[1];
                                 var next = param[0];
                                 if (next === lnum) {
-                                  consumeNormalLine(line, subs, param[2]);
+                                  consumeRegularLine(line, subs, param[2]);
                                 }
                                 return Promise.resolve([
+                                            next !== lnum,
                                             next,
                                             subs,
                                             ""
                                           ]);
                               });
                 default:
-                  console.log("Something else");
+                  consumeRegularLine(line, subs, attrs);
                   return Promise.resolve([
+                              false,
                               lnum,
                               subs,
                               ""
@@ -338,10 +360,65 @@ function consumeLine(lnum, subs, attrs, delimiter) {
             });
 }
 
+function consumeLine(lnum, subs, attrs, delimiter) {
+  return nextLine(lnum).then(function (param) {
+              var lnum = param[1];
+              var line = param[0];
+              if (line === "") {
+                console.log("<empty>");
+                return Promise.resolve([
+                            true,
+                            lnum,
+                            subs,
+                            attrs
+                          ]);
+              }
+              if (attrs === "" && line === delimiter) {
+                return Promise.reject({
+                            RE_EXN_ID: EndOfBlock,
+                            _1: delimiter
+                          });
+              }
+              var chara = Js_string.charAt(0, line);
+              if (chara === "[") {
+                console.log("Maybe an attribute");
+                var match = consumeAttribute(line, subs);
+                var attributes = match[2];
+                if (match[0]) {
+                  console.log("ATTR: " + attributes);
+                  return Promise.resolve([
+                              true,
+                              lnum,
+                              match[1],
+                              attributes
+                            ]);
+                } else {
+                  consumeRegularLine(line, subs, attrs);
+                  return Promise.resolve([
+                              false,
+                              lnum,
+                              subs,
+                              ""
+                            ]);
+                }
+              }
+              consumeRegularLine(line, subs, attrs);
+              return Promise.resolve([
+                          false,
+                          lnum,
+                          subs,
+                          ""
+                        ]);
+            });
+}
+
 var attrs = "";
 
 function promi(param) {
-  return $$Promise.$$catch($$Promise.$$catch(consumeLine(param[0], param[1], param[2], ""), (function (err) {
+  var attrs = param[3];
+  var subs = param[2];
+  var lnum = param[1];
+  return $$Promise.$$catch($$Promise.$$catch(param[0] ? consumeInitialLine(lnum, subs, attrs, "") : consumeLine(lnum, subs, attrs, ""), (function (err) {
                       if (err.RE_EXN_ID === EndOfFile) {
                         console.log("DONE");
                         return Promise.reject(err);
@@ -355,6 +432,7 @@ function promi(param) {
 }
 
 promi([
+      true,
       0,
       /* [] */0,
       attrs
@@ -384,9 +462,10 @@ exports.consumeSubstitution = consumeSubstitution;
 exports.consumeAttribute = consumeAttribute;
 exports.consumeHyperlink = consumeHyperlink;
 exports.consumeLabel = consumeLabel;
-exports.consumeNormalLine = consumeNormalLine;
+exports.consumeRegularLine = consumeRegularLine;
 exports.EndOfBlock = EndOfBlock;
 exports.consumeRegularBlock = consumeRegularBlock;
+exports.consumeInitialLine = consumeInitialLine;
 exports.consumeLine = consumeLine;
 exports.subs = subs;
 exports.attrs = attrs;
