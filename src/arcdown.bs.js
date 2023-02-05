@@ -2,6 +2,7 @@
 'use strict';
 
 var $$Promise = require("@ryyppy/rescript-promise/src/Promise.bs.js");
+var Caml_obj = require("rescript/lib/js/caml_obj.js");
 var Belt_List = require("rescript/lib/js/belt_List.js");
 var Js_string = require("rescript/lib/js/js_string.js");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
@@ -11,7 +12,7 @@ var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
 var spaces = "      ";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n" + spaces + "\n.Nested block<\n[example]\n====\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to Part 1>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n" + spaces + "\n.Nested block<\n[example]\n====\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to Part 1>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n... nested numbered list\n... nested 2\n* Third\n[list]\n. Number one\n";
 
 var alpha = "A-Za-z";
 
@@ -61,84 +62,99 @@ function specialCharsStep(text) {
   return Js_string.replaceByRe(/>/g, "&gt;", result$1);
 }
 
-function consumeTitle(line, subs) {
-  var titleLine = /^=+\s+([^\s].*)/;
-  var match = getMatches(titleLine, line);
+function consumeBlockTitle(line) {
+  var blockTitleLine = /^\.([^\s].*)$/;
+  var match = getMatches(blockTitleLine, line);
   if (match.length !== 2) {
-    return [
-            false,
-            subs
-          ];
+    return [];
   }
   var title = match[1];
-  var title$1 = specialCharsStep(title);
-  console.log("TITLE: " + title$1);
+  console.log("BLOCKTITLE: " + title);
   return [
-          true,
-          subs
+          /* BlockTitle */5,
+          {
+            TAG: /* Text */0,
+            _0: title
+          }
         ];
 }
 
-function consumeSubstitution(line, lnum, subs) {
-  var pattern = "^:([" + alpha + "]+(\\.[_" + alnum + "]+)*):\\s*(.*)\$";
+function consumeHeading(line) {
+  var titleLine = /^(=+)\s+([^\s].*)$/;
+  var match = getMatches(titleLine, line);
+  if (match.length !== 3) {
+    return [];
+  }
+  var signs = match[1];
+  var title = match[2];
+  var level = signs.length;
+  console.log("HEADING(level " + String(level) + "): " + title);
+  return [
+          {
+            TAG: /* Heading */1,
+            _0: level
+          },
+          {
+            TAG: /* Text */0,
+            _0: title
+          }
+        ];
+}
+
+function consumeSubstitution(line) {
+  var pattern = "^:([" + alpha + "][_" + alnum + "]*(\\.[_" + alnum + "]+)*):\\s+(.*)\$";
   var substLine = new RegExp(pattern);
   var match = getMatches(substLine, line);
   if (match.length !== 4) {
-    return [
-            false,
-            lnum,
-            subs
-          ];
+    return [];
   }
   var name = match[1];
   var value = match[3];
-  var value$1 = specialCharsStep(value);
-  console.log("SUBST: " + name + " --> " + value$1);
+  console.log("SUBST: " + name + " --> " + value + "");
   return [
-          true,
-          lnum,
-          Belt_List.add(subs, [
-                name,
-                value$1
-              ])
+          {
+            TAG: /* SubstitutionDef */6,
+            _0: name
+          },
+          {
+            TAG: /* Text */0,
+            _0: value
+          }
         ];
 }
 
-function consumeAttribute(line, subs) {
+function consumeAttribute(line) {
   var attrLine = /^\[\s*([^\[\]]*)\]$/;
   var match = getMatches(attrLine, line);
   if (match.length !== 2) {
-    return [
-            false,
-            subs,
-            ""
-          ];
+    return [];
   }
   var attributes = match[1];
-  return [
-          true,
-          subs,
-          attributes
-        ];
+  console.log("ATTR: " + attributes);
+  return [{
+            TAG: /* Attribute */2,
+            _0: attributes
+          }];
 }
 
-function consumeHyperlink(line, param, param$1) {
+function consumeHyperlink(line) {
   var hlinkLine = /\[\s*([^\]]*)\]\(\s*([^\s\)]*)\s*\)/;
   var match = getMatches(hlinkLine, line);
   if (match.length !== 3) {
-    return [
-            false,
-            "",
-            ""
-          ];
+    return [];
   }
   var text = match[1];
   var link = match[2];
-  var text$1 = specialCharsStep(text);
+  console.log("LINK: <" + link + "> with text: '" + text + "'");
   return [
-          true,
-          text$1,
-          link
+          {
+            TAG: /* Hyperlink */7,
+            _0: link
+          },
+          {
+            TAG: /* Text */0,
+            _0: text
+          }
         ];
 }
 
@@ -146,37 +162,85 @@ function consumeLabel(line) {
   var labelLine = /^\[\s*([^\]]+)\]:\s*$/;
   var match = getMatches(labelLine, line);
   if (match.length !== 2) {
-    return [
-            false,
-            ""
-          ];
+    return [];
   }
   var label = match[1];
+  console.log("LABEL: " + label + "");
+  return [{
+            TAG: /* Label */5,
+            _0: label
+          }];
+}
+
+function consumeBulletListItem(line) {
+  var itemLine = /^\s*([*]+)\s+(.*)$/;
+  var match = getMatches(itemLine, line);
+  if (match.length !== 3) {
+    return [];
+  }
+  var stars = match[1];
+  var text = match[2];
+  var level = stars.length;
+  console.log("LIST: bullet level " + String(level) + " with text: '" + text + "'");
   return [
-          true,
-          label
+          {
+            TAG: /* BulletListItem */3,
+            _0: level
+          },
+          {
+            TAG: /* Text */0,
+            _0: text
+          }
         ];
 }
 
-function consumeRegularLine(line, subs, attrs) {
+function consumeNumberedListItem(line) {
+  var itemLine = /^\s*([.]+)\s+(.*)$/;
+  var match = getMatches(itemLine, line);
+  if (match.length !== 3) {
+    return [];
+  }
+  var dots = match[1];
+  var text = match[2];
+  var level = dots.length;
+  console.log("LIST: item level " + String(level) + " with text: '" + text + "'");
+  return [
+          {
+            TAG: /* NumberedListItem */4,
+            _0: level
+          },
+          {
+            TAG: /* Text */0,
+            _0: text
+          }
+        ];
+}
+
+function consumeRegularLine(line) {
   var chara = Js_string.charAt(0, line);
-  var done;
-  if (chara === "[") {
-    var match = consumeHyperlink(line, subs, attrs);
-    if (match[0]) {
-      console.log("LINK: <" + match[2] + "> with text: '" + match[1] + "' and attributes [" + attrs + "]");
-      done = true;
-    } else {
-      done = false;
-    }
+  var tok;
+  switch (chara) {
+    case "*" :
+        tok = consumeBulletListItem(line);
+        break;
+    case "." :
+        tok = consumeNumberedListItem(line);
+        break;
+    case "[" :
+        tok = consumeHyperlink(line);
+        break;
+    default:
+      tok = [];
+  }
+  if (Caml_obj.equal(tok, [])) {
+    console.log("TEXT: " + line);
+    return [{
+              TAG: /* Text */0,
+              _0: line
+            }];
   } else {
-    done = false;
+    return tok;
   }
-  if (done) {
-    return ;
-  }
-  var line$1 = specialCharsStep(line);
-  console.log("TEXT: " + line$1);
 }
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfBlock");
@@ -243,29 +307,28 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
               switch (chara) {
                 case "*" :
                     return consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs).then(function (param) {
-                                var subs = param[1];
                                 var next = param[0];
                                 if (next === lnum) {
-                                  consumeRegularLine(line, subs, param[2]);
+                                  consumeRegularLine(line);
                                 }
                                 return Promise.resolve([
                                             next !== lnum,
                                             next,
-                                            subs,
+                                            param[1],
                                             ""
                                           ]);
                               });
-                case ":" :
-                    var match = consumeSubstitution(line, lnum, subs);
-                    if (match[0]) {
+                case "." :
+                    var consumed = consumeBlockTitle(line);
+                    if (Caml_obj.notequal(consumed, [])) {
                       return Promise.resolve([
                                   true,
-                                  match[1],
-                                  match[2],
+                                  lnum,
+                                  subs,
                                   ""
                                 ]);
                     } else {
-                      consumeRegularLine(line, subs, attrs);
+                      consumeRegularLine(line);
                       return Promise.resolve([
                                   false,
                                   lnum,
@@ -273,45 +336,49 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
                                   ""
                                 ]);
                     }
+                case ":" :
+                    var consumed$1 = consumeSubstitution(line);
+                    if (consumed$1.length === 2) {
+                      var name = consumed$1[0];
+                      if (typeof name !== "number" && name.TAG === /* SubstitutionDef */6) {
+                        var value = consumed$1[1];
+                        if (typeof value !== "number" && value.TAG === /* Text */0) {
+                          var subs$1 = Belt_List.add(subs, [
+                                name._0,
+                                value._0
+                              ]);
+                          return Promise.resolve([
+                                      true,
+                                      lnum,
+                                      subs$1,
+                                      ""
+                                    ]);
+                        }
+                        
+                      }
+                      
+                    }
+                    if (!Caml_obj.equal(consumed$1, [])) {
+                      throw {
+                            RE_EXN_ID: "Assert_failure",
+                            _1: [
+                              "arcdown.res",
+                              292,
+                              10
+                            ],
+                            Error: new Error()
+                          };
+                    }
+                    consumeRegularLine(line);
+                    return Promise.resolve([
+                                false,
+                                lnum,
+                                subs,
+                                ""
+                              ]);
                 case "=" :
-                    var match$1 = consumeTitle(line, subs);
-                    if (match$1[0]) {
-                      return Promise.resolve([
-                                  true,
-                                  lnum,
-                                  match$1[1],
-                                  ""
-                                ]);
-                    } else {
-                      return consumeRegularBlock("Example", "====", line, lnum, subs, attrs).then(function (param) {
-                                  var subs = param[1];
-                                  var next = param[0];
-                                  if (next === lnum) {
-                                    consumeRegularLine(line, subs, param[2]);
-                                  }
-                                  return Promise.resolve([
-                                              next !== lnum,
-                                              next,
-                                              subs,
-                                              ""
-                                            ]);
-                                });
-                    }
-                case "[" :
-                    var match$2 = consumeAttribute(line, subs);
-                    var attributes = match$2[2];
-                    if (match$2[0]) {
-                      console.log("ATTR: " + attributes);
-                      return Promise.resolve([
-                                  true,
-                                  lnum,
-                                  match$2[1],
-                                  attributes
-                                ]);
-                    }
-                    var match$3 = consumeLabel(line);
-                    if (match$3[0]) {
-                      console.log("LABEL: " + match$3[1]);
+                    var consumed$2 = consumeHeading(line);
+                    if (Caml_obj.notequal(consumed$2, [])) {
                       return Promise.resolve([
                                   true,
                                   lnum,
@@ -319,7 +386,54 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
                                   ""
                                 ]);
                     } else {
-                      consumeRegularLine(line, subs, attrs);
+                      return consumeRegularBlock("Example", "====", line, lnum, subs, attrs).then(function (param) {
+                                  var next = param[0];
+                                  if (next === lnum) {
+                                    consumeRegularLine(line);
+                                  }
+                                  return Promise.resolve([
+                                              next !== lnum,
+                                              next,
+                                              param[1],
+                                              ""
+                                            ]);
+                                });
+                    }
+                case "[" :
+                    var consumed$3 = consumeAttribute(line);
+                    if (consumed$3.length === 1) {
+                      var attributes = consumed$3[0];
+                      if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
+                        return Promise.resolve([
+                                    true,
+                                    lnum,
+                                    subs,
+                                    attributes._0
+                                  ]);
+                      }
+                      
+                    }
+                    if (!Caml_obj.equal(consumed$3, [])) {
+                      throw {
+                            RE_EXN_ID: "Assert_failure",
+                            _1: [
+                              "arcdown.res",
+                              301,
+                              10
+                            ],
+                            Error: new Error()
+                          };
+                    }
+                    var consumed$4 = consumeLabel(line);
+                    if (Caml_obj.notequal(consumed$4, [])) {
+                      return Promise.resolve([
+                                  true,
+                                  lnum,
+                                  subs,
+                                  ""
+                                ]);
+                    } else {
+                      consumeRegularLine(line);
                       return Promise.resolve([
                                   false,
                                   lnum,
@@ -329,20 +443,19 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
                     }
                 case "_" :
                     return consumeRegularBlock("Quote", "____", line, lnum, subs, attrs).then(function (param) {
-                                var subs = param[1];
                                 var next = param[0];
                                 if (next === lnum) {
-                                  consumeRegularLine(line, subs, param[2]);
+                                  consumeRegularLine(line);
                                 }
                                 return Promise.resolve([
                                             next !== lnum,
                                             next,
-                                            subs,
+                                            param[1],
                                             ""
                                           ]);
                               });
                 default:
-                  consumeRegularLine(line, subs, attrs);
+                  consumeRegularLine(line);
                   return Promise.resolve([
                               false,
                               lnum,
@@ -374,27 +487,39 @@ function consumeLine(lnum, subs, attrs, delimiter) {
               }
               var chara = Js_string.charAt(0, line);
               if (chara === "[") {
-                var match = consumeAttribute(line, subs);
-                var attributes = match[2];
-                if (match[0]) {
-                  console.log("ATTR: " + attributes);
-                  return Promise.resolve([
-                              true,
-                              lnum,
-                              match[1],
-                              attributes
-                            ]);
-                } else {
-                  consumeRegularLine(line, subs, attrs);
-                  return Promise.resolve([
-                              false,
-                              lnum,
-                              subs,
-                              ""
-                            ]);
+                var consumed = consumeAttribute(line);
+                if (consumed.length === 1) {
+                  var attributes = consumed[0];
+                  if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
+                    return Promise.resolve([
+                                true,
+                                lnum,
+                                subs,
+                                attributes._0
+                              ]);
+                  }
+                  
                 }
+                if (!Caml_obj.equal(consumed, [])) {
+                  throw {
+                        RE_EXN_ID: "Assert_failure",
+                        _1: [
+                          "arcdown.res",
+                          348,
+                          10
+                        ],
+                        Error: new Error()
+                      };
+                }
+                consumeRegularLine(line);
+                return Promise.resolve([
+                            false,
+                            lnum,
+                            subs,
+                            ""
+                          ]);
               }
-              consumeRegularLine(line, subs, attrs);
+              consumeRegularLine(line);
               return Promise.resolve([
                           false,
                           lnum,
@@ -449,11 +574,14 @@ exports.lines = lines;
 exports.nextLine = nextLine;
 exports.outputFormat = outputFormat;
 exports.specialCharsStep = specialCharsStep;
-exports.consumeTitle = consumeTitle;
+exports.consumeBlockTitle = consumeBlockTitle;
+exports.consumeHeading = consumeHeading;
 exports.consumeSubstitution = consumeSubstitution;
 exports.consumeAttribute = consumeAttribute;
 exports.consumeHyperlink = consumeHyperlink;
 exports.consumeLabel = consumeLabel;
+exports.consumeBulletListItem = consumeBulletListItem;
+exports.consumeNumberedListItem = consumeNumberedListItem;
 exports.consumeRegularLine = consumeRegularLine;
 exports.EndOfBlock = EndOfBlock;
 exports.consumeRegularBlock = consumeRegularBlock;

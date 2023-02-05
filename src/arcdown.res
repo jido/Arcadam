@@ -45,6 +45,17 @@ Sidebar block used to
 expand on a topic or
 highlight an idea
 ****
+
+* First<
+multi line
+* Second&&
+** sublist
+** one more
+... nested numbered list
+... nested 2
+* Third
+[list]
+. Number one
 `
 
 open Promise
@@ -89,71 +100,121 @@ let specialCharsStep = text => {
   }
 }
 
-let consumeTitle = (line, subs) => {
-  let titleLine = %re("/^=+\s+([^\s].*)/")
-  switch titleLine->getMatches(line) {
+type token =
+  | Text(string)
+  | Heading(int) // == Heading text
+  | Attribute(string) // [attributes]
+  | BulletListItem(int) // * List item
+  | NumberedListItem(int) // . List item
+  | Label(string) // [label]:
+  | SubstitutionDef(string) // :name: value
+  | Hyperlink(string) // [text](address)
+  | OpenBlockDelimiter // --
+  | CodeBlockDelimiter // ----
+  | ExampleBlockDelimiter // ====
+  | QuoteBlockDelimiter // ____
+  | SidebarBlockDelimiter // ****
+  | BlockTitle // .Block title
+  | SubstitutionUse(string) // {name}
+
+let consumeBlockTitle = line => {
+  let blockTitleLine = %re("/^\.([^\s].*)$/")
+  switch blockTitleLine->getMatches(line) {
   | [_, title] =>
-    let title = title->specialCharsStep
-    Js.log("TITLE: " ++ title)
-    (true, subs)
-  | _ => (false, subs)
+    Js.log("BLOCKTITLE: " ++ title)
+    [BlockTitle, Text(title)]
+  | _ => []
   }
 }
 
-let consumeSubstitution = (line, lnum, subs) => {
-  let pattern = `^:([${alpha}]+(\\.[_${alnum}]+)*):\\s*(.*)\$`
+let consumeHeading = line => {
+  let titleLine = %re("/^(=+)\s+([^\s].*)$/")
+  switch titleLine->getMatches(line) {
+  | [_, signs, title] =>
+    let level = signs->String.length
+    Js.log("HEADING(level " ++ level->string_of_int ++ "): " ++ title)
+    [Heading(level), Text(title)]
+  | _ => []
+  }
+}
+
+let consumeSubstitution = line => {
+  let pattern = `^:([${alpha}][_${alnum}]*(\\.[_${alnum}]+)*):\\s+(.*)\$`
   let substLine = Js.Re.fromString(pattern)
   switch substLine->getMatches(line) {
   | [_, name, _, value] =>
-    let value = value->specialCharsStep
-    Js.log("SUBST: " ++ name ++ " --> " ++ value)
-    (true, lnum, subs->List.add((name, value)))
-  | _ => (false, lnum, subs)
+    Js.log(`SUBST: ${name} --> ${value}`)
+    [SubstitutionDef(name), Text(value)]
+  | _ => []
   }
 }
 
-let consumeAttribute = (line, subs) => {
+let consumeAttribute = line => {
   let attrLine = %re("/^\[\s*([^\[\]]*)\]$/")
   switch attrLine->getMatches(line) {
-  | [_, attributes] => (true, subs, attributes)
-  | _ => (false, subs, "")
+  | [_, attributes] =>
+    Js.log("ATTR: " ++ attributes)
+    [Attribute(attributes)]
+  | _ => []
   }
 }
 
-let consumeHyperlink = (line, _, _) => {
+let consumeHyperlink = line => {
   let hlinkLine = %re("/\[\s*([^\]]*)\]\(\s*([^\s\)]*)\s*\)/")
   switch hlinkLine->getMatches(line) {
   | [_, text, link] =>
-    let text = text->specialCharsStep
-    (true, text, link)
-  | _ => (false, "", "")
+    Js.log(`LINK: <${link}> with text: '${text}'`)
+    [Hyperlink(link), Text(text)] // do NOT merge text token with the next
+  | _ => []
   }
 }
 
 let consumeLabel = line => {
   let labelLine = %re("/^\[\s*([^\]]+)\]:\s*$/")
   switch labelLine->getMatches(line) {
-  | [_, label] => (true, label)
-  | _ => (false, "")
+  | [_, label] =>
+    Js.log(`LABEL: ${label}`)
+    [Label(label)]
+  | _ => []
   }
 }
 
-let consumeRegularLine = (line, subs, attrs) => {
-  let chara = Js.String.charAt(0, line)
-  let done = switch chara {
-  | "[" =>
-    let (consumed, text, link) = consumeHyperlink(line, subs, attrs)
-    if consumed {
-      Js.log("LINK: <" ++ link ++ "> with text: '" ++ text ++ "' and attributes [" ++ attrs ++ "]")
-      true
-    } else {
-      false
-    }
-  | _ => false
+let consumeBulletListItem = line => {
+  let itemLine = %re("/^\s*([*]+)\s+(.*)$/")
+  switch itemLine->getMatches(line) {
+  | [_, stars, text] =>
+    let level = stars->String.length
+    Js.log(`LIST: bullet level ${level->string_of_int} with text: '${text}'`)
+
+    [BulletListItem(level), Text(text)]
+  | _ => []
   }
-  if !done {
-    let line = line->specialCharsStep
+}
+
+let consumeNumberedListItem = line => {
+  let itemLine = %re("/^\s*([.]+)\s+(.*)$/")
+  switch itemLine->getMatches(line) {
+  | [_, dots, text] =>
+    let level = dots->String.length
+    Js.log(`LIST: item level ${level->string_of_int} with text: '${text}'`)
+    [NumberedListItem(level), Text(text)]
+  | _ => []
+  }
+}
+
+let consumeRegularLine = line => {
+  let chara = Js.String.charAt(0, line)
+  let tok = switch chara {
+  | "[" => consumeHyperlink(line)
+  | "*" => consumeBulletListItem(line)
+  | "." => consumeNumberedListItem(line)
+  | _ => []
+  }
+  if tok == [] {
     Js.log("TEXT: " ++ line)
+    [Text(line)]
+  } else {
+    tok
   }
 }
 
@@ -196,72 +257,74 @@ and consumeInitialLine = (lnum, subs, attrs, delimiter) => {
     } else {
       let chara = Js.String.charAt(0, line)
       switch chara {
+      | "." =>
+        let consumed = consumeBlockTitle(line)
+        if consumed != [] {
+          resolve((true, lnum, subs, ""))
+        } else {
+          let _ = consumeRegularLine(line)
+          resolve((false, lnum, subs, ""))
+        }
       | "=" =>
-        let (consumed, newsubs) = consumeTitle(line, subs)
-        if consumed {
-          resolve((true, lnum, newsubs, ""))
+        let consumed = consumeHeading(line)
+        if consumed != [] {
+          resolve((true, lnum, subs, ""))
         } else {
           consumeRegularBlock("Example", "====", line, lnum, subs, attrs)->then(((
             next,
             subs,
-            attrs,
+            _,
           )) => {
             if next == lnum {
               // No example block was consumed
-              consumeRegularLine(line, subs, attrs)
+              let _ = consumeRegularLine(line)
             }
             resolve((next != lnum, next, subs, ""))
           })
         }
       | ":" =>
-        let (consumed, next, newsubs) = consumeSubstitution(line, lnum, subs)
-        if consumed {
-          resolve((true, next, newsubs, ""))
-        } else {
-          consumeRegularLine(line, subs, attrs)
+        let consumed = consumeSubstitution(line)
+        switch consumed {
+        | [SubstitutionDef(name), Text(value)] =>
+          let subs = subs->List.add((name, value))
+          resolve((true, lnum, subs, ""))
+        | m =>
+          assert (m == [])
+          let _ = consumeRegularLine(line)
           resolve((false, lnum, subs, ""))
         }
       | "[" =>
-        let (consumed, newsubs, attributes) = consumeAttribute(line, subs)
-        if consumed {
-          Js.log("ATTR: " ++ attributes)
-          resolve((true, lnum, newsubs, attributes))
-        } else {
-          let (consumed, label) = consumeLabel(line)
-          if consumed {
-            Js.log("LABEL: " ++ label)
+        let consumed = consumeAttribute(line)
+        switch consumed {
+        | [Attribute(attributes)] => resolve((true, lnum, subs, attributes))
+        | m =>
+          assert (m == [])
+          let consumed = consumeLabel(line)
+          if consumed != [] {
             resolve((true, lnum, subs, ""))
           } else {
-            consumeRegularLine(line, subs, attrs)
+            let _ = consumeRegularLine(line)
             resolve((false, lnum, subs, ""))
           }
         }
       | "_" =>
-        consumeRegularBlock("Quote", "____", line, lnum, subs, attrs)->then(((
-          next,
-          subs,
-          attrs,
-        )) => {
+        consumeRegularBlock("Quote", "____", line, lnum, subs, attrs)->then(((next, subs, _)) => {
           if next == lnum {
             // No quote block was consumed
-            consumeRegularLine(line, subs, attrs)
+            let _ = consumeRegularLine(line)
           }
           resolve((next != lnum, next, subs, ""))
         })
       | "*" =>
-        consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs)->then(((
-          next,
-          subs,
-          attrs,
-        )) => {
+        consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs)->then(((next, subs, _)) => {
           if next == lnum {
             // No sidebar block was consumed
-            consumeRegularLine(line, subs, attrs)
+            let _ = consumeRegularLine(line)
           }
           resolve((next != lnum, next, subs, ""))
         })
       | _ =>
-        consumeRegularLine(line, subs, attrs)
+        let _ = consumeRegularLine(line)
         resolve((false, lnum, subs, ""))
       }
     }
@@ -278,16 +341,16 @@ and consumeLine = (lnum, subs, attrs, delimiter) => {
       let chara = Js.String.charAt(0, line)
       switch chara {
       | "[" =>
-        let (consumed, newsubs, attributes) = consumeAttribute(line, subs)
-        if consumed {
-          Js.log("ATTR: " ++ attributes)
-          resolve((true, lnum, newsubs, attributes))
-        } else {
-          consumeRegularLine(line, subs, attrs)
+        let consumed = consumeAttribute(line)
+        switch consumed {
+        | [Attribute(attributes)] => resolve((true, lnum, subs, attributes))
+        | m =>
+          assert (m == []) // Appease the compiler
+          let _ = consumeRegularLine(line)
           resolve((false, lnum, subs, ""))
         }
       | _ =>
-        consumeRegularLine(line, subs, attrs)
+        let _ = consumeRegularLine(line)
         resolve((false, lnum, subs, ""))
       }
     }
