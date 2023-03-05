@@ -114,7 +114,7 @@ type token =
   | ExampleBlockDelimiter // ====
   | QuoteBlockDelimiter // ____
   | SidebarBlockDelimiter // ****
-  | BlockTitle // .Block title
+  | BlockTitle(string) // .Block title
   | SubstitutionUse(string) // {name}
 
 let consumeBlockTitle = line => {
@@ -122,7 +122,7 @@ let consumeBlockTitle = line => {
   switch blockTitleLine->getMatches(line) {
   | [_, title] =>
     Js.log("BLOCKTITLE: " ++ title)
-    [BlockTitle, Text(title)]
+    [BlockTitle(title)]
   | _ => []
   }
 }
@@ -220,21 +220,27 @@ let consumeRegularLine = line => {
 
 exception EndOfBlock(string)
 
-let rec consumeRegularBlock = (name, delimiter, line, lnum, subs, attrs) => {
+let rec consumeRegularBlock = (name, delimiter, line, lnum) => {
   if line == delimiter {
-    Js.log(`BLOCK: ${name} with attributes [${attrs}]`)
-    let rec promi = ((initial, lnum, subs, attrs)) =>
-      if initial {
-        consumeInitialLine(lnum, subs, attrs, delimiter)
-      } else {
-        consumeLine(lnum, subs, attrs, delimiter)
+    //Js.log(`BLOCK: ${name} with attributes [${attrs}]`)
+    let rec promi = ((tok, initial, lnum)) =>
+      {
+        let was_attribute = switch tok->List.fromArray->List.reverse->List.head {
+        | Some(Attribute(_)) => true
+        | _ => false
+        }
+        if initial {
+          consumeInitialLine(lnum, was_attribute, delimiter)
+        } else {
+          consumeLine(lnum, was_attribute, delimiter)
+        }
       }
       ->then(promi)
       ->catch(err =>
         switch err {
         | EndOfBlock(_) =>
           Js.log(`BLOCK: ${name} ended at line ${string_of_int(lnum)}`)
-          resolve((lnum + 1, subs, attrs))
+          resolve(([], lnum + 1))
         | EndOfFile(_) =>
           Js.log(`WARNING: ${name} block not closed`)
           reject(err)
@@ -243,115 +249,107 @@ let rec consumeRegularBlock = (name, delimiter, line, lnum, subs, attrs) => {
           reject(err)
         }
       )
-    promi((true, lnum, subs, attrs))
+    promi(([], true, lnum))
   } else {
-    resolve((lnum, subs, attrs))
+    resolve(([], lnum))
   }
 }
-and consumeInitialLine = (lnum, subs, attrs, delimiter) => {
+and consumeInitialLine = (lnum, was_attribute, delimiter) => {
   nextLine(lnum)->then(((line, lnum)) => {
     if line == "" {
-      resolve((true, lnum, subs, attrs))
-    } else if attrs == "" && line == delimiter {
+      resolve(([], true, lnum))
+    } else if !was_attribute && line == delimiter {
       reject(EndOfBlock(delimiter))
     } else {
       let chara = Js.String.charAt(0, line)
       switch chara {
       | "." =>
-        let consumed = consumeBlockTitle(line)
-        if consumed != [] {
-          resolve((true, lnum, subs, ""))
-        } else {
-          let _ = consumeRegularLine(line)
-          resolve((false, lnum, subs, ""))
+        let tokens = consumeBlockTitle(line)
+        switch tokens {
+        | [BlockTitle(title)] => resolve((tokens, true, lnum))
+        | m =>
+          assert (m == [])
+          resolve((consumeRegularLine(line), false, lnum))
         }
       | "=" =>
-        let consumed = consumeHeading(line)
-        if consumed != [] {
-          resolve((true, lnum, subs, ""))
+        let tokens = consumeHeading(line)
+        if tokens != [] {
+          resolve((tokens, false, lnum))
         } else {
-          consumeRegularBlock("Example", "====", line, lnum, subs, attrs)->then(((
-            next,
-            subs,
-            _,
-          )) => {
-            if next == lnum {
+          consumeRegularBlock("Example", "====", line, lnum)->then(((tok, next)) => {
+            if tok == [] {
               // No example block was consumed
-              let _ = consumeRegularLine(line)
+              resolve((consumeRegularLine(line), false, lnum))
+            } else {
+              resolve((tok, true, next))
             }
-            resolve((next != lnum, next, subs, ""))
           })
         }
       | ":" =>
-        let consumed = consumeSubstitution(line)
-        switch consumed {
+        let tokens = consumeSubstitution(line)
+        switch tokens {
         | [SubstitutionDef(name), Text(value)] =>
-          let subs = subs->List.add((name, value))
-          resolve((true, lnum, subs, ""))
+          //let subs = subs->List.add((name, value))
+          resolve((tokens, true, lnum))
         | m =>
           assert (m == [])
-          let _ = consumeRegularLine(line)
-          resolve((false, lnum, subs, ""))
+          resolve((consumeRegularLine(line), false, lnum))
         }
       | "[" =>
-        let consumed = consumeAttribute(line)
-        switch consumed {
-        | [Attribute(attributes)] => resolve((true, lnum, subs, attributes))
+        let tokens = consumeAttribute(line)
+        switch tokens {
+        | [Attribute(attributes)] => resolve((tokens, true, lnum))
         | m =>
           assert (m == [])
-          let consumed = consumeLabel(line)
-          if consumed != [] {
-            resolve((true, lnum, subs, ""))
+          let tokens = consumeLabel(line)
+          if tokens != [] {
+            resolve((tokens, true, lnum))
           } else {
-            let _ = consumeRegularLine(line)
-            resolve((false, lnum, subs, ""))
+            resolve((consumeRegularLine(line), false, lnum))
           }
         }
       | "_" =>
-        consumeRegularBlock("Quote", "____", line, lnum, subs, attrs)->then(((next, subs, _)) => {
-          if next == lnum {
+        consumeRegularBlock("Quote", "____", line, lnum)->then(((tok, next)) => {
+          if tok == [] {
             // No quote block was consumed
-            let _ = consumeRegularLine(line)
+            resolve((consumeRegularLine(line), false, lnum))
+          } else {
+            resolve((tok, true, next))
           }
-          resolve((next != lnum, next, subs, ""))
         })
       | "*" =>
-        consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs)->then(((next, subs, _)) => {
-          if next == lnum {
+        consumeRegularBlock("Sidebar", "****", line, lnum)->then(((tok, next)) => {
+          if tok == [] {
             // No sidebar block was consumed
-            let _ = consumeRegularLine(line)
+            resolve((consumeRegularLine(line), false, lnum))
+          } else {
+            resolve((tok, true, next))
           }
-          resolve((next != lnum, next, subs, ""))
         })
-      | _ =>
-        let _ = consumeRegularLine(line)
-        resolve((false, lnum, subs, ""))
+      | _ => resolve((consumeRegularLine(line), false, lnum))
       }
     }
   })
 }
-and consumeLine = (lnum, subs, attrs, delimiter) => {
+and consumeLine = (lnum, was_attribute, delimiter) => {
   nextLine(lnum)->then(((line, lnum)) => {
     if line == "" {
       Js.log("<empty>")
-      resolve((true, lnum, subs, attrs))
-    } else if attrs == "" && line == delimiter {
+      resolve(([], true, lnum))
+    } else if !was_attribute && line == delimiter {
       reject(EndOfBlock(delimiter))
     } else {
       let chara = Js.String.charAt(0, line)
       switch chara {
       | "[" =>
-        let consumed = consumeAttribute(line)
-        switch consumed {
-        | [Attribute(attributes)] => resolve((true, lnum, subs, attributes))
+        let tokens = consumeAttribute(line)
+        switch tokens {
+        | [Attribute(attributes)] => resolve((tokens, true, lnum))
         | m =>
           assert (m == []) // Appease the compiler
-          let _ = consumeRegularLine(line)
-          resolve((false, lnum, subs, ""))
+          resolve((consumeRegularLine(line), false, lnum))
         }
-      | _ =>
-        let _ = consumeRegularLine(line)
-        resolve((false, lnum, subs, ""))
+      | _ => resolve((consumeRegularLine(line), false, lnum))
       }
     }
   })
@@ -361,15 +359,28 @@ let subs = list{}
 let attrs = ""
 let lnum = 0
 
-let rec promi = ((initial, lnum, subs, attrs)) =>
-  if initial {
-    consumeInitialLine(lnum, subs, attrs, "")
-  } else {
-    consumeLine(lnum, subs, attrs, "")
+exception Success(array<token>)
+
+let rec promi = ((tok, initial, lnum)) =>
+  {
+    let was_attribute = switch tok->List.fromArray->List.reverse->List.head {
+    | Some(Attribute(_)) => true
+    | _ => false
+    }
+    if initial {
+      consumeInitialLine(lnum, was_attribute, "")
+    } else {
+      consumeLine(lnum, was_attribute, "")
+    }->catch(event =>
+      switch event {
+      | EndOfFile(_) => reject(Success(tok))
+      | _ => reject(event)
+      }
+    )
   }
   ->catch(err =>
     switch err {
-    | EndOfFile(_) =>
+    | Success(tokens) =>
       Js.log("DONE")
       reject(err)
     | _ =>
@@ -381,4 +392,4 @@ let rec promi = ((initial, lnum, subs, attrs)) =>
   ->catch(_ => {
     resolve()
   })
-promi((true, lnum, subs, attrs))->ignore
+promi(([], true, lnum))->ignore

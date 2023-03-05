@@ -70,13 +70,10 @@ function consumeBlockTitle(line) {
   }
   var title = match[1];
   console.log("BLOCKTITLE: " + title);
-  return [
-          /* BlockTitle */5,
-          {
-            TAG: /* Text */0,
+  return [{
+            TAG: /* BlockTitle */8,
             _0: title
-          }
-        ];
+          }];
 }
 
 function consumeHeading(line) {
@@ -245,28 +242,25 @@ function consumeRegularLine(line) {
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfBlock");
 
-function consumeRegularBlock(name, delimiter, line, lnum, subs, attrs) {
+function consumeRegularBlock(name, delimiter, line, lnum) {
   if (line !== delimiter) {
     return Promise.resolve([
-                lnum,
-                subs,
-                attrs
+                [],
+                lnum
               ]);
   }
-  console.log("BLOCK: " + name + " with attributes [" + attrs + "]");
   var promi = function (param) {
-    var attrs = param[3];
-    var subs = param[2];
-    var lnum = param[1];
+    var lnum = param[2];
+    var match = Belt_List.head(Belt_List.reverse(Belt_List.fromArray(param[0])));
+    var was_attribute = match !== undefined && !(typeof match === "number" || match.TAG !== /* Attribute */2) ? true : false;
     return $$Promise.$$catch((
-                  param[0] ? consumeInitialLine(lnum, subs, attrs, delimiter) : consumeLine(lnum, subs, attrs, delimiter)
+                  param[1] ? consumeInitialLine(lnum, was_attribute, delimiter) : consumeLine(lnum, was_attribute, delimiter)
                 ).then(promi), (function (err) {
                   if (err.RE_EXN_ID === EndOfBlock) {
                     console.log("BLOCK: " + name + " ended at line " + String(lnum) + "");
                     return Promise.resolve([
-                                lnum + 1 | 0,
-                                subs,
-                                attrs
+                                [],
+                                lnum + 1 | 0
                               ]);
                   } else if (err.RE_EXN_ID === EndOfFile) {
                     console.log("WARNING: " + name + " block not closed");
@@ -278,26 +272,24 @@ function consumeRegularBlock(name, delimiter, line, lnum, subs, attrs) {
                 }));
   };
   return promi([
+              [],
               true,
-              lnum,
-              subs,
-              attrs
+              lnum
             ]);
 }
 
-function consumeInitialLine(lnum, subs, attrs, delimiter) {
+function consumeInitialLine(lnum, was_attribute, delimiter) {
   return nextLine(lnum).then(function (param) {
               var lnum = param[1];
               var line = param[0];
               if (line === "") {
                 return Promise.resolve([
+                            [],
                             true,
-                            lnum,
-                            subs,
-                            attrs
+                            lnum
                           ]);
               }
-              if (attrs === "" && line === delimiter) {
+              if (!was_attribute && line === delimiter) {
                 return Promise.reject({
                             RE_EXN_ID: EndOfBlock,
                             _1: delimiter
@@ -306,237 +298,250 @@ function consumeInitialLine(lnum, subs, attrs, delimiter) {
               var chara = Js_string.charAt(0, line);
               switch (chara) {
                 case "*" :
-                    return consumeRegularBlock("Sidebar", "****", line, lnum, subs, attrs).then(function (param) {
-                                var next = param[0];
-                                if (next === lnum) {
-                                  consumeRegularLine(line);
+                    return consumeRegularBlock("Sidebar", "****", line, lnum).then(function (param) {
+                                var tok = param[0];
+                                if (Caml_obj.equal(tok, [])) {
+                                  return Promise.resolve([
+                                              consumeRegularLine(line),
+                                              false,
+                                              lnum
+                                            ]);
+                                } else {
+                                  return Promise.resolve([
+                                              tok,
+                                              true,
+                                              param[1]
+                                            ]);
                                 }
-                                return Promise.resolve([
-                                            next !== lnum,
-                                            next,
-                                            param[1],
-                                            ""
-                                          ]);
                               });
                 case "." :
-                    var consumed = consumeBlockTitle(line);
-                    if (Caml_obj.notequal(consumed, [])) {
-                      return Promise.resolve([
-                                  true,
-                                  lnum,
-                                  subs,
-                                  ""
-                                ]);
-                    } else {
-                      consumeRegularLine(line);
-                      return Promise.resolve([
-                                  false,
-                                  lnum,
-                                  subs,
-                                  ""
-                                ]);
+                    var tokens = consumeBlockTitle(line);
+                    if (tokens.length === 1) {
+                      var title = tokens[0];
+                      if (typeof title !== "number" && title.TAG === /* BlockTitle */8) {
+                        return Promise.resolve([
+                                    tokens,
+                                    true,
+                                    lnum
+                                  ]);
+                      }
+                      
                     }
-                case ":" :
-                    var consumed$1 = consumeSubstitution(line);
-                    if (consumed$1.length === 2) {
-                      var name = consumed$1[0];
-                      if (typeof name !== "number" && name.TAG === /* SubstitutionDef */6) {
-                        var value = consumed$1[1];
-                        if (typeof value !== "number" && value.TAG === /* Text */0) {
-                          var subs$1 = Belt_List.add(subs, [
-                                name._0,
-                                value._0
+                    if (!Caml_obj.equal(tokens, [])) {
+                      throw {
+                            RE_EXN_ID: "Assert_failure",
+                            _1: [
+                              "arcdown.res",
+                              271,
+                              10
+                            ],
+                            Error: new Error()
+                          };
+                    }
+                    return Promise.resolve([
+                                consumeRegularLine(line),
+                                false,
+                                lnum
                               ]);
+                case ":" :
+                    var tokens$1 = consumeSubstitution(line);
+                    if (tokens$1.length === 2) {
+                      var name = tokens$1[0];
+                      if (typeof name !== "number" && name.TAG === /* SubstitutionDef */6) {
+                        var value = tokens$1[1];
+                        if (typeof value !== "number" && value.TAG === /* Text */0) {
                           return Promise.resolve([
+                                      tokens$1,
                                       true,
-                                      lnum,
-                                      subs$1,
-                                      ""
+                                      lnum
                                     ]);
                         }
                         
                       }
                       
                     }
-                    if (!Caml_obj.equal(consumed$1, [])) {
+                    if (!Caml_obj.equal(tokens$1, [])) {
                       throw {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              292,
+                              295,
                               10
                             ],
                             Error: new Error()
                           };
                     }
-                    consumeRegularLine(line);
                     return Promise.resolve([
+                                consumeRegularLine(line),
                                 false,
-                                lnum,
-                                subs,
-                                ""
+                                lnum
                               ]);
                 case "=" :
-                    var consumed$2 = consumeHeading(line);
-                    if (Caml_obj.notequal(consumed$2, [])) {
+                    var tokens$2 = consumeHeading(line);
+                    if (Caml_obj.notequal(tokens$2, [])) {
                       return Promise.resolve([
-                                  true,
-                                  lnum,
-                                  subs,
-                                  ""
+                                  tokens$2,
+                                  false,
+                                  lnum
                                 ]);
                     } else {
-                      return consumeRegularBlock("Example", "====", line, lnum, subs, attrs).then(function (param) {
-                                  var next = param[0];
-                                  if (next === lnum) {
-                                    consumeRegularLine(line);
+                      return consumeRegularBlock("Example", "====", line, lnum).then(function (param) {
+                                  var tok = param[0];
+                                  if (Caml_obj.equal(tok, [])) {
+                                    return Promise.resolve([
+                                                consumeRegularLine(line),
+                                                false,
+                                                lnum
+                                              ]);
+                                  } else {
+                                    return Promise.resolve([
+                                                tok,
+                                                true,
+                                                param[1]
+                                              ]);
                                   }
-                                  return Promise.resolve([
-                                              next !== lnum,
-                                              next,
-                                              param[1],
-                                              ""
-                                            ]);
                                 });
                     }
                 case "[" :
-                    var consumed$3 = consumeAttribute(line);
-                    if (consumed$3.length === 1) {
-                      var attributes = consumed$3[0];
+                    var tokens$3 = consumeAttribute(line);
+                    if (tokens$3.length === 1) {
+                      var attributes = tokens$3[0];
                       if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
                         return Promise.resolve([
+                                    tokens$3,
                                     true,
-                                    lnum,
-                                    subs,
-                                    attributes._0
+                                    lnum
                                   ]);
                       }
                       
                     }
-                    if (!Caml_obj.equal(consumed$3, [])) {
+                    if (!Caml_obj.equal(tokens$3, [])) {
                       throw {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              301,
+                              303,
                               10
                             ],
                             Error: new Error()
                           };
                     }
-                    var consumed$4 = consumeLabel(line);
-                    if (Caml_obj.notequal(consumed$4, [])) {
+                    var tokens$4 = consumeLabel(line);
+                    if (Caml_obj.notequal(tokens$4, [])) {
                       return Promise.resolve([
+                                  tokens$4,
                                   true,
-                                  lnum,
-                                  subs,
-                                  ""
+                                  lnum
                                 ]);
                     } else {
-                      consumeRegularLine(line);
                       return Promise.resolve([
+                                  consumeRegularLine(line),
                                   false,
-                                  lnum,
-                                  subs,
-                                  ""
+                                  lnum
                                 ]);
                     }
                 case "_" :
-                    return consumeRegularBlock("Quote", "____", line, lnum, subs, attrs).then(function (param) {
-                                var next = param[0];
-                                if (next === lnum) {
-                                  consumeRegularLine(line);
+                    return consumeRegularBlock("Quote", "____", line, lnum).then(function (param) {
+                                var tok = param[0];
+                                if (Caml_obj.equal(tok, [])) {
+                                  return Promise.resolve([
+                                              consumeRegularLine(line),
+                                              false,
+                                              lnum
+                                            ]);
+                                } else {
+                                  return Promise.resolve([
+                                              tok,
+                                              true,
+                                              param[1]
+                                            ]);
                                 }
-                                return Promise.resolve([
-                                            next !== lnum,
-                                            next,
-                                            param[1],
-                                            ""
-                                          ]);
                               });
                 default:
-                  consumeRegularLine(line);
                   return Promise.resolve([
+                              consumeRegularLine(line),
                               false,
-                              lnum,
-                              subs,
-                              ""
+                              lnum
                             ]);
               }
             });
 }
 
-function consumeLine(lnum, subs, attrs, delimiter) {
+function consumeLine(lnum, was_attribute, delimiter) {
   return nextLine(lnum).then(function (param) {
               var lnum = param[1];
               var line = param[0];
               if (line === "") {
                 console.log("<empty>");
                 return Promise.resolve([
+                            [],
                             true,
-                            lnum,
-                            subs,
-                            attrs
+                            lnum
                           ]);
               }
-              if (attrs === "" && line === delimiter) {
+              if (!was_attribute && line === delimiter) {
                 return Promise.reject({
                             RE_EXN_ID: EndOfBlock,
                             _1: delimiter
                           });
               }
               var chara = Js_string.charAt(0, line);
-              if (chara === "[") {
-                var consumed = consumeAttribute(line);
-                if (consumed.length === 1) {
-                  var attributes = consumed[0];
-                  if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
-                    return Promise.resolve([
-                                true,
-                                lnum,
-                                subs,
-                                attributes._0
-                              ]);
-                  }
-                  
-                }
-                if (!Caml_obj.equal(consumed, [])) {
-                  throw {
-                        RE_EXN_ID: "Assert_failure",
-                        _1: [
-                          "arcdown.res",
-                          348,
-                          10
-                        ],
-                        Error: new Error()
-                      };
-                }
-                consumeRegularLine(line);
+              if (chara !== "[") {
                 return Promise.resolve([
+                            consumeRegularLine(line),
                             false,
-                            lnum,
-                            subs,
-                            ""
+                            lnum
                           ]);
               }
-              consumeRegularLine(line);
+              var tokens = consumeAttribute(line);
+              if (tokens.length === 1) {
+                var attributes = tokens[0];
+                if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
+                  return Promise.resolve([
+                              tokens,
+                              true,
+                              lnum
+                            ]);
+                }
+                
+              }
+              if (!Caml_obj.equal(tokens, [])) {
+                throw {
+                      RE_EXN_ID: "Assert_failure",
+                      _1: [
+                        "arcdown.res",
+                        349,
+                        10
+                      ],
+                      Error: new Error()
+                    };
+              }
               return Promise.resolve([
+                          consumeRegularLine(line),
                           false,
-                          lnum,
-                          subs,
-                          ""
+                          lnum
                         ]);
             });
 }
 
-var attrs = "";
+var Success = /* @__PURE__ */Caml_exceptions.create("Arcdown.Success");
 
 function promi(param) {
-  var attrs = param[3];
-  var subs = param[2];
-  var lnum = param[1];
-  return $$Promise.$$catch($$Promise.$$catch(param[0] ? consumeInitialLine(lnum, subs, attrs, "") : consumeLine(lnum, subs, attrs, ""), (function (err) {
-                      if (err.RE_EXN_ID === EndOfFile) {
+  var lnum = param[2];
+  var tok = param[0];
+  var match = Belt_List.head(Belt_List.reverse(Belt_List.fromArray(tok)));
+  var was_attribute = match !== undefined && !(typeof match === "number" || match.TAG !== /* Attribute */2) ? true : false;
+  return $$Promise.$$catch($$Promise.$$catch($$Promise.$$catch(param[1] ? consumeInitialLine(lnum, was_attribute, "") : consumeLine(lnum, was_attribute, ""), (function ($$event) {
+                          if ($$event.RE_EXN_ID === EndOfFile) {
+                            return Promise.reject({
+                                        RE_EXN_ID: Success,
+                                        _1: tok
+                                      });
+                          } else {
+                            return Promise.reject($$event);
+                          }
+                        })), (function (err) {
+                      if (err.RE_EXN_ID === Success) {
                         console.log("DONE");
                         return Promise.reject(err);
                       } else {
@@ -549,10 +554,9 @@ function promi(param) {
 }
 
 promi([
+      [],
       true,
-      0,
-      /* [] */0,
-      attrs
+      0
     ]);
 
 var backtick = "`";
@@ -560,6 +564,8 @@ var backtick = "`";
 var outputFormat = /* Html */0;
 
 var subs = /* [] */0;
+
+var attrs = "";
 
 var lnum = 0;
 
@@ -590,5 +596,6 @@ exports.consumeLine = consumeLine;
 exports.subs = subs;
 exports.attrs = attrs;
 exports.lnum = lnum;
+exports.Success = Success;
 exports.promi = promi;
 /* lines Not a pure module */
