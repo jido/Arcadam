@@ -3,7 +3,6 @@
 
 var $$Promise = require("@ryyppy/rescript-promise/src/Promise.bs.js");
 var Caml_obj = require("rescript/lib/js/caml_obj.js");
-var Belt_List = require("rescript/lib/js/belt_List.js");
 var Js_string = require("rescript/lib/js/js_string.js");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
@@ -211,6 +210,23 @@ function consumeNumberedListItem(line) {
         ];
 }
 
+function consumeBlockDelimiter(line) {
+  switch (line) {
+    case "" :
+        return [/* Empty */0];
+    case "****" :
+        return [/* SidebarBlockDelimiter */5];
+    case "--" :
+        return [/* FreeBlockDelimiter */1];
+    case "====" :
+        return [/* ExampleBlockDelimiter */3];
+    case "____" :
+        return [/* QuoteBlockDelimiter */4];
+    default:
+      return [];
+  }
+}
+
 function consumeRegularLine(line) {
   var chara = Js_string.charAt(0, line);
   var tok;
@@ -240,124 +256,59 @@ function consumeRegularLine(line) {
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfBlock");
 
-function consumeRegularBlock(name, delimiter, line, lnum) {
-  if (line !== delimiter) {
-    return Promise.resolve([
-                [],
-                lnum
-              ]);
-  }
-  var promi = function (param) {
-    var lnum = param[2];
-    var tok = param[0];
-    var match = Belt_List.head(Belt_List.reverse(Belt_List.fromArray(tok)));
-    var was_attribute = match !== undefined && !(typeof match === "number" || match.TAG !== /* Attribute */2) ? true : false;
-    return $$Promise.$$catch((
-                  param[1] ? consumeInitialLine(tok, lnum, was_attribute, delimiter) : consumeLine(tok, lnum, was_attribute, delimiter)
-                ).then(promi), (function (err) {
-                  if (err.RE_EXN_ID === EndOfBlock) {
-                    console.log("BLOCK: " + name + " ended at line " + String(lnum) + "");
-                    return Promise.resolve([
-                                err._1,
-                                lnum + 1 | 0
-                              ]);
-                  } else if (err.RE_EXN_ID === EndOfFile) {
-                    console.log("WARNING: " + name + " block not closed");
-                    return Promise.reject(err);
-                  } else {
-                    console.log("WARNING: Unexpected error");
-                    return Promise.reject(err);
-                  }
-                }));
-  };
-  return promi([
-              [],
-              true,
-              lnum
-            ]);
-}
-
-function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
+function consumeInitialLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
               var lnum = param[1];
               var line = param[0];
-              if (line === "") {
+              var tokens = consumeBlockDelimiter(line);
+              if (tokens.length !== 0) {
                 return Promise.resolve([
-                            Belt_Array.concat(tok, [/* Empty */0]),
+                            Belt_Array.concat(tok, tokens),
                             true,
                             lnum
                           ]);
               }
-              if (!was_attribute && line === delimiter) {
-                return Promise.reject({
-                            RE_EXN_ID: EndOfBlock,
-                            _1: tok
-                          });
-              }
               var chara = Js_string.charAt(0, line);
               switch (chara) {
-                case "*" :
-                    return consumeRegularBlock("Sidebar", "****", line, lnum).then(function (param) {
-                                var blocktokens = param[0];
-                                if (Caml_obj.equal(blocktokens, [])) {
-                                  var tokens = consumeRegularLine(line);
-                                  return Promise.resolve([
-                                              Belt_Array.concat(tok, tokens),
-                                              false,
-                                              lnum
-                                            ]);
-                                }
-                                var parts = [
-                                  tok,
-                                  [/* SidebarBlockDelimiter */5],
-                                  blocktokens,
-                                  [/* SidebarBlockDelimiter */5]
-                                ];
-                                return Promise.resolve([
-                                            Belt_Array.concatMany(parts),
-                                            true,
-                                            param[1]
-                                          ]);
-                              });
                 case "." :
-                    var tokens = consumeBlockTitle(line);
-                    if (tokens.length === 1) {
-                      var title = tokens[0];
+                    var tokens$1 = consumeBlockTitle(line);
+                    if (tokens$1.length === 1) {
+                      var title = tokens$1[0];
                       if (typeof title !== "number" && title.TAG === /* BlockTitle */8) {
                         return Promise.resolve([
-                                    Belt_Array.concat(tok, tokens),
+                                    Belt_Array.concat(tok, tokens$1),
                                     true,
                                     lnum
                                   ]);
                       }
                       
                     }
-                    if (!Caml_obj.equal(tokens, [])) {
+                    if (!Caml_obj.equal(tokens$1, [])) {
                       throw {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              285,
+                              297,
                               10
                             ],
                             Error: new Error()
                           };
                     }
-                    var tokens$1 = consumeRegularLine(line);
+                    var tokens$2 = consumeRegularLine(line);
                     return Promise.resolve([
-                                Belt_Array.concat(tok, tokens$1),
+                                Belt_Array.concat(tok, tokens$2),
                                 false,
                                 lnum
                               ]);
                 case ":" :
-                    var tokens$2 = consumeSubstitution(line);
-                    if (tokens$2.length === 2) {
-                      var name = tokens$2[0];
+                    var tokens$3 = consumeSubstitution(line);
+                    if (tokens$3.length === 2) {
+                      var name = tokens$3[0];
                       if (typeof name !== "number" && name.TAG === /* SubstitutionDef */6) {
-                        var value = tokens$2[1];
+                        var value = tokens$3[1];
                         if (typeof value !== "number" && value.TAG === /* Text */0) {
                           return Promise.resolve([
-                                      Belt_Array.concat(tok, tokens$2),
+                                      Belt_Array.concat(tok, tokens$3),
                                       true,
                                       lnum
                                     ]);
@@ -366,12 +317,12 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
                       }
                       
                     }
-                    if (!Caml_obj.equal(tokens$2, [])) {
+                    if (!Caml_obj.equal(tokens$3, [])) {
                       throw {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              312,
+                              316,
                               10
                             ],
                             Error: new Error()
@@ -383,103 +334,63 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
                                 lnum
                               ]);
                 case "=" :
-                    var tokens$3 = consumeHeading(line);
-                    if (Caml_obj.notequal(tokens$3, [])) {
+                    var tokens$4 = consumeHeading(line);
+                    if (Caml_obj.notequal(tokens$4, [])) {
                       return Promise.resolve([
-                                  Belt_Array.concat(tok, tokens$3),
+                                  Belt_Array.concat(tok, tokens$4),
                                   false,
                                   lnum
                                 ]);
-                    } else {
-                      return consumeRegularBlock("Example", "====", line, lnum).then(function (param) {
-                                  var blocktokens = param[0];
-                                  if (Caml_obj.equal(blocktokens, [])) {
-                                    var tokens = consumeRegularLine(line);
-                                    return Promise.resolve([
-                                                Belt_Array.concat(tok, tokens),
-                                                false,
-                                                lnum
-                                              ]);
-                                  }
-                                  var parts = [
-                                    tok,
-                                    [/* ExampleBlockDelimiter */3],
-                                    blocktokens,
-                                    [/* ExampleBlockDelimiter */3]
-                                  ];
-                                  return Promise.resolve([
-                                              Belt_Array.concatMany(parts),
-                                              true,
-                                              param[1]
-                                            ]);
-                                });
                     }
+                    var tokens$5 = consumeRegularLine(line);
+                    return Promise.resolve([
+                                Belt_Array.concat(tok, tokens$5),
+                                false,
+                                lnum
+                              ]);
                 case "[" :
-                    var tokens$4 = consumeAttribute(line);
-                    if (tokens$4.length === 1) {
-                      var attributes = tokens$4[0];
+                    var tokens$6 = consumeAttribute(line);
+                    if (tokens$6.length === 1) {
+                      var attributes = tokens$6[0];
                       if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
                         return Promise.resolve([
-                                    Belt_Array.concat(tok, tokens$4),
-                                    true,
+                                    Belt_Array.concat(tok, tokens$6),
+                                    false,
                                     lnum
                                   ]);
                       }
                       
                     }
-                    if (!Caml_obj.equal(tokens$4, [])) {
+                    if (!Caml_obj.equal(tokens$6, [])) {
                       throw {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              320,
+                              324,
                               10
                             ],
                             Error: new Error()
                           };
                     }
-                    var tokens$5 = consumeLabel(line);
-                    if (Caml_obj.notequal(tokens$5, [])) {
+                    var tokens$7 = consumeLabel(line);
+                    if (Caml_obj.notequal(tokens$7, [])) {
                       return Promise.resolve([
-                                  Belt_Array.concat(tok, tokens$5),
+                                  Belt_Array.concat(tok, tokens$7),
                                   true,
                                   lnum
                                 ]);
                     }
-                    var tokens$6 = consumeRegularLine(line);
+                    var tokens$8 = consumeRegularLine(line);
                     return Promise.resolve([
-                                Belt_Array.concat(tok, tokens$6),
+                                Belt_Array.concat(tok, tokens$8),
                                 false,
                                 lnum
                               ]);
                     break;
-                case "_" :
-                    return consumeRegularBlock("Quote", "____", line, lnum).then(function (param) {
-                                var blocktokens = param[0];
-                                if (Caml_obj.equal(blocktokens, [])) {
-                                  var tokens = consumeRegularLine(line);
-                                  return Promise.resolve([
-                                              Belt_Array.concat(tok, tokens),
-                                              false,
-                                              lnum
-                                            ]);
-                                }
-                                var parts = [
-                                  tok,
-                                  [/* QuoteBlockDelimiter */4],
-                                  blocktokens,
-                                  [/* QuoteBlockDelimiter */4]
-                                ];
-                                return Promise.resolve([
-                                            Belt_Array.concatMany(parts),
-                                            true,
-                                            param[1]
-                                          ]);
-                              });
                 default:
-                  var tokens$7 = consumeRegularLine(line);
+                  var tokens$9 = consumeRegularLine(line);
                   return Promise.resolve([
-                              Belt_Array.concat(tok, tokens$7),
+                              Belt_Array.concat(tok, tokens$9),
                               false,
                               lnum
                             ]);
@@ -487,55 +398,40 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
             });
 }
 
-function consumeLine(tok, lnum, was_attribute, delimiter) {
+function consumeLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
               var lnum = param[1];
               var line = param[0];
-              if (line === "") {
-                console.log("<empty>");
+              var tokens = consumeBlockDelimiter(line);
+              if (tokens.length !== 0) {
                 return Promise.resolve([
-                            Belt_Array.concat(tok, [/* Empty */0]),
+                            Belt_Array.concat(tok, tokens),
                             true,
                             lnum
                           ]);
               }
-              if (!was_attribute && line === delimiter) {
-                return Promise.reject({
-                            RE_EXN_ID: EndOfBlock,
-                            _1: tok
-                          });
+              var tokens$1 = consumeAttribute(line);
+              if (tokens$1.length === 1) {
+                var attributes = tokens$1[0];
+                if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
+                  return Promise.resolve([
+                              Belt_Array.concat(tok, tokens$1),
+                              false,
+                              lnum
+                            ]);
+                }
+                
               }
-              var chara = Js_string.charAt(0, line);
-              if (chara === "[") {
-                var tokens = consumeAttribute(line);
-                if (tokens.length === 1) {
-                  var attributes = tokens[0];
-                  if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
-                    return Promise.resolve([
-                                Belt_Array.concat(tok, tokens),
-                                true,
-                                lnum
-                              ]);
-                  }
-                  
-                }
-                if (!Caml_obj.equal(tokens, [])) {
-                  throw {
-                        RE_EXN_ID: "Assert_failure",
-                        _1: [
-                          "arcdown.res",
-                          373,
-                          10
-                        ],
-                        Error: new Error()
-                      };
-                }
-                var tokens$1 = consumeRegularLine(line);
-                return Promise.resolve([
-                            Belt_Array.concat(tok, tokens$1),
-                            false,
-                            lnum
-                          ]);
+              if (!Caml_obj.equal(tokens$1, [])) {
+                throw {
+                      RE_EXN_ID: "Assert_failure",
+                      _1: [
+                        "arcdown.res",
+                        351,
+                        8
+                      ],
+                      Error: new Error()
+                    };
               }
               var tokens$2 = consumeRegularLine(line);
               return Promise.resolve([
@@ -551,9 +447,7 @@ var Success = /* @__PURE__ */Caml_exceptions.create("Arcdown.Success");
 function promi(param) {
   var lnum = param[2];
   var tok = param[0];
-  var match = Belt_List.head(Belt_List.reverse(Belt_List.fromArray(tok)));
-  var was_attribute = match !== undefined && !(typeof match === "number" || match.TAG !== /* Attribute */2) ? true : false;
-  return $$Promise.$$catch($$Promise.$$catch($$Promise.$$catch(param[1] ? consumeInitialLine(tok, lnum, was_attribute, "") : consumeLine(tok, lnum, was_attribute, ""), (function ($$event) {
+  return $$Promise.$$catch($$Promise.$$catch($$Promise.$$catch(param[1] ? consumeInitialLine(tok, lnum) : consumeLine(tok, lnum), (function ($$event) {
                           if ($$event.RE_EXN_ID === EndOfFile) {
                             return Promise.reject({
                                         RE_EXN_ID: Success,
@@ -615,9 +509,9 @@ exports.consumeHyperlink = consumeHyperlink;
 exports.consumeLabel = consumeLabel;
 exports.consumeBulletListItem = consumeBulletListItem;
 exports.consumeNumberedListItem = consumeNumberedListItem;
+exports.consumeBlockDelimiter = consumeBlockDelimiter;
 exports.consumeRegularLine = consumeRegularLine;
 exports.EndOfBlock = EndOfBlock;
-exports.consumeRegularBlock = consumeRegularBlock;
 exports.consumeInitialLine = consumeInitialLine;
 exports.consumeLine = consumeLine;
 exports.subs = subs;

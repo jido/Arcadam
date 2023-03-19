@@ -123,7 +123,7 @@ type token =
   | Label(string) // [label]:
   | SubstitutionDef(string) // :name: value
   | Hyperlink(string) // [text](address)
-  | OpenBlockDelimiter // --
+  | FreeBlockDelimiter // --
   | CodeBlockDelimiter // ----
   | ExampleBlockDelimiter // ====
   | QuoteBlockDelimiter // ____
@@ -216,6 +216,16 @@ let consumeNumberedListItem = line => {
   }
 }
 
+let consumeBlockDelimiter = line =>
+  switch line {
+  | "" => [Empty]
+  | "--" => [FreeBlockDelimiter]
+  | "====" => [ExampleBlockDelimiter]
+  | "____" => [QuoteBlockDelimiter]
+  | "****" => [SidebarBlockDelimiter]
+  | _ => []
+  }
+
 let consumeRegularLine = line => {
   let chara = Js.String.charAt(0, line)
   let tok = switch chara {
@@ -234,6 +244,7 @@ let consumeRegularLine = line => {
 
 exception EndOfBlock(array<token>)
 
+/*
 let rec consumeRegularBlock = (name, delimiter, line, lnum) => {
   if line == delimiter {
     //Js.log(`BLOCK: ${name} with attributes [${attrs}]`)
@@ -268,12 +279,13 @@ let rec consumeRegularBlock = (name, delimiter, line, lnum) => {
     resolve(([], lnum))
   }
 }
-and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
+and
+*/
+let consumeInitialLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum)) => {
-    if line == "" {
-      resolve((tok->Array.concat([Empty]), true, lnum))
-    } else if !was_attribute && line == delimiter {
-      reject(EndOfBlock(tok))
+    let tokens = consumeBlockDelimiter(line)
+    if tokens->Array.length != 0 {
+      resolve((tok->Array.concat(tokens), true, lnum))
     } else {
       let chara = Js.String.charAt(0, line)
       switch chara {
@@ -291,16 +303,8 @@ and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
         if tokens != [] {
           resolve((tok->Array.concat(tokens), false, lnum))
         } else {
-          consumeRegularBlock("Example", "====", line, lnum)->then(((blocktokens, next)) => {
-            if blocktokens == [] {
-              // No example block was consumed
-              let tokens = consumeRegularLine(line)
-              resolve((tok->Array.concat(tokens), false, lnum))
-            } else {
-              let parts = [tok, [ExampleBlockDelimiter], blocktokens, [ExampleBlockDelimiter]]
-              resolve((parts->Array.concatMany, true, next))
-            }
-          })
+          let tokens = consumeRegularLine(line)
+          resolve((tok->Array.concat(tokens), false, lnum))
         }
       | ":" =>
         let tokens = consumeSubstitution(line)
@@ -315,7 +319,7 @@ and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
       | "[" =>
         let tokens = consumeAttribute(line)
         switch tokens {
-        | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), true, lnum))
+        | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), false, lnum))
         | m =>
           assert (m == [])
           let tokens = consumeLabel(line)
@@ -326,28 +330,6 @@ and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
             resolve((tok->Array.concat(tokens), false, lnum))
           }
         }
-      | "_" =>
-        consumeRegularBlock("Quote", "____", line, lnum)->then(((blocktokens, next)) => {
-          if blocktokens == [] {
-            // No quote block was consumed
-            let tokens = consumeRegularLine(line)
-            resolve((tok->Array.concat(tokens), false, lnum))
-          } else {
-            let parts = [tok, [QuoteBlockDelimiter], blocktokens, [QuoteBlockDelimiter]]
-            resolve((parts->Array.concatMany, true, next))
-          }
-        })
-      | "*" =>
-        consumeRegularBlock("Sidebar", "****", line, lnum)->then(((blocktokens, next)) => {
-          if blocktokens == [] {
-            // No sidebar block was consumed
-            let tokens = consumeRegularLine(line)
-            resolve((tok->Array.concat(tokens), false, lnum))
-          } else {
-            let parts = [tok, [SidebarBlockDelimiter], blocktokens, [SidebarBlockDelimiter]]
-            resolve((parts->Array.concatMany, true, next))
-          }
-        })
       | _ =>
         let tokens = consumeRegularLine(line)
         resolve((tok->Array.concat(tokens), false, lnum))
@@ -355,26 +337,18 @@ and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
     }
   })
 }
-and consumeLine = (tok, lnum, was_attribute, delimiter) => {
+
+let consumeLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum)) => {
-    if line == "" {
-      Js.log("<empty>")
-      resolve((tok->Array.concat([Empty]), true, lnum))
-    } else if !was_attribute && line == delimiter {
-      reject(EndOfBlock(tok))
+    let tokens = consumeBlockDelimiter(line)
+    if tokens->Array.length != 0 {
+      resolve((tok->Array.concat(tokens), true, lnum))
     } else {
-      let chara = Js.String.charAt(0, line)
-      switch chara {
-      | "[" =>
-        let tokens = consumeAttribute(line)
-        switch tokens {
-        | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), true, lnum))
-        | m =>
-          assert (m == []) // Appease the compiler
-          let tokens = consumeRegularLine(line)
-          resolve((tok->Array.concat(tokens), false, lnum))
-        }
-      | _ =>
+      let tokens = consumeAttribute(line)
+      switch tokens {
+      | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), false, lnum))
+      | m =>
+        assert (m == []) // Appease the compiler
         let tokens = consumeRegularLine(line)
         resolve((tok->Array.concat(tokens), false, lnum))
       }
@@ -389,22 +363,17 @@ let lnum = 0
 exception Success(array<token>)
 
 let rec promi = ((tok, initial, lnum)) =>
-  {
-    let was_attribute = switch tok->List.fromArray->List.reverse->List.head {
-    | Some(Attribute(_)) => true
-    | _ => false
-    }
-    if initial {
-      consumeInitialLine(tok, lnum, was_attribute, "")
-    } else {
-      consumeLine(tok, lnum, was_attribute, "")
-    }->catch(event =>
-      switch event {
-      | EndOfFile(_) => reject(Success(tok))
-      | _ => reject(event)
-      }
-    )
+  if initial {
+    consumeInitialLine(tok, lnum)
+  } else {
+    consumeLine(tok, lnum)
   }
+  ->catch(event =>
+    switch event {
+    | EndOfFile(_) => reject(Success(tok))
+    | _ => reject(event)
+    }
+  )
   ->catch(err =>
     switch err {
     | Success(tokens) =>
