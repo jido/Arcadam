@@ -2,7 +2,7 @@ open Belt
 
 let backtick = "`"
 let spaces = "      "
-
+/*
 let source = "
 ____
 Quote text using
@@ -15,16 +15,16 @@ enclose an example
 ====
 "
 
-/*
+*/
 let source = `
 [NOTE]
 ====
 This is how to start a new example
 block within this block:
-${spaces}
-.Nested block<
+
 [example]
 ====
+.Nested block<
 A small example
 ====
 ====
@@ -70,7 +70,6 @@ multi line
 [list]
 . Number one
 `
-*/
 
 open Promise
 
@@ -115,6 +114,7 @@ let specialCharsStep = text => {
 }
 
 type token =
+  | Empty
   | Text(string)
   | Heading(int) // == Heading text
   | Attribute(string) // [attributes]
@@ -234,7 +234,7 @@ let consumeRegularLine = line => {
 
 exception EndOfBlock(array<token>)
 
-let rec consumeRegularBlock = (tok, name, delimiter, line, lnum) => {
+let rec consumeRegularBlock = (name, delimiter, line, lnum) => {
   if line == delimiter {
     //Js.log(`BLOCK: ${name} with attributes [${attrs}]`)
     let rec promi = ((tok, initial, lnum)) =>
@@ -263,15 +263,15 @@ let rec consumeRegularBlock = (tok, name, delimiter, line, lnum) => {
           reject(err)
         }
       )
-    promi((tok, true, lnum))
+    promi(([], true, lnum))
   } else {
-    resolve((tok, lnum))
+    resolve(([], lnum))
   }
 }
 and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
   nextLine(lnum)->then(((line, lnum)) => {
     if line == "" {
-      resolve((tok, true, lnum))
+      resolve((tok->Array.concat([Empty]), true, lnum))
     } else if !was_attribute && line == delimiter {
       reject(EndOfBlock(tok))
     } else {
@@ -291,7 +291,7 @@ and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
         if tokens != [] {
           resolve((tok->Array.concat(tokens), false, lnum))
         } else {
-          consumeRegularBlock(tok, "Example", "====", line, lnum)->then(((blocktokens, next)) => {
+          consumeRegularBlock("Example", "====", line, lnum)->then(((blocktokens, next)) => {
             if blocktokens == [] {
               // No example block was consumed
               let tokens = consumeRegularLine(line)
@@ -327,7 +327,7 @@ and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
           }
         }
       | "_" =>
-        consumeRegularBlock(tok, "Quote", "____", line, lnum)->then(((blocktokens, next)) => {
+        consumeRegularBlock("Quote", "____", line, lnum)->then(((blocktokens, next)) => {
           if blocktokens == [] {
             // No quote block was consumed
             let tokens = consumeRegularLine(line)
@@ -338,7 +338,7 @@ and consumeInitialLine = (tok, lnum, was_attribute, delimiter) => {
           }
         })
       | "*" =>
-        consumeRegularBlock(tok, "Sidebar", "****", line, lnum)->then(((blocktokens, next)) => {
+        consumeRegularBlock("Sidebar", "****", line, lnum)->then(((blocktokens, next)) => {
           if blocktokens == [] {
             // No sidebar block was consumed
             let tokens = consumeRegularLine(line)
@@ -359,7 +359,7 @@ and consumeLine = (tok, lnum, was_attribute, delimiter) => {
   nextLine(lnum)->then(((line, lnum)) => {
     if line == "" {
       Js.log("<empty>")
-      resolve((tok, true, lnum))
+      resolve((tok->Array.concat([Empty]), true, lnum))
     } else if !was_attribute && line == delimiter {
       reject(EndOfBlock(tok))
     } else {

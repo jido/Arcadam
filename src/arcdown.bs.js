@@ -10,7 +10,7 @@ var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
-var source = "\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to Part 1>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n... nested numbered list\n... nested 2\n* Third\n[list]\n. Number one\n";
 
 var alpha = "A-Za-z";
 
@@ -240,10 +240,10 @@ function consumeRegularLine(line) {
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfBlock");
 
-function consumeRegularBlock(tok, name, delimiter, line, lnum) {
+function consumeRegularBlock(name, delimiter, line, lnum) {
   if (line !== delimiter) {
     return Promise.resolve([
-                tok,
+                [],
                 lnum
               ]);
   }
@@ -271,7 +271,7 @@ function consumeRegularBlock(tok, name, delimiter, line, lnum) {
                 }));
   };
   return promi([
-              tok,
+              [],
               true,
               lnum
             ]);
@@ -283,7 +283,7 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
               var line = param[0];
               if (line === "") {
                 return Promise.resolve([
-                            tok,
+                            Belt_Array.concat(tok, [/* Empty */0]),
                             true,
                             lnum
                           ]);
@@ -297,7 +297,7 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
               var chara = Js_string.charAt(0, line);
               switch (chara) {
                 case "*" :
-                    return consumeRegularBlock(tok, "Sidebar", "****", line, lnum).then(function (param) {
+                    return consumeRegularBlock("Sidebar", "****", line, lnum).then(function (param) {
                                 var blocktokens = param[0];
                                 if (Caml_obj.equal(blocktokens, [])) {
                                   var tokens = consumeRegularLine(line);
@@ -309,9 +309,9 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
                                 }
                                 var parts = [
                                   tok,
-                                  [/* SidebarBlockDelimiter */4],
+                                  [/* SidebarBlockDelimiter */5],
                                   blocktokens,
-                                  [/* SidebarBlockDelimiter */4]
+                                  [/* SidebarBlockDelimiter */5]
                                 ];
                                 return Promise.resolve([
                                             Belt_Array.concatMany(parts),
@@ -391,7 +391,7 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
                                   lnum
                                 ]);
                     } else {
-                      return consumeRegularBlock(tok, "Example", "====", line, lnum).then(function (param) {
+                      return consumeRegularBlock("Example", "====", line, lnum).then(function (param) {
                                   var blocktokens = param[0];
                                   if (Caml_obj.equal(blocktokens, [])) {
                                     var tokens = consumeRegularLine(line);
@@ -403,9 +403,9 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
                                   }
                                   var parts = [
                                     tok,
-                                    [/* ExampleBlockDelimiter */2],
+                                    [/* ExampleBlockDelimiter */3],
                                     blocktokens,
-                                    [/* ExampleBlockDelimiter */2]
+                                    [/* ExampleBlockDelimiter */3]
                                   ];
                                   return Promise.resolve([
                                               Belt_Array.concatMany(parts),
@@ -454,7 +454,7 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
                               ]);
                     break;
                 case "_" :
-                    return consumeRegularBlock(tok, "Quote", "____", line, lnum).then(function (param) {
+                    return consumeRegularBlock("Quote", "____", line, lnum).then(function (param) {
                                 var blocktokens = param[0];
                                 if (Caml_obj.equal(blocktokens, [])) {
                                   var tokens = consumeRegularLine(line);
@@ -466,9 +466,9 @@ function consumeInitialLine(tok, lnum, was_attribute, delimiter) {
                                 }
                                 var parts = [
                                   tok,
-                                  [/* QuoteBlockDelimiter */3],
+                                  [/* QuoteBlockDelimiter */4],
                                   blocktokens,
-                                  [/* QuoteBlockDelimiter */3]
+                                  [/* QuoteBlockDelimiter */4]
                                 ];
                                 return Promise.resolve([
                                             Belt_Array.concatMany(parts),
@@ -494,7 +494,7 @@ function consumeLine(tok, lnum, was_attribute, delimiter) {
               if (line === "") {
                 console.log("<empty>");
                 return Promise.resolve([
-                            tok,
+                            Belt_Array.concat(tok, [/* Empty */0]),
                             true,
                             lnum
                           ]);
