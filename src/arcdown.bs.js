@@ -66,7 +66,6 @@ function consumeBlockTitle(line) {
     return [];
   }
   var title = match[1];
-  console.log("BLOCKTITLE: " + title);
   return [{
             TAG: /* BlockTitle */8,
             _0: title
@@ -82,7 +81,6 @@ function consumeHeading(line) {
   var signs = match[1];
   var title = match[2];
   var level = signs.length;
-  console.log("HEADING(level " + String(level) + "): " + title);
   return [
           {
             TAG: /* Heading */1,
@@ -104,7 +102,6 @@ function consumeSubstitution(line) {
   }
   var name = match[1];
   var value = match[3];
-  console.log("SUBST: " + name + " --> " + value + "");
   return [
           {
             TAG: /* SubstitutionDef */6,
@@ -124,7 +121,6 @@ function consumeAttribute(line) {
     return [];
   }
   var attributes = match[1];
-  console.log("ATTR: " + attributes);
   return [{
             TAG: /* Attribute */2,
             _0: attributes
@@ -139,7 +135,6 @@ function consumeHyperlink(line) {
   }
   var text = match[1];
   var link = match[2];
-  console.log("LINK: <" + link + "> with text: '" + text + "'");
   return [
           {
             TAG: /* Hyperlink */7,
@@ -159,7 +154,6 @@ function consumeLabel(line) {
     return [];
   }
   var label = match[1];
-  console.log("LABEL: " + label + "");
   return [{
             TAG: /* Label */5,
             _0: label
@@ -175,7 +169,6 @@ function consumeBulletListItem(line) {
   var stars = match[1];
   var text = match[2];
   var level = stars.length;
-  console.log("LIST: bullet level " + String(level) + " with text: '" + text + "'");
   return [
           {
             TAG: /* BulletListItem */3,
@@ -197,7 +190,6 @@ function consumeNumberedListItem(line) {
   var dots = match[1];
   var text = match[2];
   var level = dots.length;
-  console.log("LIST: item level " + String(level) + " with text: '" + text + "'");
   return [
           {
             TAG: /* NumberedListItem */4,
@@ -244,7 +236,6 @@ function consumeRegularLine(line) {
       tok = [];
   }
   if (Caml_obj.equal(tok, [])) {
-    console.log("TEXT: " + line);
     return [{
               TAG: /* Text */0,
               _0: line
@@ -288,7 +279,7 @@ function consumeInitialLine(tok, lnum) {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              297,
+                              266,
                               10
                             ],
                             Error: new Error()
@@ -322,7 +313,7 @@ function consumeInitialLine(tok, lnum) {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              316,
+                              285,
                               10
                             ],
                             Error: new Error()
@@ -366,7 +357,7 @@ function consumeInitialLine(tok, lnum) {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcdown.res",
-                              324,
+                              293,
                               10
                             ],
                             Error: new Error()
@@ -427,7 +418,7 @@ function consumeLine(tok, lnum) {
                       RE_EXN_ID: "Assert_failure",
                       _1: [
                         "arcdown.res",
-                        351,
+                        320,
                         8
                       ],
                       Error: new Error()

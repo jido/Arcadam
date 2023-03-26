@@ -2,20 +2,7 @@ open Belt
 
 let backtick = "`"
 let spaces = "      "
-/*
-let source = "
-____
-Quote text using
-underscores
-____
 
-====
-Example block used to
-enclose an example
-====
-"
-
-*/
 let source = `
 [NOTE]
 ====
@@ -134,9 +121,7 @@ type token =
 let consumeBlockTitle = line => {
   let blockTitleLine = %re("/^\.([^\s].*)$/")
   switch blockTitleLine->getMatches(line) {
-  | [_, title] =>
-    Js.log("BLOCKTITLE: " ++ title)
-    [BlockTitle(title)]
+  | [_, title] => [BlockTitle(title)]
   | _ => []
   }
 }
@@ -146,7 +131,6 @@ let consumeHeading = line => {
   switch titleLine->getMatches(line) {
   | [_, signs, title] =>
     let level = signs->String.length
-    Js.log("HEADING(level " ++ level->string_of_int ++ "): " ++ title)
     [Heading(level), Text(title)]
   | _ => []
   }
@@ -156,9 +140,7 @@ let consumeSubstitution = line => {
   let pattern = `^:([${alpha}][_${alnum}]*(\\.[_${alnum}]+)*):\\s+(.*)\$`
   let substLine = Js.Re.fromString(pattern)
   switch substLine->getMatches(line) {
-  | [_, name, _, value] =>
-    Js.log(`SUBST: ${name} --> ${value}`)
-    [SubstitutionDef(name), Text(value)]
+  | [_, name, _, value] => [SubstitutionDef(name), Text(value)]
   | _ => []
   }
 }
@@ -166,9 +148,7 @@ let consumeSubstitution = line => {
 let consumeAttribute = line => {
   let attrLine = %re("/^\[\s*([^\[\]]*)\]$/")
   switch attrLine->getMatches(line) {
-  | [_, attributes] =>
-    Js.log("ATTR: " ++ attributes)
-    [Attribute(attributes)]
+  | [_, attributes] => [Attribute(attributes)]
   | _ => []
   }
 }
@@ -176,9 +156,7 @@ let consumeAttribute = line => {
 let consumeHyperlink = line => {
   let hlinkLine = %re("/\[\s*([^\]]*)\]\(\s*([^\s\)]*)\s*\)/")
   switch hlinkLine->getMatches(line) {
-  | [_, text, link] =>
-    Js.log(`LINK: <${link}> with text: '${text}'`)
-    [Hyperlink(link), Text(text)] // do NOT merge text token with the next
+  | [_, text, link] => [Hyperlink(link), Text(text)] // do NOT merge text token with the next
   | _ => []
   }
 }
@@ -186,9 +164,7 @@ let consumeHyperlink = line => {
 let consumeLabel = line => {
   let labelLine = %re("/^\[\s*([^\]]+)\]:\s*$/")
   switch labelLine->getMatches(line) {
-  | [_, label] =>
-    Js.log(`LABEL: ${label}`)
-    [Label(label)]
+  | [_, label] => [Label(label)]
   | _ => []
   }
 }
@@ -198,8 +174,6 @@ let consumeBulletListItem = line => {
   switch itemLine->getMatches(line) {
   | [_, stars, text] =>
     let level = stars->String.length
-    Js.log(`LIST: bullet level ${level->string_of_int} with text: '${text}'`)
-
     [BulletListItem(level), Text(text)]
   | _ => []
   }
@@ -210,7 +184,6 @@ let consumeNumberedListItem = line => {
   switch itemLine->getMatches(line) {
   | [_, dots, text] =>
     let level = dots->String.length
-    Js.log(`LIST: item level ${level->string_of_int} with text: '${text}'`)
     [NumberedListItem(level), Text(text)]
   | _ => []
   }
@@ -235,7 +208,6 @@ let consumeRegularLine = line => {
   | _ => []
   }
   if tok == [] {
-    Js.log("TEXT: " ++ line)
     [Text(line)]
   } else {
     tok
@@ -264,13 +236,10 @@ let rec consumeRegularBlock = (name, delimiter, line, lnum) => {
       ->catch(err =>
         switch err {
         | EndOfBlock(blocktokens) =>
-          Js.log(`BLOCK: ${name} ended at line ${string_of_int(lnum)}`)
           resolve((blocktokens, lnum + 1))
         | EndOfFile(_) =>
-          Js.log(`WARNING: ${name} block not closed`)
           reject(err)
         | _ =>
-          Js.log("WARNING: Unexpected error")
           reject(err)
         }
       )
