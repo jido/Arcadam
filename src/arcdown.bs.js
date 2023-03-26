@@ -9,7 +9,9 @@ var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to Products page on this site](/Products.html)\n\n[Go to Offers page in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to Part 1>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n... nested numbered list\n... nested 2\n* Third\n[list]\n. Number one\n";
+var backtick = "`";
+
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  ... nested numbered list\n  ... nested 2\n* Third\n[list]\n. Number one\n  Indented text without\n  line breaks is added\n  to a code block\n\n----\nAnother way to create\na code block delimited\nwith \"----\"\n\n****\nThis is not a new block\n----\n";
 
 var alpha = "A-Za-z";
 
@@ -67,7 +69,7 @@ function consumeBlockTitle(line) {
   }
   var title = match[1];
   return [{
-            TAG: /* BlockTitle */8,
+            TAG: /* BlockTitle */12,
             _0: title
           }];
 }
@@ -83,7 +85,7 @@ function consumeHeading(line) {
   var level = signs.length;
   return [
           {
-            TAG: /* Heading */1,
+            TAG: /* Heading */3,
             _0: level
           },
           {
@@ -104,7 +106,7 @@ function consumeSubstitution(line) {
   var value = match[3];
   return [
           {
-            TAG: /* SubstitutionDef */6,
+            TAG: /* SubstitutionDef */10,
             _0: name
           },
           {
@@ -122,7 +124,7 @@ function consumeAttribute(line) {
   }
   var attributes = match[1];
   return [{
-            TAG: /* Attribute */2,
+            TAG: /* Attribute */4,
             _0: attributes
           }];
 }
@@ -137,7 +139,7 @@ function consumeHyperlink(line) {
   var link = match[2];
   return [
           {
-            TAG: /* Hyperlink */7,
+            TAG: /* Hyperlink */11,
             _0: link
           },
           {
@@ -155,7 +157,7 @@ function consumeLabel(line) {
   }
   var label = match[1];
   return [{
-            TAG: /* Label */5,
+            TAG: /* Label */9,
             _0: label
           }];
 }
@@ -169,16 +171,30 @@ function consumeBulletListItem(line) {
   var stars = match[1];
   var text = match[2];
   var level = stars.length;
-  return [
-          {
-            TAG: /* BulletListItem */3,
-            _0: level
-          },
-          {
-            TAG: /* Text */0,
-            _0: text
-          }
-        ];
+  var match$1 = Js_string.charAt(0, line);
+  if (match$1 === "*") {
+    return [
+            {
+              TAG: /* BulletListItem */5,
+              _0: level
+            },
+            {
+              TAG: /* Text */0,
+              _0: text
+            }
+          ];
+  } else {
+    return [
+            {
+              TAG: /* IndentedBulletListItem */7,
+              _0: level
+            },
+            {
+              TAG: /* Text */0,
+              _0: text
+            }
+          ];
+  }
 }
 
 function consumeNumberedListItem(line) {
@@ -190,16 +206,30 @@ function consumeNumberedListItem(line) {
   var dots = match[1];
   var text = match[2];
   var level = dots.length;
-  return [
-          {
-            TAG: /* NumberedListItem */4,
-            _0: level
-          },
-          {
-            TAG: /* Text */0,
-            _0: text
-          }
-        ];
+  var match$1 = Js_string.charAt(0, line);
+  if (match$1 === ".") {
+    return [
+            {
+              TAG: /* NumberedListItem */6,
+              _0: level
+            },
+            {
+              TAG: /* Text */0,
+              _0: text
+            }
+          ];
+  } else {
+    return [
+            {
+              TAG: /* IndentedNumberedListItem */8,
+              _0: level
+            },
+            {
+              TAG: /* Text */0,
+              _0: text
+            }
+          ];
+  }
 }
 
 function consumeBlockDelimiter(line) {
@@ -210,6 +240,8 @@ function consumeBlockDelimiter(line) {
         return [/* SidebarBlockDelimiter */5];
     case "--" :
         return [/* FreeBlockDelimiter */1];
+    case "----" :
+        return [/* CodeBlockDelimiter */2];
     case "====" :
         return [/* ExampleBlockDelimiter */3];
     case "____" :
@@ -222,6 +254,7 @@ function consumeBlockDelimiter(line) {
 function consumeRegularLine(line) {
   var chara = Js_string.charAt(0, line);
   var tok;
+  var exit = 0;
   switch (chara) {
     case "*" :
         tok = consumeBulletListItem(line);
@@ -232,8 +265,24 @@ function consumeRegularLine(line) {
     case "[" :
         tok = consumeHyperlink(line);
         break;
+    case " " :
+    case "\\t" :
+        exit = 1;
+        break;
     default:
       tok = [];
+  }
+  if (exit === 1) {
+    var tokens = consumeBulletListItem(line);
+    if (Caml_obj.equal(tokens, [])) {
+      var tokens$1 = consumeNumberedListItem(line);
+      tok = Caml_obj.equal(tokens$1, []) ? [{
+            TAG: /* IndentedText */1,
+            _0: line
+          }] : tokens$1;
+    } else {
+      tok = tokens;
+    }
   }
   if (Caml_obj.equal(tok, [])) {
     return [{
@@ -252,139 +301,149 @@ function consumeInitialLine(tok, lnum) {
               var lnum = param[1];
               var line = param[0];
               var tokens = consumeBlockDelimiter(line);
-              if (tokens.length !== 0) {
-                return Promise.resolve([
-                            Belt_Array.concat(tok, tokens),
-                            true,
-                            lnum
-                          ]);
-              }
-              var chara = Js_string.charAt(0, line);
-              switch (chara) {
-                case "." :
-                    var tokens$1 = consumeBlockTitle(line);
-                    if (tokens$1.length === 1) {
-                      var title = tokens$1[0];
-                      if (typeof title !== "number" && title.TAG === /* BlockTitle */8) {
-                        return Promise.resolve([
-                                    Belt_Array.concat(tok, tokens$1),
-                                    true,
-                                    lnum
-                                  ]);
-                      }
-                      
-                    }
-                    if (!Caml_obj.equal(tokens$1, [])) {
-                      throw {
-                            RE_EXN_ID: "Assert_failure",
-                            _1: [
-                              "arcdown.res",
-                              266,
-                              10
-                            ],
-                            Error: new Error()
-                          };
-                    }
-                    var tokens$2 = consumeRegularLine(line);
-                    return Promise.resolve([
-                                Belt_Array.concat(tok, tokens$2),
-                                false,
-                                lnum
-                              ]);
-                case ":" :
-                    var tokens$3 = consumeSubstitution(line);
-                    if (tokens$3.length === 2) {
-                      var name = tokens$3[0];
-                      if (typeof name !== "number" && name.TAG === /* SubstitutionDef */6) {
-                        var value = tokens$3[1];
-                        if (typeof value !== "number" && value.TAG === /* Text */0) {
+              if (tokens.length !== 1) {
+                var chara = Js_string.charAt(0, line);
+                switch (chara) {
+                  case "." :
+                      var tokens$1 = consumeBlockTitle(line);
+                      if (tokens$1.length === 1) {
+                        var title = tokens$1[0];
+                        if (typeof title !== "number" && title.TAG === /* BlockTitle */12) {
                           return Promise.resolve([
-                                      Belt_Array.concat(tok, tokens$3),
-                                      true,
+                                      Belt_Array.concat(tok, tokens$1),
+                                      /* Initial */0,
                                       lnum
                                     ]);
                         }
                         
                       }
-                      
-                    }
-                    if (!Caml_obj.equal(tokens$3, [])) {
-                      throw {
-                            RE_EXN_ID: "Assert_failure",
-                            _1: [
-                              "arcdown.res",
-                              285,
-                              10
-                            ],
-                            Error: new Error()
-                          };
-                    }
-                    return Promise.resolve([
-                                consumeRegularLine(line),
-                                false,
-                                lnum
-                              ]);
-                case "=" :
-                    var tokens$4 = consumeHeading(line);
-                    if (Caml_obj.notequal(tokens$4, [])) {
+                      if (!Caml_obj.equal(tokens$1, [])) {
+                        throw {
+                              RE_EXN_ID: "Assert_failure",
+                              _1: [
+                                "arcdown.res",
+                                306,
+                                12
+                              ],
+                              Error: new Error()
+                            };
+                      }
+                      var tokens$2 = consumeRegularLine(line);
                       return Promise.resolve([
-                                  Belt_Array.concat(tok, tokens$4),
-                                  false,
+                                  Belt_Array.concat(tok, tokens$2),
+                                  /* Following */1,
                                   lnum
                                 ]);
-                    }
-                    var tokens$5 = consumeRegularLine(line);
-                    return Promise.resolve([
-                                Belt_Array.concat(tok, tokens$5),
-                                false,
-                                lnum
-                              ]);
-                case "[" :
-                    var tokens$6 = consumeAttribute(line);
-                    if (tokens$6.length === 1) {
-                      var attributes = tokens$6[0];
-                      if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
+                  case ":" :
+                      var tokens$3 = consumeSubstitution(line);
+                      if (tokens$3.length === 2) {
+                        var name = tokens$3[0];
+                        if (typeof name !== "number" && name.TAG === /* SubstitutionDef */10) {
+                          var value = tokens$3[1];
+                          if (typeof value !== "number" && value.TAG === /* Text */0) {
+                            return Promise.resolve([
+                                        Belt_Array.concat(tok, tokens$3),
+                                        /* Initial */0,
+                                        lnum
+                                      ]);
+                          }
+                          
+                        }
+                        
+                      }
+                      if (!Caml_obj.equal(tokens$3, [])) {
+                        throw {
+                              RE_EXN_ID: "Assert_failure",
+                              _1: [
+                                "arcdown.res",
+                                325,
+                                12
+                              ],
+                              Error: new Error()
+                            };
+                      }
+                      return Promise.resolve([
+                                  consumeRegularLine(line),
+                                  /* Following */1,
+                                  lnum
+                                ]);
+                  case "=" :
+                      var tokens$4 = consumeHeading(line);
+                      if (Caml_obj.notequal(tokens$4, [])) {
                         return Promise.resolve([
-                                    Belt_Array.concat(tok, tokens$6),
-                                    false,
+                                    Belt_Array.concat(tok, tokens$4),
+                                    /* Following */1,
                                     lnum
                                   ]);
                       }
-                      
-                    }
-                    if (!Caml_obj.equal(tokens$6, [])) {
-                      throw {
-                            RE_EXN_ID: "Assert_failure",
-                            _1: [
-                              "arcdown.res",
-                              293,
-                              10
-                            ],
-                            Error: new Error()
-                          };
-                    }
-                    var tokens$7 = consumeLabel(line);
-                    if (Caml_obj.notequal(tokens$7, [])) {
+                      var tokens$5 = consumeRegularLine(line);
                       return Promise.resolve([
-                                  Belt_Array.concat(tok, tokens$7),
-                                  true,
+                                  Belt_Array.concat(tok, tokens$5),
+                                  /* Following */1,
                                   lnum
                                 ]);
-                    }
-                    var tokens$8 = consumeRegularLine(line);
+                  case "[" :
+                      var tokens$6 = consumeAttribute(line);
+                      if (tokens$6.length === 1) {
+                        var attributes = tokens$6[0];
+                        if (typeof attributes !== "number" && attributes.TAG === /* Attribute */4) {
+                          return Promise.resolve([
+                                      Belt_Array.concat(tok, tokens$6),
+                                      /* Following */1,
+                                      lnum
+                                    ]);
+                        }
+                        
+                      }
+                      if (!Caml_obj.equal(tokens$6, [])) {
+                        throw {
+                              RE_EXN_ID: "Assert_failure",
+                              _1: [
+                                "arcdown.res",
+                                333,
+                                12
+                              ],
+                              Error: new Error()
+                            };
+                      }
+                      var tokens$7 = consumeLabel(line);
+                      if (Caml_obj.notequal(tokens$7, [])) {
+                        return Promise.resolve([
+                                    Belt_Array.concat(tok, tokens$7),
+                                    /* Initial */0,
+                                    lnum
+                                  ]);
+                      }
+                      var tokens$8 = consumeRegularLine(line);
+                      return Promise.resolve([
+                                  Belt_Array.concat(tok, tokens$8),
+                                  /* Following */1,
+                                  lnum
+                                ]);
+                      break;
+                  default:
+                    var tokens$9 = consumeRegularLine(line);
                     return Promise.resolve([
-                                Belt_Array.concat(tok, tokens$8),
-                                false,
+                                Belt_Array.concat(tok, tokens$9),
+                                /* Following */1,
                                 lnum
                               ]);
-                    break;
-                default:
-                  var tokens$9 = consumeRegularLine(line);
+                }
+              } else {
+                var match = tokens[0];
+                if (match === 2) {
                   return Promise.resolve([
-                              Belt_Array.concat(tok, tokens$9),
-                              false,
+                              Belt_Array.concat(tok, tokens),
+                              /* Code */2,
                               lnum
                             ]);
+                } else {
+                  return Promise.resolve([
+                              Belt_Array.concat(tok, tokens),
+                              /* Initial */0,
+                              lnum
+                            ]);
+                }
               }
             });
 }
@@ -397,17 +456,17 @@ function consumeLine(tok, lnum) {
               if (tokens.length !== 0) {
                 return Promise.resolve([
                             Belt_Array.concat(tok, tokens),
-                            true,
+                            /* Initial */0,
                             lnum
                           ]);
               }
               var tokens$1 = consumeAttribute(line);
               if (tokens$1.length === 1) {
                 var attributes = tokens$1[0];
-                if (typeof attributes !== "number" && attributes.TAG === /* Attribute */2) {
+                if (typeof attributes !== "number" && attributes.TAG === /* Attribute */4) {
                   return Promise.resolve([
                               Belt_Array.concat(tok, tokens$1),
-                              false,
+                              /* Following */1,
                               lnum
                             ]);
                 }
@@ -418,7 +477,7 @@ function consumeLine(tok, lnum) {
                       RE_EXN_ID: "Assert_failure",
                       _1: [
                         "arcdown.res",
-                        320,
+                        361,
                         8
                       ],
                       Error: new Error()
@@ -427,9 +486,32 @@ function consumeLine(tok, lnum) {
               var tokens$2 = consumeRegularLine(line);
               return Promise.resolve([
                           Belt_Array.concat(tok, tokens$2),
-                          false,
+                          /* Following */1,
                           lnum
                         ]);
+            });
+}
+
+function consumeCodeLine(tok, lnum) {
+  return nextLine(lnum).then(function (param) {
+              var lnum = param[1];
+              var line = param[0];
+              if (line === "----") {
+                return Promise.resolve([
+                            Belt_Array.concat(tok, [/* CodeBlockDelimiter */2]),
+                            /* Initial */0,
+                            lnum
+                          ]);
+              } else {
+                return Promise.resolve([
+                            Belt_Array.concat(tok, [{
+                                    TAG: /* CodeText */2,
+                                    _0: line
+                                  }]),
+                            /* Code */2,
+                            lnum
+                          ]);
+              }
             });
 }
 
@@ -438,7 +520,20 @@ var Success = /* @__PURE__ */Caml_exceptions.create("Arcdown.Success");
 function promi(param) {
   var lnum = param[2];
   var tok = param[0];
-  return $$Promise.$$catch($$Promise.$$catch($$Promise.$$catch(param[1] ? consumeInitialLine(tok, lnum) : consumeLine(tok, lnum), (function ($$event) {
+  var tmp;
+  switch (param[1]) {
+    case /* Initial */0 :
+        tmp = consumeInitialLine(tok, lnum);
+        break;
+    case /* Following */1 :
+        tmp = consumeLine(tok, lnum);
+        break;
+    case /* Code */2 :
+        tmp = consumeCodeLine(tok, lnum);
+        break;
+    
+  }
+  return $$Promise.$$catch($$Promise.$$catch($$Promise.$$catch(tmp, (function ($$event) {
                           if ($$event.RE_EXN_ID === EndOfFile) {
                             return Promise.reject({
                                         RE_EXN_ID: Success,
@@ -465,13 +560,9 @@ function promi(param) {
 
 promi([
       [],
-      true,
+      /* Initial */0,
       0
     ]);
-
-var backtick = "`";
-
-var spaces = "      ";
 
 var outputFormat = /* Html */0;
 
@@ -482,7 +573,6 @@ var attrs = "";
 var lnum = 0;
 
 exports.backtick = backtick;
-exports.spaces = spaces;
 exports.source = source;
 exports.alpha = alpha;
 exports.alnum = alnum;
@@ -505,6 +595,7 @@ exports.consumeRegularLine = consumeRegularLine;
 exports.EndOfBlock = EndOfBlock;
 exports.consumeInitialLine = consumeInitialLine;
 exports.consumeLine = consumeLine;
+exports.consumeCodeLine = consumeCodeLine;
 exports.subs = subs;
 exports.attrs = attrs;
 exports.lnum = lnum;

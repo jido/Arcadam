@@ -1,7 +1,6 @@
 open Belt
 
 let backtick = "`"
-let spaces = "      "
 
 let source = `
 [NOTE]
@@ -19,16 +18,16 @@ A small example
 :subs: value&more
 == Arcdown Test ->> part 1
 
-[Go to Products page on this site](/Products.html)
+[Go to ${backtick}Products page${backtick} on this site](/Products.html)
 
-[Go to Offers page in current path](Offers.html)
+[Go to _Offers page_ in current path](Offers.html)
 
 [Go to an arbitrary webpage](https://www.github.com)
 
 [#anchor]:
 Part 1: This text is selected by the anchor.
 
-[<Go to Part 1>](#anchor)
+[<Go to *Part 1*>](#anchor)
 
 ____
 Quote text using
@@ -51,11 +50,23 @@ multi line
 * Second&&
 ** sublist
 ** one more
-... nested numbered list
-... nested 2
+  ... nested numbered list
+  ... nested 2
 * Third
 [list]
 . Number one
+  Indented text without
+  line breaks is added
+  to a code block
+
+----
+Another way to create
+a code block delimited
+with "----"
+
+****
+This is not a new block
+----
 `
 
 open Promise
@@ -103,10 +114,14 @@ let specialCharsStep = text => {
 type token =
   | Empty
   | Text(string)
+  | IndentedText(string)
+  | CodeText(string)
   | Heading(int) // == Heading text
   | Attribute(string) // [attributes]
   | BulletListItem(int) // * List item
   | NumberedListItem(int) // . List item
+  | IndentedBulletListItem(int) // * List item
+  | IndentedNumberedListItem(int) // . List item
   | Label(string) // [label]:
   | SubstitutionDef(string) // :name: value
   | Hyperlink(string) // [text](address)
@@ -117,6 +132,11 @@ type token =
   | SidebarBlockDelimiter // ****
   | BlockTitle(string) // .Block title
   | SubstitutionUse(string) // {name}
+
+type lineType =
+  | Initial
+  | Following
+  | Code
 
 let consumeBlockTitle = line => {
   let blockTitleLine = %re("/^\.([^\s].*)$/")
@@ -174,7 +194,10 @@ let consumeBulletListItem = line => {
   switch itemLine->getMatches(line) {
   | [_, stars, text] =>
     let level = stars->String.length
-    [BulletListItem(level), Text(text)]
+    switch Js.String.charAt(0, line) {
+    | "*" => [BulletListItem(level), Text(text)]
+    | _ => [IndentedBulletListItem(level), Text(text)]
+    }
   | _ => []
   }
 }
@@ -184,7 +207,10 @@ let consumeNumberedListItem = line => {
   switch itemLine->getMatches(line) {
   | [_, dots, text] =>
     let level = dots->String.length
-    [NumberedListItem(level), Text(text)]
+    switch Js.String.charAt(0, line) {
+    | "." => [NumberedListItem(level), Text(text)]
+    | _ => [IndentedNumberedListItem(level), Text(text)]
+    }
   | _ => []
   }
 }
@@ -193,6 +219,7 @@ let consumeBlockDelimiter = line =>
   switch line {
   | "" => [Empty]
   | "--" => [FreeBlockDelimiter]
+  | "----" => [CodeBlockDelimiter]
   | "====" => [ExampleBlockDelimiter]
   | "____" => [QuoteBlockDelimiter]
   | "****" => [SidebarBlockDelimiter]
@@ -205,6 +232,18 @@ let consumeRegularLine = line => {
   | "[" => consumeHyperlink(line)
   | "*" => consumeBulletListItem(line)
   | "." => consumeNumberedListItem(line)
+  | " " | "\t" =>
+    let tokens = consumeBulletListItem(line)
+    if tokens == [] {
+      let tokens = consumeNumberedListItem(line)
+      if tokens == [] {
+        [IndentedText(line)]
+      } else {
+        tokens
+      }
+    } else {
+      tokens
+    }
   | _ => []
   }
   if tok == [] {
@@ -253,55 +292,57 @@ and
 let consumeInitialLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum)) => {
     let tokens = consumeBlockDelimiter(line)
-    if tokens->Array.length != 0 {
-      resolve((tok->Array.concat(tokens), true, lnum))
-    } else {
-      let chara = Js.String.charAt(0, line)
-      switch chara {
-      | "." =>
-        let tokens = consumeBlockTitle(line)
-        switch tokens {
-        | [BlockTitle(title)] => resolve((tok->Array.concat(tokens), true, lnum))
-        | m =>
-          assert (m == [])
-          let tokens = consumeRegularLine(line)
-          resolve((tok->Array.concat(tokens), false, lnum))
-        }
-      | "=" =>
-        let tokens = consumeHeading(line)
-        if tokens != [] {
-          resolve((tok->Array.concat(tokens), false, lnum))
-        } else {
-          let tokens = consumeRegularLine(line)
-          resolve((tok->Array.concat(tokens), false, lnum))
-        }
-      | ":" =>
-        let tokens = consumeSubstitution(line)
-        switch tokens {
-        | [SubstitutionDef(name), Text(value)] =>
-          //let subs = subs->List.add((name, value))
-          resolve((tok->Array.concat(tokens), true, lnum))
-        | m =>
-          assert (m == [])
-          resolve((consumeRegularLine(line), false, lnum))
-        }
-      | "[" =>
-        let tokens = consumeAttribute(line)
-        switch tokens {
-        | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), false, lnum))
-        | m =>
-          assert (m == [])
-          let tokens = consumeLabel(line)
+    switch tokens {
+    | [CodeBlockDelimiter] => resolve((tok->Array.concat(tokens), Code, lnum))
+    | [_] => resolve((tok->Array.concat(tokens), Initial, lnum))
+    | _ => {
+        let chara = Js.String.charAt(0, line)
+        switch chara {
+        | "." =>
+          let tokens = consumeBlockTitle(line)
+          switch tokens {
+          | [BlockTitle(title)] => resolve((tok->Array.concat(tokens), Initial, lnum))
+          | m =>
+            assert (m == [])
+            let tokens = consumeRegularLine(line)
+            resolve((tok->Array.concat(tokens), Following, lnum))
+          }
+        | "=" =>
+          let tokens = consumeHeading(line)
           if tokens != [] {
-            resolve((tok->Array.concat(tokens), true, lnum))
+            resolve((tok->Array.concat(tokens), Following, lnum))
           } else {
             let tokens = consumeRegularLine(line)
-            resolve((tok->Array.concat(tokens), false, lnum))
+            resolve((tok->Array.concat(tokens), Following, lnum))
           }
+        | ":" =>
+          let tokens = consumeSubstitution(line)
+          switch tokens {
+          | [SubstitutionDef(name), Text(value)] =>
+            //let subs = subs->List.add((name, value))
+            resolve((tok->Array.concat(tokens), Initial, lnum))
+          | m =>
+            assert (m == [])
+            resolve((consumeRegularLine(line), Following, lnum))
+          }
+        | "[" =>
+          let tokens = consumeAttribute(line)
+          switch tokens {
+          | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
+          | m =>
+            assert (m == [])
+            let tokens = consumeLabel(line)
+            if tokens != [] {
+              resolve((tok->Array.concat(tokens), Initial, lnum))
+            } else {
+              let tokens = consumeRegularLine(line)
+              resolve((tok->Array.concat(tokens), Following, lnum))
+            }
+          }
+        | _ =>
+          let tokens = consumeRegularLine(line)
+          resolve((tok->Array.concat(tokens), Following, lnum))
         }
-      | _ =>
-        let tokens = consumeRegularLine(line)
-        resolve((tok->Array.concat(tokens), false, lnum))
       }
     }
   })
@@ -311,19 +352,28 @@ let consumeLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum)) => {
     let tokens = consumeBlockDelimiter(line)
     if tokens->Array.length != 0 {
-      resolve((tok->Array.concat(tokens), true, lnum))
+      resolve((tok->Array.concat(tokens), Initial, lnum))
     } else {
       let tokens = consumeAttribute(line)
       switch tokens {
-      | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), false, lnum))
+      | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
       | m =>
         assert (m == []) // Appease the compiler
         let tokens = consumeRegularLine(line)
-        resolve((tok->Array.concat(tokens), false, lnum))
+        resolve((tok->Array.concat(tokens), Following, lnum))
       }
     }
   })
 }
+
+let consumeCodeLine = (tok, lnum) =>
+  nextLine(lnum)->then(((line, lnum)) => {
+    if line == "----" {
+      resolve((tok->Array.concat([CodeBlockDelimiter]), Initial, lnum))
+    } else {
+      resolve((tok->Array.concat([CodeText(line)]), Code, lnum))
+    }
+  })
 
 let subs = list{}
 let attrs = ""
@@ -331,11 +381,11 @@ let lnum = 0
 
 exception Success(array<token>)
 
-let rec promi = ((tok, initial, lnum)) =>
-  if initial {
-    consumeInitialLine(tok, lnum)
-  } else {
-    consumeLine(tok, lnum)
+let rec promi = ((tok, ltype, lnum)) =>
+  switch ltype {
+  | Initial => consumeInitialLine(tok, lnum)
+  | Following => consumeLine(tok, lnum)
+  | Code => consumeCodeLine(tok, lnum)
   }
   ->catch(event =>
     switch event {
@@ -358,4 +408,4 @@ let rec promi = ((tok, initial, lnum)) =>
   ->catch(_ => {
     resolve()
   })
-promi(([], true, lnum))->ignore
+promi(([], Initial, lnum))->ignore
