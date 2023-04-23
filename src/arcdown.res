@@ -67,6 +67,12 @@ with "----"
 ****
 This is not a new block
 ----
+
+[:begin region]:
+This text can be included
+on its own.
+[:end region]:
+New block starts after label
 `
 
 open Promise
@@ -255,40 +261,6 @@ let consumeRegularLine = line => {
 
 exception EndOfBlock(array<token>)
 
-/*
-let rec consumeRegularBlock = (name, delimiter, line, lnum) => {
-  if line == delimiter {
-    //Js.log(`BLOCK: ${name} with attributes [${attrs}]`)
-    let rec promi = ((tok, initial, lnum)) =>
-      {
-        let was_attribute = switch tok->List.fromArray->List.reverse->List.head {
-        | Some(Attribute(_)) => true
-        | _ => false
-        }
-        if initial {
-          consumeInitialLine(tok, lnum, was_attribute, delimiter)
-        } else {
-          consumeLine(tok, lnum, was_attribute, delimiter)
-        }
-      }
-      ->then(promi)
-      ->catch(err =>
-        switch err {
-        | EndOfBlock(blocktokens) =>
-          resolve((blocktokens, lnum + 1))
-        | EndOfFile(_) =>
-          reject(err)
-        | _ =>
-          reject(err)
-        }
-      )
-    promi(([], true, lnum))
-  } else {
-    resolve(([], lnum))
-  }
-}
-and
-*/
 let consumeInitialLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum)) => {
     let tokens = consumeBlockDelimiter(line)
@@ -359,8 +331,14 @@ let consumeLine = (tok, lnum) => {
       | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
       | m =>
         assert (m == []) // Appease the compiler
-        let tokens = consumeRegularLine(line)
-        resolve((tok->Array.concat(tokens), Following, lnum))
+        let tokens = consumeLabel(line)
+        switch tokens {
+        | [Label(label)] => resolve((tok->Array.concat(tokens), Initial, lnum))
+        | m =>
+          assert (m == []) // Appease the compiler
+          let tokens = consumeRegularLine(line)
+          resolve((tok->Array.concat(tokens), Following, lnum))
+        }
       }
     }
   })
@@ -387,25 +365,16 @@ let rec promi = ((tok, ltype, lnum)) =>
   | Following => consumeLine(tok, lnum)
   | Code => consumeCodeLine(tok, lnum)
   }
-  ->catch(event =>
-    switch event {
-    | EndOfFile(_) => reject(Success(tok))
-    | _ => reject(event)
-    }
-  )
+  ->then(promi)
   ->catch(err =>
     switch err {
-    | Success(tokens) =>
-      tokens->Array.forEach(token => Js.log2("T: ", token))
-      Js.log(`DONE ${tokens->Array.length->string_of_int}`)
-      reject(err)
+    | EndOfFile(_) =>
+      tok->Array.forEach(token => Js.log2("T: ", token))
+      Js.log(`DONE ${tok->Array.length->string_of_int}`)
+      resolve()
     | _ =>
       Js.log("Unexpected error")
-      reject(err)
+      resolve()
     }
   )
-  ->then(promi)
-  ->catch(_ => {
-    resolve()
-  })
 promi(([], Initial, lnum))->ignore

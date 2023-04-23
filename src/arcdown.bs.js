@@ -11,7 +11,7 @@ var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
 var backtick = "`";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  ... nested numbered list\n  ... nested 2\n* Third\n[list]\n. Number one\n  Indented text without\n  line breaks is added\n  to a code block\n\n----\nAnother way to create\na code block delimited\nwith \"----\"\n\n****\nThis is not a new block\n----\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  ... nested numbered list\n  ... nested 2\n* Third\n[list]\n. Number one\n  Indented text without\n  line breaks is added\n  to a code block\n\n----\nAnother way to create\na code block delimited\nwith \"----\"\n\n****\nThis is not a new block\n----\n\n[:begin region]:\nThis text can be included\non its own.\n[:end region]:\nNew block starts after label\n";
 
 var alpha = "A-Za-z";
 
@@ -322,7 +322,7 @@ function consumeInitialLine(tok, lnum) {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcdown.res",
-                                306,
+                                278,
                                 12
                               ],
                               Error: new Error()
@@ -356,7 +356,7 @@ function consumeInitialLine(tok, lnum) {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcdown.res",
-                                325,
+                                297,
                                 12
                               ],
                               Error: new Error()
@@ -400,7 +400,7 @@ function consumeInitialLine(tok, lnum) {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcdown.res",
-                                333,
+                                305,
                                 12
                               ],
                               Error: new Error()
@@ -461,34 +461,77 @@ function consumeLine(tok, lnum) {
                           ]);
               }
               var tokens$1 = consumeAttribute(line);
-              if (tokens$1.length === 1) {
+              var exit = 0;
+              if (tokens$1.length !== 1) {
+                exit = 1;
+              } else {
                 var attributes = tokens$1[0];
-                if (typeof attributes !== "number" && attributes.TAG === /* Attribute */4) {
+                if (typeof attributes === "number") {
+                  exit = 1;
+                } else {
+                  if (attributes.TAG === /* Attribute */4) {
+                    return Promise.resolve([
+                                Belt_Array.concat(tok, tokens$1),
+                                /* Following */1,
+                                lnum
+                              ]);
+                  }
+                  exit = 1;
+                }
+              }
+              if (exit === 1) {
+                if (!Caml_obj.equal(tokens$1, [])) {
+                  throw {
+                        RE_EXN_ID: "Assert_failure",
+                        _1: [
+                          "arcdown.res",
+                          333,
+                          8
+                        ],
+                        Error: new Error()
+                      };
+                }
+                var tokens$2 = consumeLabel(line);
+                var exit$1 = 0;
+                if (tokens$2.length !== 1) {
+                  exit$1 = 2;
+                } else {
+                  var label = tokens$2[0];
+                  if (typeof label === "number") {
+                    exit$1 = 2;
+                  } else {
+                    if (label.TAG === /* Label */9) {
+                      return Promise.resolve([
+                                  Belt_Array.concat(tok, tokens$2),
+                                  /* Initial */0,
+                                  lnum
+                                ]);
+                    }
+                    exit$1 = 2;
+                  }
+                }
+                if (exit$1 === 2) {
+                  if (!Caml_obj.equal(tokens$2, [])) {
+                    throw {
+                          RE_EXN_ID: "Assert_failure",
+                          _1: [
+                            "arcdown.res",
+                            338,
+                            10
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  var tokens$3 = consumeRegularLine(line);
                   return Promise.resolve([
-                              Belt_Array.concat(tok, tokens$1),
+                              Belt_Array.concat(tok, tokens$3),
                               /* Following */1,
                               lnum
                             ]);
                 }
                 
               }
-              if (!Caml_obj.equal(tokens$1, [])) {
-                throw {
-                      RE_EXN_ID: "Assert_failure",
-                      _1: [
-                        "arcdown.res",
-                        361,
-                        8
-                      ],
-                      Error: new Error()
-                    };
-              }
-              var tokens$2 = consumeRegularLine(line);
-              return Promise.resolve([
-                          Belt_Array.concat(tok, tokens$2),
-                          /* Following */1,
-                          lnum
-                        ]);
+              
             });
 }
 
@@ -533,28 +576,17 @@ function promi(param) {
         break;
     
   }
-  return $$Promise.$$catch($$Promise.$$catch($$Promise.$$catch(tmp, (function ($$event) {
-                          if ($$event.RE_EXN_ID === EndOfFile) {
-                            return Promise.reject({
-                                        RE_EXN_ID: Success,
-                                        _1: tok
-                                      });
-                          } else {
-                            return Promise.reject($$event);
-                          }
-                        })), (function (err) {
-                      if (err.RE_EXN_ID === Success) {
-                        var tokens = err._1;
-                        Belt_Array.forEach(tokens, (function (token) {
-                                console.log("T: ", token);
-                              }));
-                        console.log("DONE " + String(tokens.length) + "");
-                        return Promise.reject(err);
-                      }
-                      console.log("Unexpected error");
-                      return Promise.reject(err);
-                    })).then(promi), (function (param) {
-                return Promise.resolve(undefined);
+  return $$Promise.$$catch(tmp.then(promi), (function (err) {
+                if (err.RE_EXN_ID === EndOfFile) {
+                  Belt_Array.forEach(tok, (function (token) {
+                          console.log("T: ", token);
+                        }));
+                  console.log("DONE " + String(tok.length) + "");
+                  return Promise.resolve(undefined);
+                } else {
+                  console.log("Unexpected error");
+                  return Promise.resolve(undefined);
+                }
               }));
 }
 
