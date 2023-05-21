@@ -107,7 +107,7 @@ type formats =
 
 let outputFormat = Html
 
-let specialCharsStep = text => {
+let specialCharsStep = text =>
   switch outputFormat {
   | Html =>
     let result = Js.String.replaceByRe(%re("/&/g"), "&amp;", text)
@@ -115,7 +115,6 @@ let specialCharsStep = text => {
     Js.String.replaceByRe(%re("/>/g"), "&gt;", result)
   | Asciidoc => text
   }
-}
 
 type token =
   | Empty
@@ -261,7 +260,7 @@ let consumeRegularLine = line => {
 
 exception EndOfBlock(array<token>)
 
-let consumeInitialLine = (tok, lnum) => {
+let consumeInitialLine = (tok, lnum) =>
   nextLine(lnum)->then(((line, lnum)) => {
     let tokens = consumeBlockDelimiter(line)
     switch tokens {
@@ -318,9 +317,8 @@ let consumeInitialLine = (tok, lnum) => {
       }
     }
   })
-}
 
-let consumeLine = (tok, lnum) => {
+let consumeLine = (tok, lnum) =>
   nextLine(lnum)->then(((line, lnum)) => {
     let tokens = consumeBlockDelimiter(line)
     if tokens->Array.length != 0 {
@@ -342,7 +340,6 @@ let consumeLine = (tok, lnum) => {
       }
     }
   })
-}
 
 let consumeCodeLine = (tok, lnum) =>
   nextLine(lnum)->then(((line, lnum)) => {
@@ -352,6 +349,28 @@ let consumeCodeLine = (tok, lnum) =>
       resolve((tok->Array.concat([CodeText(line)]), Code, lnum))
     }
   })
+
+let parseAttributes = atext => {
+  let pattern = `^\\s*([.]?[${alpha}]([.]?[${alnum}])*)`
+  let attrExpr = Js.Re.fromString(pattern)
+  switch attrExpr->getMatches(atext) {
+  | [_, name, _] => Js.log2("Parse: attribute", name)
+  | k => Js.log2("Failed to parse:", k)
+  }
+}
+
+let parseDocument = tok => {
+  let _attributes = HashMap.String.make(~hintSize=10)
+  let _substitutions = HashMap.String.make(~hintSize=30)
+  tok->Array.forEach(token =>
+    switch token {
+    | Attribute(attributes) => parseAttributes(attributes)
+    | _ =>
+      // do nothing
+      assert(true)
+    }
+  )
+}
 
 let subs = list{}
 let attrs = ""
@@ -371,6 +390,7 @@ let rec promi = ((tok, ltype, lnum)) =>
     | EndOfFile(_) =>
       tok->Array.forEach(token => Js.log2("T: ", token))
       Js.log(`DONE ${tok->Array.length->string_of_int}`)
+      parseDocument(tok)
       resolve()
     | _ =>
       Js.log("Unexpected error")

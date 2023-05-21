@@ -8,6 +8,7 @@ var Belt_Array = require("rescript/lib/js/belt_Array.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
+var Belt_HashMapString = require("rescript/lib/js/belt_HashMapString.js");
 
 var backtick = "`";
 
@@ -322,7 +323,7 @@ function consumeInitialLine(tok, lnum) {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcdown.res",
-                                278,
+                                277,
                                 12
                               ],
                               Error: new Error()
@@ -356,7 +357,7 @@ function consumeInitialLine(tok, lnum) {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcdown.res",
-                                297,
+                                296,
                                 12
                               ],
                               Error: new Error()
@@ -400,7 +401,7 @@ function consumeInitialLine(tok, lnum) {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcdown.res",
-                                305,
+                                304,
                                 12
                               ],
                               Error: new Error()
@@ -484,7 +485,7 @@ function consumeLine(tok, lnum) {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
                           "arcdown.res",
-                          333,
+                          331,
                           8
                         ],
                         Error: new Error()
@@ -515,7 +516,7 @@ function consumeLine(tok, lnum) {
                           RE_EXN_ID: "Assert_failure",
                           _1: [
                             "arcdown.res",
-                            338,
+                            336,
                             10
                           ],
                           Error: new Error()
@@ -557,6 +558,30 @@ function consumeCodeLine(tok, lnum) {
             });
 }
 
+function parseAttributes(atext) {
+  var pattern = "^\\s*([.]?[" + alpha + "]([.]?[" + alnum + "])*)";
+  var attrExpr = new RegExp(pattern);
+  var k = getMatches(attrExpr, atext);
+  if (k.length !== 3) {
+    console.log("Failed to parse:", k);
+    return ;
+  }
+  var name = k[1];
+  console.log("Parse: attribute", name);
+}
+
+function parseDocument(tok) {
+  Belt_HashMapString.make(10);
+  Belt_HashMapString.make(30);
+  Belt_Array.forEach(tok, (function (token) {
+          if (typeof token !== "object" || token.TAG !== "Attribute") {
+            return ;
+          } else {
+            return parseAttributes(token._0);
+          }
+        }));
+}
+
 var Success = /* @__PURE__ */Caml_exceptions.create("Arcdown.Success");
 
 function promi(param) {
@@ -581,6 +606,7 @@ function promi(param) {
                           console.log("T: ", token);
                         }));
                   console.log("DONE " + String(tok.length));
+                  parseDocument(tok);
                   return Promise.resolve(undefined);
                 } else {
                   console.log("Unexpected error");
@@ -627,6 +653,8 @@ exports.EndOfBlock = EndOfBlock;
 exports.consumeInitialLine = consumeInitialLine;
 exports.consumeLine = consumeLine;
 exports.consumeCodeLine = consumeCodeLine;
+exports.parseAttributes = parseAttributes;
+exports.parseDocument = parseDocument;
 exports.subs = subs;
 exports.attrs = attrs;
 exports.lnum = lnum;
