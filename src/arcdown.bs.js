@@ -69,7 +69,7 @@ function consumeBlockTitle(line) {
   }
   var title = match[1];
   return [{
-            TAG: /* BlockTitle */12,
+            TAG: "BlockTitle",
             _0: title
           }];
 }
@@ -85,11 +85,11 @@ function consumeHeading(line) {
   var level = signs.length;
   return [
           {
-            TAG: /* Heading */3,
+            TAG: "Heading",
             _0: level
           },
           {
-            TAG: /* Text */0,
+            TAG: "Text",
             _0: title
           }
         ];
@@ -106,11 +106,11 @@ function consumeSubstitution(line) {
   var value = match[3];
   return [
           {
-            TAG: /* SubstitutionDef */10,
+            TAG: "SubstitutionDef",
             _0: name
           },
           {
-            TAG: /* Text */0,
+            TAG: "Text",
             _0: value
           }
         ];
@@ -124,7 +124,7 @@ function consumeAttribute(line) {
   }
   var attributes = match[1];
   return [{
-            TAG: /* Attribute */4,
+            TAG: "Attribute",
             _0: attributes
           }];
 }
@@ -139,11 +139,11 @@ function consumeHyperlink(line) {
   var link = match[2];
   return [
           {
-            TAG: /* Hyperlink */11,
+            TAG: "Hyperlink",
             _0: link
           },
           {
-            TAG: /* Text */0,
+            TAG: "Text",
             _0: text
           }
         ];
@@ -157,7 +157,7 @@ function consumeLabel(line) {
   }
   var label = match[1];
   return [{
-            TAG: /* Label */9,
+            TAG: "Label",
             _0: label
           }];
 }
@@ -175,22 +175,22 @@ function consumeBulletListItem(line) {
   if (match$1 === "*") {
     return [
             {
-              TAG: /* BulletListItem */5,
+              TAG: "BulletListItem",
               _0: level
             },
             {
-              TAG: /* Text */0,
+              TAG: "Text",
               _0: text
             }
           ];
   } else {
     return [
             {
-              TAG: /* IndentedBulletListItem */7,
+              TAG: "IndentedBulletListItem",
               _0: level
             },
             {
-              TAG: /* Text */0,
+              TAG: "Text",
               _0: text
             }
           ];
@@ -210,22 +210,22 @@ function consumeNumberedListItem(line) {
   if (match$1 === ".") {
     return [
             {
-              TAG: /* NumberedListItem */6,
+              TAG: "NumberedListItem",
               _0: level
             },
             {
-              TAG: /* Text */0,
+              TAG: "Text",
               _0: text
             }
           ];
   } else {
     return [
             {
-              TAG: /* IndentedNumberedListItem */8,
+              TAG: "IndentedNumberedListItem",
               _0: level
             },
             {
-              TAG: /* Text */0,
+              TAG: "Text",
               _0: text
             }
           ];
@@ -235,17 +235,17 @@ function consumeNumberedListItem(line) {
 function consumeBlockDelimiter(line) {
   switch (line) {
     case "" :
-        return [/* Empty */0];
+        return ["Empty"];
     case "****" :
-        return [/* SidebarBlockDelimiter */5];
+        return ["SidebarBlockDelimiter"];
     case "--" :
-        return [/* FreeBlockDelimiter */1];
+        return ["FreeBlockDelimiter"];
     case "----" :
-        return [/* CodeBlockDelimiter */2];
+        return ["CodeBlockDelimiter"];
     case "====" :
-        return [/* ExampleBlockDelimiter */3];
+        return ["ExampleBlockDelimiter"];
     case "____" :
-        return [/* QuoteBlockDelimiter */4];
+        return ["QuoteBlockDelimiter"];
     default:
       return [];
   }
@@ -266,7 +266,7 @@ function consumeRegularLine(line) {
         tok = consumeHyperlink(line);
         break;
     case " " :
-    case "\\t" :
+    case "\t" :
         exit = 1;
         break;
     default:
@@ -277,7 +277,7 @@ function consumeRegularLine(line) {
     if (Caml_obj.equal(tokens, [])) {
       var tokens$1 = consumeNumberedListItem(line);
       tok = Caml_obj.equal(tokens$1, []) ? [{
-            TAG: /* IndentedText */1,
+            TAG: "IndentedText",
             _0: line
           }] : tokens$1;
     } else {
@@ -286,7 +286,7 @@ function consumeRegularLine(line) {
   }
   if (Caml_obj.equal(tok, [])) {
     return [{
-              TAG: /* Text */0,
+              TAG: "Text",
               _0: line
             }];
   } else {
@@ -307,11 +307,11 @@ function consumeInitialLine(tok, lnum) {
                   case "." :
                       var tokens$1 = consumeBlockTitle(line);
                       if (tokens$1.length === 1) {
-                        var title = tokens$1[0];
-                        if (typeof title !== "number" && title.TAG === /* BlockTitle */12) {
+                        var _title = tokens$1[0];
+                        if (typeof _title === "object" && _title.TAG === "BlockTitle") {
                           return Promise.resolve([
                                       Belt_Array.concat(tok, tokens$1),
-                                      /* Initial */0,
+                                      "Initial",
                                       lnum
                                     ]);
                         }
@@ -331,19 +331,19 @@ function consumeInitialLine(tok, lnum) {
                       var tokens$2 = consumeRegularLine(line);
                       return Promise.resolve([
                                   Belt_Array.concat(tok, tokens$2),
-                                  /* Following */1,
+                                  "Following",
                                   lnum
                                 ]);
                   case ":" :
                       var tokens$3 = consumeSubstitution(line);
                       if (tokens$3.length === 2) {
-                        var name = tokens$3[0];
-                        if (typeof name !== "number" && name.TAG === /* SubstitutionDef */10) {
-                          var value = tokens$3[1];
-                          if (typeof value !== "number" && value.TAG === /* Text */0) {
+                        var _name = tokens$3[0];
+                        if (typeof _name === "object" && _name.TAG === "SubstitutionDef") {
+                          var _value = tokens$3[1];
+                          if (typeof _value === "object" && _value.TAG === "Text") {
                             return Promise.resolve([
                                         Belt_Array.concat(tok, tokens$3),
-                                        /* Initial */0,
+                                        "Initial",
                                         lnum
                                       ]);
                           }
@@ -364,7 +364,7 @@ function consumeInitialLine(tok, lnum) {
                       }
                       return Promise.resolve([
                                   consumeRegularLine(line),
-                                  /* Following */1,
+                                  "Following",
                                   lnum
                                 ]);
                   case "=" :
@@ -372,24 +372,24 @@ function consumeInitialLine(tok, lnum) {
                       if (Caml_obj.notequal(tokens$4, [])) {
                         return Promise.resolve([
                                     Belt_Array.concat(tok, tokens$4),
-                                    /* Following */1,
+                                    "Following",
                                     lnum
                                   ]);
                       }
                       var tokens$5 = consumeRegularLine(line);
                       return Promise.resolve([
                                   Belt_Array.concat(tok, tokens$5),
-                                  /* Following */1,
+                                  "Following",
                                   lnum
                                 ]);
                   case "[" :
                       var tokens$6 = consumeAttribute(line);
                       if (tokens$6.length === 1) {
-                        var attributes = tokens$6[0];
-                        if (typeof attributes !== "number" && attributes.TAG === /* Attribute */4) {
+                        var _attributes = tokens$6[0];
+                        if (typeof _attributes === "object" && _attributes.TAG === "Attribute") {
                           return Promise.resolve([
                                       Belt_Array.concat(tok, tokens$6),
-                                      /* Following */1,
+                                      "Following",
                                       lnum
                                     ]);
                         }
@@ -410,14 +410,14 @@ function consumeInitialLine(tok, lnum) {
                       if (Caml_obj.notequal(tokens$7, [])) {
                         return Promise.resolve([
                                     Belt_Array.concat(tok, tokens$7),
-                                    /* Initial */0,
+                                    "Initial",
                                     lnum
                                   ]);
                       }
                       var tokens$8 = consumeRegularLine(line);
                       return Promise.resolve([
                                   Belt_Array.concat(tok, tokens$8),
-                                  /* Following */1,
+                                  "Following",
                                   lnum
                                 ]);
                       break;
@@ -425,25 +425,24 @@ function consumeInitialLine(tok, lnum) {
                     var tokens$9 = consumeRegularLine(line);
                     return Promise.resolve([
                                 Belt_Array.concat(tok, tokens$9),
-                                /* Following */1,
+                                "Following",
                                 lnum
                               ]);
                 }
               } else {
                 var match = tokens[0];
-                if (match === 2) {
+                if (typeof match !== "object" && match === "CodeBlockDelimiter") {
                   return Promise.resolve([
                               Belt_Array.concat(tok, tokens),
-                              /* Code */2,
-                              lnum
-                            ]);
-                } else {
-                  return Promise.resolve([
-                              Belt_Array.concat(tok, tokens),
-                              /* Initial */0,
+                              "Code",
                               lnum
                             ]);
                 }
+                return Promise.resolve([
+                            Belt_Array.concat(tok, tokens),
+                            "Initial",
+                            lnum
+                          ]);
               }
             });
 }
@@ -456,7 +455,7 @@ function consumeLine(tok, lnum) {
               if (tokens.length !== 0) {
                 return Promise.resolve([
                             Belt_Array.concat(tok, tokens),
-                            /* Initial */0,
+                            "Initial",
                             lnum
                           ]);
               }
@@ -465,14 +464,14 @@ function consumeLine(tok, lnum) {
               if (tokens$1.length !== 1) {
                 exit = 1;
               } else {
-                var attributes = tokens$1[0];
-                if (typeof attributes === "number") {
+                var _attributes = tokens$1[0];
+                if (typeof _attributes !== "object") {
                   exit = 1;
                 } else {
-                  if (attributes.TAG === /* Attribute */4) {
+                  if (_attributes.TAG === "Attribute") {
                     return Promise.resolve([
                                 Belt_Array.concat(tok, tokens$1),
-                                /* Following */1,
+                                "Following",
                                 lnum
                               ]);
                   }
@@ -496,14 +495,14 @@ function consumeLine(tok, lnum) {
                 if (tokens$2.length !== 1) {
                   exit$1 = 2;
                 } else {
-                  var label = tokens$2[0];
-                  if (typeof label === "number") {
+                  var _label = tokens$2[0];
+                  if (typeof _label !== "object") {
                     exit$1 = 2;
                   } else {
-                    if (label.TAG === /* Label */9) {
+                    if (_label.TAG === "Label") {
                       return Promise.resolve([
                                   Belt_Array.concat(tok, tokens$2),
-                                  /* Initial */0,
+                                  "Initial",
                                   lnum
                                 ]);
                     }
@@ -525,7 +524,7 @@ function consumeLine(tok, lnum) {
                   var tokens$3 = consumeRegularLine(line);
                   return Promise.resolve([
                               Belt_Array.concat(tok, tokens$3),
-                              /* Following */1,
+                              "Following",
                               lnum
                             ]);
                 }
@@ -541,17 +540,17 @@ function consumeCodeLine(tok, lnum) {
               var line = param[0];
               if (line === "----") {
                 return Promise.resolve([
-                            Belt_Array.concat(tok, [/* CodeBlockDelimiter */2]),
-                            /* Initial */0,
+                            Belt_Array.concat(tok, ["CodeBlockDelimiter"]),
+                            "Initial",
                             lnum
                           ]);
               } else {
                 return Promise.resolve([
                             Belt_Array.concat(tok, [{
-                                    TAG: /* CodeText */2,
+                                    TAG: "CodeText",
                                     _0: line
                                   }]),
-                            /* Code */2,
+                            "Code",
                             lnum
                           ]);
               }
@@ -565,13 +564,13 @@ function promi(param) {
   var tok = param[0];
   var tmp;
   switch (param[1]) {
-    case /* Initial */0 :
+    case "Initial" :
         tmp = consumeInitialLine(tok, lnum);
         break;
-    case /* Following */1 :
+    case "Following" :
         tmp = consumeLine(tok, lnum);
         break;
-    case /* Code */2 :
+    case "Code" :
         tmp = consumeCodeLine(tok, lnum);
         break;
     
@@ -581,7 +580,7 @@ function promi(param) {
                   Belt_Array.forEach(tok, (function (token) {
                           console.log("T: ", token);
                         }));
-                  console.log("DONE " + String(tok.length) + "");
+                  console.log("DONE " + String(tok.length));
                   return Promise.resolve(undefined);
                 } else {
                   console.log("Unexpected error");
@@ -592,11 +591,11 @@ function promi(param) {
 
 promi([
       [],
-      /* Initial */0,
+      "Initial",
       0
     ]);
 
-var outputFormat = /* Html */0;
+var outputFormat = "Html";
 
 var subs = /* [] */0;
 

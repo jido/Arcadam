@@ -273,9 +273,9 @@ let consumeInitialLine = (tok, lnum) => {
         | "." =>
           let tokens = consumeBlockTitle(line)
           switch tokens {
-          | [BlockTitle(title)] => resolve((tok->Array.concat(tokens), Initial, lnum))
-          | m =>
-            assert (m == [])
+          | [BlockTitle(_title)] => resolve((tok->Array.concat(tokens), Initial, lnum))
+          | _ =>
+            assert(tokens == [])
             let tokens = consumeRegularLine(line)
             resolve((tok->Array.concat(tokens), Following, lnum))
           }
@@ -290,19 +290,19 @@ let consumeInitialLine = (tok, lnum) => {
         | ":" =>
           let tokens = consumeSubstitution(line)
           switch tokens {
-          | [SubstitutionDef(name), Text(value)] =>
+          | [SubstitutionDef(_name), Text(_value)] =>
             //let subs = subs->List.add((name, value))
             resolve((tok->Array.concat(tokens), Initial, lnum))
-          | m =>
-            assert (m == [])
+          | _ =>
+            assert(tokens == [])
             resolve((consumeRegularLine(line), Following, lnum))
           }
         | "[" =>
           let tokens = consumeAttribute(line)
           switch tokens {
-          | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
-          | m =>
-            assert (m == [])
+          | [Attribute(_attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
+          | _ =>
+            assert(tokens == [])
             let tokens = consumeLabel(line)
             if tokens != [] {
               resolve((tok->Array.concat(tokens), Initial, lnum))
@@ -328,14 +328,14 @@ let consumeLine = (tok, lnum) => {
     } else {
       let tokens = consumeAttribute(line)
       switch tokens {
-      | [Attribute(attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
-      | m =>
-        assert (m == []) // Appease the compiler
+      | [Attribute(_attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
+      | _ =>
+        assert(tokens == []) // Appease the compiler
         let tokens = consumeLabel(line)
         switch tokens {
-        | [Label(label)] => resolve((tok->Array.concat(tokens), Initial, lnum))
-        | m =>
-          assert (m == []) // Appease the compiler
+        | [Label(_label)] => resolve((tok->Array.concat(tokens), Initial, lnum))
+        | _ =>
+          assert(tokens == []) // Appease the compiler
           let tokens = consumeRegularLine(line)
           resolve((tok->Array.concat(tokens), Following, lnum))
         }
