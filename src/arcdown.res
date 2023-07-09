@@ -350,11 +350,20 @@ let consumeCodeLine = (tok, lnum) =>
     }
   })
 
-let parseAttributes = atext => {
+let parseAttribute = atext => {
   let pattern = `^\\s*([.]?[${alpha}]([.]?[${alnum}])*)`
   let attrExpr = Js.Re.fromString(pattern)
   switch attrExpr->getMatches(atext) {
   | [_, name, _] => Js.log2("Parse: attribute", name)
+  | k => Js.log2("Failed to parse:", k)
+  }
+}
+
+let parseLabel = atext => {
+  let pattern = `^\\s*([:#^>]?[${alpha}]([${alnum}])*)`
+  let labelExpr = Js.Re.fromString(pattern)
+  switch labelExpr->getMatches(atext) {
+  | [_, name, _] => Js.log2("Parse: label", name)
   | k => Js.log2("Failed to parse:", k)
   }
 }
@@ -364,7 +373,8 @@ let parseDocument = tok => {
   let _substitutions = HashMap.String.make(~hintSize=30)
   tok->Array.forEach(token =>
     switch token {
-    | Attribute(attributes) => parseAttributes(attributes)
+    | Attribute(attributes) => parseAttribute(attributes)
+    | Label(label) => parseLabel(label)
     | _ =>
       // do nothing
       assert(true)

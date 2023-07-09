@@ -559,7 +559,7 @@ function consumeCodeLine(tok, lnum) {
             });
 }
 
-function parseAttributes(atext) {
+function parseAttribute(atext) {
   var pattern = "^\\s*([.]?[" + alpha + "]([.]?[" + alnum + "])*)";
   var attrExpr = new RegExp(pattern);
   var k = getMatches(attrExpr, atext);
@@ -571,14 +571,32 @@ function parseAttributes(atext) {
   console.log("Parse: attribute", name);
 }
 
+function parseLabel(atext) {
+  var pattern = "^\\s*([:#^>]?[" + alpha + "]([" + alnum + "])*)";
+  var labelExpr = new RegExp(pattern);
+  var k = getMatches(labelExpr, atext);
+  if (k.length !== 3) {
+    console.log("Failed to parse:", k);
+    return ;
+  }
+  var name = k[1];
+  console.log("Parse: label", name);
+}
+
 function parseDocument(tok) {
   Belt_HashMapString.make(10);
   Belt_HashMapString.make(30);
   Belt_Array.forEach(tok, (function (token) {
-          if (typeof token !== "object" || token.TAG !== "Attribute") {
+          if (typeof token !== "object") {
             return ;
-          } else {
-            return parseAttributes(token._0);
+          }
+          switch (token.TAG) {
+            case "Attribute" :
+                return parseAttribute(token._0);
+            case "Label" :
+                return parseLabel(token._0);
+            default:
+              return ;
           }
         }));
 }
@@ -654,7 +672,8 @@ exports.EndOfBlock = EndOfBlock;
 exports.consumeInitialLine = consumeInitialLine;
 exports.consumeLine = consumeLine;
 exports.consumeCodeLine = consumeCodeLine;
-exports.parseAttributes = parseAttributes;
+exports.parseAttribute = parseAttribute;
+exports.parseLabel = parseLabel;
 exports.parseDocument = parseDocument;
 exports.subs = subs;
 exports.attrs = attrs;
