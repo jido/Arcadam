@@ -22,7 +22,8 @@ function getMatches(regex, someline) {
   var result = regex.exec(someline);
   if (result !== null) {
     return Belt_Array.map(result, (function (x) {
-                  return Belt_Option.getWithDefault((x == null) ? undefined : Caml_option.some(x), "");
+                  var __x = (x == null) ? undefined : Caml_option.some(x);
+                  return Belt_Option.getWithDefault(__x, "");
                 }));
   } else {
     return [];
@@ -191,7 +192,7 @@ function consumeBulletListItem(line) {
               _0: level
             },
             {
-              TAG: "Text",
+              TAG: "IndentedText",
               _0: text
             }
           ];
@@ -226,7 +227,7 @@ function consumeNumberedListItem(line) {
               _0: level
             },
             {
-              TAG: "Text",
+              TAG: "IndentedText",
               _0: text
             }
           ];

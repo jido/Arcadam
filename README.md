@@ -216,8 +216,7 @@ new list to start up
 ```
 
 Use "+" to force a list item on multiple lines. If it is used on an empty 
-line, that starts a new paragraph. Note that indented blocks don't 
-require a "+".
+line, that starts a new paragraph inside the list item.
 
 ### Styled Blocks
 

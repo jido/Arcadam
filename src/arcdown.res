@@ -83,7 +83,7 @@ let alnum = "0-9" ++ alpha
 let getMatches = (regex, someline) =>
   switch regex->Js.Re.exec_(someline) {
   | Some(result) =>
-    Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->Option.getWithDefault(_, ""))
+    Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->(Option.getWithDefault(_, "")))
   | None => []
   }
 
@@ -201,7 +201,7 @@ let consumeBulletListItem = line => {
     let level = stars->String.length
     switch Js.String.charAt(0, line) {
     | "*" => [BulletListItem(level), Text(text)]
-    | _ => [IndentedBulletListItem(level), Text(text)]
+    | _ => [IndentedBulletListItem(level), IndentedText(text)]
     }
   | _ => []
   }
@@ -214,7 +214,7 @@ let consumeNumberedListItem = line => {
     let level = dots->String.length
     switch Js.String.charAt(0, line) {
     | "." => [NumberedListItem(level), Text(text)]
-    | _ => [IndentedNumberedListItem(level), Text(text)]
+    | _ => [IndentedNumberedListItem(level), IndentedText(text)]
     }
   | _ => []
   }
@@ -390,7 +390,7 @@ let rec promi = ((tok, ltype, lnum)) =>
     | EndOfFile(_) =>
       tok->Array.forEach(token => Js.log2("T: ", token))
       Js.log(`DONE ${tok->Array.length->string_of_int}`)
-      parseDocument(tok)
+      tok->parseDocument
       resolve()
     | _ =>
       Js.log("Unexpected error")
