@@ -1,4 +1,4 @@
-![logo](Arcdown%20logo.png)
+![logo](Arcadam%20logo%20small.png)
 # Arcadam
 
 A lightweight markup language to format documents using plain text
