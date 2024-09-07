@@ -1,20 +1,20 @@
 # Quirks and differences
 
-Although the Arcdown syntax is superficially very similar to AsciiDoc with Markdown links, there are some important differences.
+Although the Arcadam syntax is superficially very similar to AsciiDoc with Markdown links, there are some important differences.
 
 ## Links and macros
 
 AsciiDoc can recognise a hyperlink as such; the text of the link is added after the URI in square brackets `[]`.
 
-Arcdown prefers following the Markdown convention of putting the text of the link before the URI:
+Arcadam prefers following the Markdown convention of putting the text of the link before the URI:
 
 ```
 [This is the text to click](https://example.com)
 ```
 
-Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of features are written differently in Arcdown.
+Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of features are written differently in Arcadam.
 
-This table shows Arcdown syntax compared to AsciiDoc:
+This table shows Arcadam syntax compared to AsciiDoc:
 
 | feature                | linking it             | set target                             | AsciiDoctor
 |------------------------|------------------------|----------------------------------------|--
@@ -31,7 +31,7 @@ AsciiDoc also has a link-like syntax for these, for example setting an anchor ta
 anchor:target[]
 ```
 
-Markdown in Github flavour recently added footnotes with a syntax near identical to Arcdown.
+Markdown in Github flavour recently added footnotes with a syntax near identical to Arcadam.
 Most other features are not natively supported including setting a named anchor.
 This is how to link to a heading in Markdown, which requires knowledge of how the anchor name is built:
 
@@ -57,7 +57,7 @@ For a delimited block it must be after the end delimiter or an empty line
 
 ### More notes:
 
-Arcdown commands, such as attribute line, substitution definition, block title and comments count as empty lines (no indent).
+Arcadam commands, such as attribute line, substitution definition, block title and comments count as empty lines (no indent).
 
 ```
     This code block indent
@@ -114,7 +114,7 @@ If the first indented line is a list item (starts with dots, stars or contains "
 
 ## Tables
 
-Arcdown does not support all the table formatting options of AsciiDoc. 
+Arcadam does not support all the table formatting options of AsciiDoc. 
 
 The only supported format letter is "h" (header row or column).
 
@@ -158,7 +158,7 @@ If the cell starts without a space between "`|`" and the content then it is not 
 Unlike Asciidoc, the number of repeated characters in a block boundary is fixed (length 4 or 2) and cannot be increased.
 AsciiDoctor uses matched boundary lengths for block nesting.
 
-Nesting of the same block is supported in Arcdown by adding an attribute in the line immediately before the start of the block.
+Nesting of the same block is supported in Arcadam by adding an attribute in the line immediately before the start of the block.
 
 The attributes for the default use of each kind of block are:
 
