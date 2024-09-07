@@ -12,7 +12,7 @@ var Belt_HashMapString = require("rescript/lib/js/belt_HashMapString.js");
 
 var backtick = "`";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcdown Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  ... nested numbered list\n  ... nested 2\n* Third\n[list]\n. Number one\n  Indented text without\n  line breaks is added\n  to a code block\n\n----\nAnother way to create\na code block delimited\nwith \"----\"\n\n****\nThis is not a new block\n----\n\n[:begin region]:\nThis text can be included\non its own.\n[:end region]:\nNew block starts after label\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  ... nested numbered list\n  ... nested 2\n* Third\n[list]\n. Number one\n  Indented text without\n  line breaks is added\n  to a code block\n\n----\nAnother way to create\na code block delimited\nwith \"----\"\n\n****\nThis is not a new block\n----\n\n[:begin region]:\nThis text can be included\non its own.\n[:end region]:\nNew block starts after label\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
 
 var alpha = "A-Za-z";
 
@@ -30,7 +30,7 @@ function getMatches(regex, someline) {
   }
 }
 
-var EndOfFile = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfFile");
+var EndOfFile = /* @__PURE__ */Caml_exceptions.create("Arcadam.EndOfFile");
 
 var lines = Js_string.split("\n", source);
 
@@ -296,7 +296,7 @@ function consumeRegularLine(line) {
   }
 }
 
-var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcdown.EndOfBlock");
+var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcadam.EndOfBlock");
 
 function consumeInitialLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
@@ -323,8 +323,8 @@ function consumeInitialLine(tok, lnum) {
                         throw {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
-                                "arcdown.res",
-                                277,
+                                "arcadam.res",
+                                281,
                                 12
                               ],
                               Error: new Error()
@@ -357,8 +357,8 @@ function consumeInitialLine(tok, lnum) {
                         throw {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
-                                "arcdown.res",
-                                296,
+                                "arcadam.res",
+                                300,
                                 12
                               ],
                               Error: new Error()
@@ -401,8 +401,8 @@ function consumeInitialLine(tok, lnum) {
                         throw {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
-                                "arcdown.res",
-                                304,
+                                "arcadam.res",
+                                308,
                                 12
                               ],
                               Error: new Error()
@@ -485,8 +485,8 @@ function consumeLine(tok, lnum) {
                   throw {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
-                          "arcdown.res",
-                          331,
+                          "arcadam.res",
+                          335,
                           8
                         ],
                         Error: new Error()
@@ -516,8 +516,8 @@ function consumeLine(tok, lnum) {
                     throw {
                           RE_EXN_ID: "Assert_failure",
                           _1: [
-                            "arcdown.res",
-                            336,
+                            "arcadam.res",
+                            340,
                             10
                           ],
                           Error: new Error()
@@ -559,7 +559,7 @@ function consumeCodeLine(tok, lnum) {
             });
 }
 
-function parseAttribute(atext) {
+function parseAttribute(atext, attributes) {
   var pattern = "^\\s*([.]?[" + alpha + "]([.]?[" + alnum + "])*)";
   var attrExpr = new RegExp(pattern);
   var k = getMatches(attrExpr, atext);
@@ -569,10 +569,11 @@ function parseAttribute(atext) {
   }
   var name = k[1];
   console.log("Parse: attribute", name);
+  Belt_HashMapString.set(attributes, name, "");
 }
 
 function parseLabel(atext) {
-  var pattern = "^\\s*([:#^>]?[" + alpha + "]([" + alnum + "])*)";
+  var pattern = "^\\s*([:#^>][" + alpha + "]([" + alnum + "])*)";
   var labelExpr = new RegExp(pattern);
   var k = getMatches(labelExpr, atext);
   if (k.length !== 3) {
@@ -584,24 +585,43 @@ function parseLabel(atext) {
 }
 
 function parseDocument(tok) {
-  Belt_HashMapString.make(10);
-  Belt_HashMapString.make(30);
+  var _attributes = Belt_HashMapString.make(10);
+  var _substitutions = Belt_HashMapString.make(30);
+  var state = {
+    contents: "General"
+  };
   Belt_Array.forEach(tok, (function (token) {
           if (typeof token !== "object") {
             return ;
           }
           switch (token.TAG) {
+            case "Text" :
+                var value = token._0;
+                var name = state.contents;
+                if (typeof name !== "object") {
+                  return ;
+                }
+                var name$1 = name._0;
+                console.log("Parse: substitution will replace", name$1, "with", value);
+                state.contents = "General";
+                return Belt_HashMapString.set(_substitutions, name$1, value);
             case "Attribute" :
-                return parseAttribute(token._0);
+                return parseAttribute(token._0, _attributes);
             case "Label" :
                 return parseLabel(token._0);
+            case "SubstitutionDef" :
+                state.contents = {
+                  TAG: "Substitution",
+                  _0: token._0
+                };
+                return ;
             default:
               return ;
           }
         }));
 }
 
-var Success = /* @__PURE__ */Caml_exceptions.create("Arcdown.Success");
+var Success = /* @__PURE__ */Caml_exceptions.create("Arcadam.Success");
 
 function promi(param) {
   var lnum = param[2];

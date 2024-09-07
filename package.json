@@ -1,5 +1,5 @@
 {
-  "name": "arcdown",
+  "name": "arcadam",
   "version": "0.0.1",
   "scripts": {
     "res:build": "rescript",

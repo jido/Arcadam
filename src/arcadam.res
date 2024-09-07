@@ -16,7 +16,7 @@ A small example
 ====
 
 :subs: value&more
-== Arcdown Test ->> part 1
+== Arcadam Test ->> part 1
 
 [Go to ${backtick}Products page${backtick} on this site](/Products.html)
 
@@ -73,6 +73,10 @@ This text can be included
 on its own.
 [:end region]:
 New block starts after label
+
+[.styleclass]
+[mylist.first]
+Testing dotted attributes
 `
 
 open Promise
@@ -350,17 +354,19 @@ let consumeCodeLine = (tok, lnum) =>
     }
   })
 
-let parseAttribute = atext => {
+let parseAttribute = (atext, attributes) => {
   let pattern = `^\\s*([.]?[${alpha}]([.]?[${alnum}])*)`
   let attrExpr = Js.Re.fromString(pattern)
   switch attrExpr->getMatches(atext) {
-  | [_, name, _] => Js.log2("Parse: attribute", name)
+  | [_, name, _] =>
+    Js.log2("Parse: attribute", name)
+    attributes->HashMap.String.set(name, "")
   | k => Js.log2("Failed to parse:", k)
   }
 }
 
 let parseLabel = atext => {
-  let pattern = `^\\s*([:#^>]?[${alpha}]([${alnum}])*)`
+  let pattern = `^\\s*([:#^>][${alpha}]([${alnum}])*)`
   let labelExpr = Js.Re.fromString(pattern)
   switch labelExpr->getMatches(atext) {
   | [_, name, _] => Js.log2("Parse: label", name)
@@ -368,13 +374,29 @@ let parseLabel = atext => {
   }
 }
 
+type parseState =
+  | General
+  | Substitution(string)
+
 let parseDocument = tok => {
   let _attributes = HashMap.String.make(~hintSize=10)
   let _substitutions = HashMap.String.make(~hintSize=30)
+  let state = ref(General)
   tok->Array.forEach(token =>
     switch token {
-    | Attribute(attributes) => parseAttribute(attributes)
+    | Attribute(attributeList) => parseAttribute(attributeList, _attributes)
     | Label(label) => parseLabel(label)
+    | SubstitutionDef(name) => state := Substitution(name)
+    | Text(value) =>
+      switch state.contents {
+      | Substitution(name) =>
+        Js.log4("Parse: substitution will replace", name, "with", value)
+        state := General
+        _substitutions->HashMap.String.set(name, value)
+      | General =>
+        // do nothing
+        assert(true)
+      }
     | _ =>
       // do nothing
       assert(true)
