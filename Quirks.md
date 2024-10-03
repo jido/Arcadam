@@ -45,13 +45,11 @@ A notable difference with AsciiDoc is the way indented text is handled.
 
 The rule is:
 
-> *If an indented block follows an indented code block with same indent, then it is treated as a normal paragraph.*
+> *If an indented block follows an indented code block, then it is treated as a normal paragraph.*
 
 Let us go through this.
 
 * Indented code block: it can be a delimited or a non-delimited code block and must not start like a list item
-* Same indent: the indent of a code block is decided by its first line (the delimiter line if the block is delimited),
-the paragraph must start with the same indent
 * Follows: in case of a non-delimited code block the paragraph must be after an empty line.
 For a delimited block it must be after the end delimiter or an empty line
 
@@ -67,10 +65,8 @@ Arcadam commands, such as attribute line, substitution definition, block title a
     This is a paragraph
 ```
 
-As a code block indent is decided by the first line, the code block above is considered incorrectly formatted.
+A code block indent is decided by the first line, so the code block above is considered incorrectly formatted.
 In the output all three lines will be at the same level.
-
-For the next indented block to be a paragraph, it must match the indent of the first line.
 
 ```
    A code block
@@ -163,7 +159,7 @@ Nesting of the same block is supported in Arcadam by adding an attribute in the 
 The attributes for the default use of each kind of block are:
 
 ```
-[division]
+[group]
 --
 
 [example]
@@ -206,7 +202,7 @@ A block header could look like:
 [#anchor]:
 [:begin region]:
 :substitution: value
-[division]
+[group]
 --
 ```
 
