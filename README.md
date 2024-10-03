@@ -235,9 +235,6 @@ Code blocks (monospaced):
   That is another paragraph.
   
   A second code block starts here
-+
-  continuation of the code block
-  using "+" for empty lines
 
 ----
 Another way to create
@@ -511,8 +508,7 @@ Some attributes, such as a style class attribute, can be used in the middle of t
 Example:
 
 ```
-This paragraph contains [.underline]#underlined
-text inside#.
+This paragraph contains [.underline]#underlined text#.
 ```
 
 ### Include
