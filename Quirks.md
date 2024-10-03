@@ -46,12 +46,16 @@ A notable difference with AsciiDoc is the way indented text is handled.
 The rule is:
 
 > *If an indented block follows an indented code block, then it is treated as a normal paragraph.*
+> *If a line made of a non-indented "+" is followed by an indented block, the indented block is treated*
+> *as a code block and added to the previous element separated by an empty line.*
 
 Let us go through this.
 
 * Indented code block: it can be a delimited or a non-delimited code block and must not start like a list item
 * Follows: in case of a non-delimited code block the paragraph must be after an empty line.
 For a delimited block it must be after the end delimiter or an empty line
+* Non-indented "+": that is normally used to join paragraphs in a list, but if the block is indented
+it becomes a code block instead
 
 ### More notes:
 
@@ -104,9 +108,15 @@ A line with no indent after an indented line always starts a new paragraph, even
 ```
   . Item in a numbered list
   continued on the next line
+  +
+  Another paragraph attached
++
+  That is a code block
 ```
 
 If the first indented line is a list item (starts with dots, stars or contains ":: ") then it is treated as an indented paragraph and never as code.
+A list item can contain multiple paragraphs using "+" to join them to the list item.
+It can also contain a code block introduced with a non-indented "+".
 
 ## Tables
 

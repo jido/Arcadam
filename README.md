@@ -217,7 +217,9 @@ new list to start up
 ```
 
 Use "+" to force a list item on multiple lines. If it is used on an empty 
-line, that starts a new paragraph inside the list item.
+line, that starts a new paragraph inside the list item. If "+" is
+non-indented but the following text is indented, a code block is added
+to the list item.
 
 ### Styled Blocks
 
@@ -229,9 +231,13 @@ Code blocks (monospaced):
   to a code block
   
   Normal text after a code block
+  +
+  That is another paragraph.
   
-  A second code block
-  starts here
+  A second code block starts here
++
+  continuation of the code block
+  using "+" for empty lines
 
 ----
 Another way to create
@@ -465,6 +471,8 @@ Using the {substitution}
 
 [{substitution}](/index.html)
 ```
+
+The substitution is replaced with the value to be inserted.
 
 ### Attributes
 
