@@ -203,7 +203,7 @@ level with the nesting level of the list.
 Example:
 
 ```
-. This is number one
+1. This is number one
 ** It has two bullets
 ** This is the second bullet
 . This is number two
@@ -352,42 +352,44 @@ checked. Most symbols can be used to check it.
 ```
 [tabset]
 --
-[options,id=maintab]
+[tablist,id=maintab,value=Products]
 * Products
 * Portfolio
 * Contact
 
-[tab,on="{maintab}::Products"]
+[tab,on="maintab:Products"]
 ****
 This is the products tab
 ****
 
-[tab,on="{maintab}::Portfolio"]
+[tab,on="maintab:Portfolio"]
 ****
 This is the portfolio tab
 ****
 
-[tab,on="{maintab}::Contact"]
+[tab,on="maintab:Contact"]
 ****
 This is the contact tab
 ****
 --
 ```
 
-The list of tabs must be in an options form element. The values in the tab list
-cannot contain spaces. A numbered list can be used instead of a bullet 
-list to select the tab by a number, or a description list to select it by
-a term.
-
 If a block title is defined for a tab then that replaces the item in the 
-options list for the tab title.
+tablist for the tab title.
 
 When the output format allows user interaction then the chosen tab is
 displayed and other tabs display only their titles. Tabset content that
 is not a tab is not displayed.
 
 In other cases, the generator outputs all the tabs in the tab list as
-well as tabset content except for the tab list. That allows page breaks.
+well as tabset content. That is useful to insert page breaks between
+tabs. The tablist is always hidden.
+
+To enable user interaction a tablist must be defined and the "on" 
+attribute must be set for each tab. The values in the tablist
+cannot contain spaces. A numbered list can be used instead of a bullet 
+list to select the tab by a number, or a description list to select it by
+a term. The tablist "value" attribute defines the initial tab selection.
 
 ### Mathematical Notation
 
