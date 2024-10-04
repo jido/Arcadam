@@ -21,7 +21,7 @@ This table shows Arcadam syntax compared to AsciiDoc:
 | anchor                 | `[link text](#target)` | `[#target]:` or <br> `[id=target]`     | `<<target,link text>>` /<br> `[#target]` or `[[target]]`
 | heading link           | `[Title Text]()`       | `== Title Text`                        | `<<Title Text>>` / `== Title Text`
 | foot note              | `[^note-name]`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)*
-| bibliography reference | `[>reference]`         | `[bibliography]` block with <br> `[>reference]:` and <br> `{:bibliography:}` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]`
+| bibliography reference | `[>reference]`         | `[>reference]: contents` and <br> `{:bibliography:}` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]`
 | index item             | `{:index:}` where to put it           | `[+item]`              | `[index]` <br> `== Index` / `((item))`
 | include region         | `[include]` <br> `[region](filepath)` | `[:begin region]:` then <br> `[:end region]:` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]`
 
