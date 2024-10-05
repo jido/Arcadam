@@ -10,14 +10,14 @@ The syntax of Arcadam is heavily inspired by AsciiDoc and by Markdown.
 ### Headers
 
 ```
-= Document Title
+# Document Title
 
-== Level 1 Section Title
+## Level 1 Section Title
 
-=== Level 2 Section Title...
+### Level 2 Section Title...
 ```
 
-Use "=" in front of the header, repeated as needed to increase the level.
+Use "#" in front of the header, repeated as needed to increase the level.
 
 There must be only one document title in the document. The document title may be followed immediately by an
 optional document header which contains metadata related to the document, such 
@@ -26,7 +26,7 @@ as the authors or a marker for the generator to insert a table of contents.
 Example:
 
 ```IDL
-= Document title
+# Document title
 :authors: Author Name <author@email.org>
 :revision: v2.0, 2019-03-22
 :toc:
@@ -225,7 +225,7 @@ to the list item.
 
 Code blocks (monospaced):
 
-```
+~~~
   Indented text without
   line breaks is added 
   to a code block
@@ -236,19 +236,19 @@ Code blocks (monospaced):
   
   A second code block starts here
 
-----
+```
 Another way to create
 a code block delimited
-with "----"
-----
+with ```
+```
 
-  ----
-  A delimited code block
-  can also be indented.
+  ```
+  An indented code block
+  can also be delimited.
   
   It allows empty lines
-  ----
-```
+  ```
+~~~
 
 Other blocks:
 
@@ -531,40 +531,40 @@ is disabled by default.
 
 The begin and end tags define a named region for include:
 
-```C
+~~~C
 [:begin region]:
 This text can be included
 on its own
 [:end region]:
 
-----
+```
 Inside a code block, a named region
-  // begin::coderegion ----
+  // begin::coderegion```
 is defined using begin:: and end:: 
 tags before a code block marker that 
-  // end::coderegion ----
+  // end::coderegion```
 ends the line.
-----
 ```
+~~~
 
 ### Callouts
 
-```Eiffel
+~~~Eiffel
 [code=ruby]
-----
+```
 require 'sinatra'
-# :1 ----
+# :1```
 
 get '/hi' do 
-  # :2 ----
+  # :2```
   "Hello World!"
-  # :3 ----
+  # :3```
 end
-----
+```
 (1):: Library import
 (2):: URL mapping
 (3):: HTTP response body
-```
+~~~
 
 For automatic callout numbering use `:()` instead of numbers.
 
@@ -621,19 +621,19 @@ The following are included in the translation:
 By default, code and math blocks are excluded. To include a code block
 use the "localize" attribute:
 
-```c
+~~~c
 [localize=Y]
-----
+```
 This will be translated.
-----
+```
 
-----
+```
 Use a localize:: tag inside a
-// localize::Y+2 ----
+// localize::Y+2```
 code block to select n lines
 below the tag to translate
-----
 ```
+~~~
 
 Conversely, the attribute can be used to prevent the translation 
 of text:
