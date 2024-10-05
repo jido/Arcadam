@@ -19,7 +19,7 @@ This table shows Arcadam syntax compared to AsciiDoc:
 | feature                | linking it             | set target                             | AsciiDoctor
 |------------------------|------------------------|----------------------------------------|--
 | anchor                 | `[link text](#target)` | `[#target]:` or <br> `[id=target]`     | `<<target,link text>>` /<br> `[#target]` or `[[target]]`
-| heading link           | `[Title Text]()`       | `== Title Text`                        | `<<Title Text>>` / `== Title Text`
+| heading link           | `[Title Text]()`       | `## Title Text`                        | `<<Title Text>>` / `== Title Text`
 | foot note              | `[^note-name]`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)*
 | bibliography reference | `[>reference]`         | `[>reference]: contents` and <br> `{:bibliography:}` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]`
 | index item             | `{:index:}` where to put it           | `[+item]`              | `[index]` <br> `== Index` / `((item))`
@@ -79,14 +79,14 @@ no-indent text is not part of the code block
 
 Unlike AsciiDoctor, all the lines of the code block must be indented. The second line above is a normal paragraph.
 
-```
-  ----
+~~~
+  ```
   Indented and delimited
   code block
 it is missing an end delimiter
-  ----
+  ```
   Start of a new code block
-```
+~~~
 
 This document is really broken. Because of the non-indented line, the code block ends early. 
 The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter instead.
