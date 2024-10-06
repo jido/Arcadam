@@ -190,7 +190,8 @@ Item 3:: Third description
 
 Number 1 for the first item is optional and no other number is permitted.
 A list that immediately follows an item from another list is automatically 
-nested. Leading whitespace has no effect.
+nested. Leading whitespace has no effect but an indented list cannot start in
+the middle of an indented paragraph, there must be an empty line in-between.
 
 Ordered and unordered list markers can be repeated to indicate the level, 
 just like [headers](#headers). Additional levels can be used in a 
@@ -212,7 +213,7 @@ Example:
   .. This is the third element
 
 [list]
-. The list attribute forces a
+1. The list attribute forces a
 new list to start up
 ```
 
