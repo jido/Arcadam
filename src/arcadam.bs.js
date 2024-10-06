@@ -12,7 +12,7 @@ var Belt_HashMapString = require("rescript/lib/js/belt_HashMapString.js");
 
 var backtick = "`";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n== Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  ... nested numbered list\n  ... nested 2\n* Third\n[list]\n. Number one\n  Indented text without\n  line breaks is added\n  to a code block\n\n----\nAnother way to create\na code block delimited\nwith \"----\"\n\n****\nThis is not a new block\n----\n\n[:begin region]:\nThis text can be included\non its own.\n[:end region]:\nNew block starts after label\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  1... nested numbered list\n  ... nested 2\n* Third\n[list]\n. Number one\n  Indented text without\n  line breaks is added\n  to a code block\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[:begin region]:\nThis text can be included\non its own.\n[:end region]:\nNew block starts after label\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
 
 var alpha = "A-Za-z";
 
@@ -77,7 +77,7 @@ function consumeBlockTitle(line) {
 }
 
 function consumeHeading(line) {
-  var titleLine = /^(=+)\s+([^\s].*)$/;
+  var titleLine = /^(#+)\s+([^\s].*)$/;
   var match = getMatches(titleLine, line);
   if (match.length !== 3) {
     return [];
@@ -200,7 +200,7 @@ function consumeBulletListItem(line) {
 }
 
 function consumeNumberedListItem(line) {
-  var itemLine = /^\s*([.]+)\s+(.*)$/;
+  var itemLine = /^\s*1?([.]+)\s+(.*)$/;
   var match = getMatches(itemLine, line);
   if (match.length !== 3) {
     return [];
@@ -209,28 +209,30 @@ function consumeNumberedListItem(line) {
   var text = match[2];
   var level = dots.length;
   var match$1 = Js_string.charAt(0, line);
-  if (match$1 === ".") {
-    return [
-            {
-              TAG: "NumberedListItem",
-              _0: level
-            },
-            {
-              TAG: "Text",
-              _0: text
-            }
-          ];
-  } else {
-    return [
-            {
-              TAG: "IndentedNumberedListItem",
-              _0: level
-            },
-            {
-              TAG: "IndentedText",
-              _0: text
-            }
-          ];
+  switch (match$1) {
+    case "." :
+    case "1" :
+        return [
+                {
+                  TAG: "NumberedListItem",
+                  _0: level
+                },
+                {
+                  TAG: "Text",
+                  _0: text
+                }
+              ];
+    default:
+      return [
+              {
+                TAG: "IndentedNumberedListItem",
+                _0: level
+              },
+              {
+                TAG: "IndentedText",
+                _0: text
+              }
+            ];
   }
 }
 
@@ -242,12 +244,12 @@ function consumeBlockDelimiter(line) {
         return ["SidebarBlockDelimiter"];
     case "--" :
         return ["FreeBlockDelimiter"];
-    case "----" :
-        return ["CodeBlockDelimiter"];
     case "====" :
         return ["ExampleBlockDelimiter"];
     case "____" :
         return ["QuoteBlockDelimiter"];
+    case "```" :
+        return ["CodeBlockDelimiter"];
     default:
       return [];
   }
@@ -306,20 +308,35 @@ function consumeInitialLine(tok, lnum) {
               if (tokens.length !== 1) {
                 var chara = Js_string.charAt(0, line);
                 switch (chara) {
+                  case "#" :
+                      var tokens$1 = consumeHeading(line);
+                      if (Caml_obj.notequal(tokens$1, [])) {
+                        return Promise.resolve([
+                                    Belt_Array.concat(tok, tokens$1),
+                                    "Following",
+                                    lnum
+                                  ]);
+                      }
+                      var tokens$2 = consumeRegularLine(line);
+                      return Promise.resolve([
+                                  Belt_Array.concat(tok, tokens$2),
+                                  "Following",
+                                  lnum
+                                ]);
                   case "." :
-                      var tokens$1 = consumeBlockTitle(line);
-                      if (tokens$1.length === 1) {
-                        var _title = tokens$1[0];
+                      var tokens$3 = consumeBlockTitle(line);
+                      if (tokens$3.length === 1) {
+                        var _title = tokens$3[0];
                         if (typeof _title === "object" && _title.TAG === "BlockTitle") {
                           return Promise.resolve([
-                                      Belt_Array.concat(tok, tokens$1),
+                                      Belt_Array.concat(tok, tokens$3),
                                       "Initial",
                                       lnum
                                     ]);
                         }
                         
                       }
-                      if (!Caml_obj.equal(tokens$1, [])) {
+                      if (!Caml_obj.equal(tokens$3, [])) {
                         throw {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
@@ -330,21 +347,21 @@ function consumeInitialLine(tok, lnum) {
                               Error: new Error()
                             };
                       }
-                      var tokens$2 = consumeRegularLine(line);
+                      var tokens$4 = consumeRegularLine(line);
                       return Promise.resolve([
-                                  Belt_Array.concat(tok, tokens$2),
+                                  Belt_Array.concat(tok, tokens$4),
                                   "Following",
                                   lnum
                                 ]);
                   case ":" :
-                      var tokens$3 = consumeSubstitution(line);
-                      if (tokens$3.length === 2) {
-                        var _name = tokens$3[0];
+                      var tokens$5 = consumeSubstitution(line);
+                      if (tokens$5.length === 2) {
+                        var _name = tokens$5[0];
                         if (typeof _name === "object" && _name.TAG === "SubstitutionDef") {
-                          var _value = tokens$3[1];
+                          var _value = tokens$5[1];
                           if (typeof _value === "object" && _value.TAG === "Text") {
                             return Promise.resolve([
-                                        Belt_Array.concat(tok, tokens$3),
+                                        Belt_Array.concat(tok, tokens$5),
                                         "Initial",
                                         lnum
                                       ]);
@@ -353,7 +370,7 @@ function consumeInitialLine(tok, lnum) {
                         }
                         
                       }
-                      if (!Caml_obj.equal(tokens$3, [])) {
+                      if (!Caml_obj.equal(tokens$5, [])) {
                         throw {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
@@ -366,21 +383,6 @@ function consumeInitialLine(tok, lnum) {
                       }
                       return Promise.resolve([
                                   consumeRegularLine(line),
-                                  "Following",
-                                  lnum
-                                ]);
-                  case "=" :
-                      var tokens$4 = consumeHeading(line);
-                      if (Caml_obj.notequal(tokens$4, [])) {
-                        return Promise.resolve([
-                                    Belt_Array.concat(tok, tokens$4),
-                                    "Following",
-                                    lnum
-                                  ]);
-                      }
-                      var tokens$5 = consumeRegularLine(line);
-                      return Promise.resolve([
-                                  Belt_Array.concat(tok, tokens$5),
                                   "Following",
                                   lnum
                                 ]);
@@ -540,7 +542,7 @@ function consumeCodeLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
               var lnum = param[1];
               var line = param[0];
-              if (line === "----") {
+              if (line === "```") {
                 return Promise.resolve([
                             Belt_Array.concat(tok, ["CodeBlockDelimiter"]),
                             "Initial",

@@ -16,7 +16,7 @@ A small example
 ====
 
 :subs: value&more
-== Arcadam Test ->> part 1
+## Arcadam Test ->> part 1
 
 [Go to ${backtick}Products page${backtick} on this site](/Products.html)
 
@@ -50,7 +50,7 @@ multi line
 * Second&&
 ** sublist
 ** one more
-  ... nested numbered list
+  1... nested numbered list
   ... nested 2
 * Third
 [list]
@@ -59,14 +59,14 @@ multi line
   line breaks is added
   to a code block
 
-----
+${backtick}${backtick}${backtick}
 Another way to create
 a code block delimited
-with "----"
+with ${backtick}${backtick}${backtick}
 
 ****
 This is not a new block
-----
+${backtick}${backtick}${backtick}
 
 [:begin region]:
 This text can be included
@@ -125,7 +125,7 @@ type token =
   | Text(string)
   | IndentedText(string)
   | CodeText(string)
-  | Heading(int) // == Heading text
+  | Heading(int) // ## Heading text
   | Attribute(string) // [attributes]
   | BulletListItem(int) // * List item
   | NumberedListItem(int) // . List item
@@ -135,7 +135,7 @@ type token =
   | SubstitutionDef(string) // :name: value
   | Hyperlink(string) // [text](address)
   | FreeBlockDelimiter // --
-  | CodeBlockDelimiter // ----
+  | CodeBlockDelimiter // ```
   | ExampleBlockDelimiter // ====
   | QuoteBlockDelimiter // ____
   | SidebarBlockDelimiter // ****
@@ -156,7 +156,7 @@ let consumeBlockTitle = line => {
 }
 
 let consumeHeading = line => {
-  let titleLine = %re("/^(=+)\s+([^\s].*)$/")
+  let titleLine = %re("/^(#+)\s+([^\s].*)$/")
   switch titleLine->getMatches(line) {
   | [_, signs, title] =>
     let level = signs->String.length
@@ -212,12 +212,12 @@ let consumeBulletListItem = line => {
 }
 
 let consumeNumberedListItem = line => {
-  let itemLine = %re("/^\s*([.]+)\s+(.*)$/")
+  let itemLine = %re("/^\s*1?([.]+)\s+(.*)$/")
   switch itemLine->getMatches(line) {
   | [_, dots, text] =>
     let level = dots->String.length
     switch Js.String.charAt(0, line) {
-    | "." => [NumberedListItem(level), Text(text)]
+    | "." | "1" => [NumberedListItem(level), Text(text)]
     | _ => [IndentedNumberedListItem(level), IndentedText(text)]
     }
   | _ => []
@@ -228,7 +228,7 @@ let consumeBlockDelimiter = line =>
   switch line {
   | "" => [Empty]
   | "--" => [FreeBlockDelimiter]
-  | "----" => [CodeBlockDelimiter]
+  | "```" => [CodeBlockDelimiter]
   | "====" => [ExampleBlockDelimiter]
   | "____" => [QuoteBlockDelimiter]
   | "****" => [SidebarBlockDelimiter]
@@ -282,7 +282,7 @@ let consumeInitialLine = (tok, lnum) =>
             let tokens = consumeRegularLine(line)
             resolve((tok->Array.concat(tokens), Following, lnum))
           }
-        | "=" =>
+        | "#" =>
           let tokens = consumeHeading(line)
           if tokens != [] {
             resolve((tok->Array.concat(tokens), Following, lnum))
@@ -347,7 +347,7 @@ let consumeLine = (tok, lnum) =>
 
 let consumeCodeLine = (tok, lnum) =>
   nextLine(lnum)->then(((line, lnum)) => {
-    if line == "----" {
+    if line == "```" {
       resolve((tok->Array.concat([CodeBlockDelimiter]), Initial, lnum))
     } else {
       resolve((tok->Array.concat([CodeText(line)]), Code, lnum))
