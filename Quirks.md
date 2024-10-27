@@ -23,7 +23,7 @@ This table shows Arcadam syntax compared to AsciiDoc:
 | foot note              | `[^note-name]`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)*
 | bibliography reference | `[>reference]`         | `[>reference]: contents` and <br> `{:bibliography:}` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]`
 | index item             | `{:index:}` where to put it           | `[+item]`              | `[index]` <br> `== Index` / `((item))`
-| include region         | `[include]` <br> `[region](filepath)` | `[:begin region]:` then <br> `[:end region]:` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]`
+| include region         | `[:include region](filepath)` | `[:begin region]:` then <br> `[:end region]:` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]`
 
 AsciiDoc also has a link-like syntax for these, for example setting an anchor target can be written:
 
