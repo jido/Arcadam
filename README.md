@@ -515,14 +515,13 @@ This paragraph contains [.underline]#underlined text#.
 ### Include
 
 ```markdown
-[include]
-[region](Shared-file.arcd)
+[:include region](Shared-file.arcd)
 ```
 
-Use the "include" attribute to substitute the hyperlink with the contents 
+Use ":include" as the text of a hyperlink to substitute it with the contents 
 of an Arcadam file found at the specified location.
 
-The hyperlink text may be used to provide a tag name so only the designated 
+The hyperlink text may provide a tag name so only the designated 
 region of the Arcadam file is inserted instead of the whole contents.
 
 Note that for security reasons, including a file from an arbitrary location 
