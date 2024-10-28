@@ -361,17 +361,17 @@ checked. Most symbols can be used to check it.
 * Portfolio
 * Contact
 
-[tab,on="maintab:Products"]
+[tab="maintab:Products"]
 ****
 This is the products tab
 ****
 
-[tab,on="maintab:Portfolio"]
+[tab="maintab:Portfolio"]
 ****
 This is the portfolio tab
 ****
 
-[tab,on="maintab:Contact"]
+[tab="maintab:Contact"]
 ****
 This is the contact tab
 ****
@@ -389,8 +389,8 @@ In other cases, the generator outputs all the tabs in the tab list as
 well as tabset content. That is useful to insert page breaks between
 tabs. The tablist is always hidden.
 
-To enable user interaction a tablist must be defined and the "on" 
-attribute must be set for each tab. The values in the tablist
+To enable user interaction a tablist must be defined and the corresponding tablist 
+entry must be specified for each tab. The values in the tablist
 cannot contain spaces. A numbered list can be used instead of a bullet 
 list to select the tab by a number, or a description list to select it by
 a term. The tablist "value" attribute defines the initial tab selection.
