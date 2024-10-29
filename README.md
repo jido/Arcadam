@@ -401,23 +401,27 @@ a term. The tablist "value" attribute defines the initial tab selection.
 .Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
 where {`a}, {`b} and {`c} are the side lengths. 
 `===
-// Comments, substitutions and callouts are allowed
-` msup(\( a + b \) : 2) ` = ` msup(c 2) + 4 ⋅ \( mfrac(1 : 2) * a * b \)
-
-` msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
-` msup(a 2) + msup(b 2) ` = ` msup(c 2)
+// Comments, references and callouts are allowed
+mtable(
+  msup(\( a + b \) : 2) ` = ` msup(c 2) + 4 &sdot \( mfrac(1 : 2) * a * b \)
+  : msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
+  : msup(a 2) + msup(b 2) ` = ` msup(c 2)
+)
 `===
 
 `===
-  y = (msup(x 2) " if " (x ≥ 1) " and " 2 " otherwise.")
+  y = (msup(x 2) _ "if" _ x ≥ 1 _ "and" _ 2 _ "otherwise.")
 `===
 ```
+
+Mathematical notation can be used inline using "{` }" or as a free-standing block.
 
 The mathematical notation uses a human-readable form of MathML. MathML
 entities written with a "&" are supported as well as equivalent Unicode
 characters to write complex formulas. Spaces are required.
 
-Attributes can be applied by appending ";" and a substitution name.
+Attributes can be applied by appending ";" and a substitution name to any object. The substitution value contains the attributes.
+Formulas can be aligned in a table-like matrix using "mtable" with the backtick "`" as cell separator and the colon ":" as row separator.
 
 Characters with a special meaning are:
 
@@ -425,16 +429,14 @@ Characters with a special meaning are:
 ;     invisible comma
 *     invisible times
 _     space
-:     group separator (no output)
+:     group separator
 `     cell separator
 " "   regular text
 ( )   align contents in a row
-{ }   substitution
+{ }   substitution reference
 [ ]   reserved
 //    comment
 ```
-
-A group of lines can be aligned in a table-like matrix using backticks as cell separators.
 
 ### Block Title
 
