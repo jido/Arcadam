@@ -402,7 +402,7 @@ a term. The tablist "value" attribute defines the initial tab selection.
 where {`a}, {`b} and {`c} are the side lengths. 
 `===
 // Comments, substitutions and callouts are allowed
-` msup(\( a + b \) / 2) ` = ` msup(c 2) + 4 ⋅ \( mfrac(1 / 2) * a * b \)
+` msup(\( a + b \) : 2) ` = ` msup(c 2) + 4 ⋅ \( mfrac(1 : 2) * a * b \)
 
 ` msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
 ` msup(a 2) + msup(b 2) ` = ` msup(c 2)
@@ -425,7 +425,7 @@ Characters with a special meaning are:
 ;     invisible comma
 *     invisible times
 _     space
-/     group separator (no output)
+:     group separator (no output)
 `     cell separator
 " "   regular text
 ( )   align contents in a row
@@ -434,7 +434,7 @@ _     space
 //    comment
 ```
 
-The formulas can be aligned in a table-like matrix using backticks as cell separators.
+A group of lines can be aligned in a table-like matrix using backticks as cell separators.
 
 ### Block Title
 
