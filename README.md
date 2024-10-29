@@ -401,10 +401,10 @@ a term. The tablist "value" attribute defines the initial tab selection.
 .Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
 where {`a}, {`b} and {`c} are the side lengths. 
 `===
-// Comments, references and callouts are allowed
-` msup(\( a + b \) / 2) ` = ` msup(c 2) + 4 ⋅ \( mfrac(1 / 2) a b \)
+// Comments, substitutions and callouts are allowed
+` msup(\( a + b \) / 2) ` = ` msup(c 2) + 4 ⋅ \( mfrac(1 / 2) * a * b \)
 
-` msup(a 2) + 2 a b + msup(b 2) ` = ` msup(c 2) + 2 a b
+` msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
 ` msup(a 2) + msup(b 2) ` = ` msup(c 2)
 `===
 
@@ -413,12 +413,27 @@ where {`a}, {`b} and {`c} are the side lengths.
 `===
 ```
 
-The mathematical notation uses a human-readable form of MathML. Note 
-that MathML requires the typing of Unicode characters to write complex 
-formulas.
+The mathematical notation uses a human-readable form of MathML. MathML
+entities written with a "&" are supported as well as equivalent Unicode
+characters to write complex formulas. Spaces are required.
 
-The formulas can be aligned in a table-like matrix using the backtick
-"`" as cell separator. Spaces are required.
+Attributes can be applied by appending ";" and a substitution name.
+
+Characters with a special meaning are:
+
+```
+,     invisible comma
+*     invisible times
+/     group separator (no output)
+`     cell separator
+" "   regular text
+( )   align contents in a row
+{ }   substitution
+[ ]   reserved
+//    comment
+```
+
+The formulas can be aligned in a table-like matrix using backticks as cell separators.
 
 ### Block Title
 
