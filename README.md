@@ -422,8 +422,9 @@ Attributes can be applied by appending ";" and a substitution name.
 Characters with a special meaning are:
 
 ```
-,     invisible comma
+;     invisible comma
 *     invisible times
+_     space
 /     group separator (no output)
 `     cell separator
 " "   regular text
