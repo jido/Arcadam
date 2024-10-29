@@ -423,12 +423,14 @@ characters to write complex formulas. Spaces are required.
 Attributes can be applied by appending ";" and a substitution name to any object. The substitution value contains the attributes.
 Formulas can be aligned in a table-like matrix using "mtable" with the backtick "`" as cell separator and the colon ":" as row separator.
 
-Characters with a special meaning are:
+Symbols with a special meaning are:
 
 ```
 ;     invisible comma
 *     invisible times
 _     space
+#     apply function
+#( )  apply function with brackets
 :     group separator
 `     cell separator
 " "   regular text
