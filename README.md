@@ -410,11 +410,13 @@ mtable(
 `===
 
 `===
-  y = (msup(x 2) _ "if" _ x ≥ 1 _ "and" _ 2 _ "otherwise.")
+  msub("C" x) msub("H" (2 y))
+  mover(&rightarrow : \( "burned in" _ msub("O" 2) \))
+  x _ "C" msub("O" 2) + y _ msub("H" 2) "O"
 `===
 
 Using half angle formula:
-{`tan #(mfrac(π : 12)) = mfrac(1 - cos #(mfrac(π : 6)) : sin #(mfrac(π : 6))) = 2 - msqrt(3)}
+{`tan #(mfrac(π 12)) = mfrac(1 - cos #(mfrac(π 6)) : sin #(mfrac(π 6))) = 2 - msqrt(3)}
 ```
 [Result](lab/MathML.jpg)
 
