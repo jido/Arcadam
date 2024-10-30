@@ -412,9 +412,11 @@ mtable(
 `===
   y = (msup(x 2) _ "if" _ x ≥ 1 _ "and" _ 2 _ "otherwise.")
 `===
-```
 
-Mathematical notation can be used inline using "{` }" or as a free-standing block.
+Using half angle formula:
+{`tan #(mfrac(π : 12)) = mfrac(1 - cos #(mfrac(π : 6)) : sin #(mfrac(π : 6))) = 2 - msqrt(3)}
+```
+[Result](lab/MathML.jpg)
 
 The mathematical notation uses a human-readable form of MathML. MathML
 entities written with a "&" are supported as well as equivalent Unicode
@@ -428,7 +430,7 @@ Symbols with a special meaning are:
 ```
 ;     invisible comma
 *     invisible times
-_     space
+_     horizontal space
 #     apply function
 #( )  apply function with brackets
 :     group separator
