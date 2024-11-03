@@ -157,7 +157,7 @@ Please refer to our Terms and Conditions [>T&C] for more information.
 ### Inline Content
 
 ```markdown
-.sample image
+= sample image
 !![Arcadam logo](Arcadam-logo.png)
 
 The Github mascot: ![image](octocat.jpg)
@@ -336,7 +336,7 @@ Field label
 * choice 2
 * choice 3
 
-.Picker label
+= Picker label
 [picker]
 Any valid Arcadam content
 ====
@@ -397,8 +397,8 @@ a term. The tablist "value" attribute defines the initial tab selection.
 
 ### Mathematical Notation
 
-```
-.Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
+```C
+= Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
 where {`a}, {`b} and {`c} are the side lengths. 
 `===
 // Comments, references and callouts are allowed
@@ -448,12 +448,12 @@ _     horizontal space
 ### Block Title
 
 ```markdown
-.Fruit basket
+= Fruit basket
 ,===
 apples,oranges,pears
 ,===
 
-.A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
+= A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
 [width=200,height=100]
 !![Sunset](sunset.jpg)
 ```
@@ -578,12 +578,12 @@ ends the line.
 [code=ruby]
 ```
 require 'sinatra'
-# :1```
+# (1)```
 
 get '/hi' do 
-  # :2```
+  # (2)```
   "Hello World!"
-  # :3```
+  # (3)```
 end
 ```
 (1):: Library import
@@ -591,7 +591,7 @@ end
 (3):: HTTP response body
 ~~~
 
-For automatic callout numbering use `:()` instead of numbers.
+For automatic callout numbering use `(.)` instead of numbers.
 
 When it encounters callouts in a code block, the generator inserts 
 the callout symbols in the line above and the entire line which 
