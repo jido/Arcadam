@@ -458,7 +458,7 @@ apples,oranges,pears
 !![Sunset](sunset.jpg)
 ```
 
-A block title starts with a dot "." on its own line. It comes before the
+A block title starts with "=" and a space. It comes before the
 attributes.
 
 If a block title is added to a block image, it is used as caption. 
