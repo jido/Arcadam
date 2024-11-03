@@ -195,7 +195,7 @@ Example:
 This is how to start a new example 
 block within this block:
 
-.Nested block
+= Nested block
 [example]
 ====
 A small example
@@ -208,7 +208,7 @@ A block can start after different elements, but attributes must be last before t
 A block header could look like:
 
 ```
-.Title
+= Title
 [#anchor]:
 [:begin region]:
 :substitution: value
