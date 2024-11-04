@@ -285,6 +285,12 @@ Sidebar block used to
 expand on a topic or
 highlight an idea
 ****
+
+....
+Content block for text
+content understood by a
+plug-in or external app
+....
 ```
 
 ### Tables
@@ -416,25 +422,27 @@ a term. The tablist "value" attribute defines the initial tab selection.
 ```C
 = Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
 where {`a}, {`b} and {`c} are the side lengths. 
-`===
+....
 // Comments, references and callouts are allowed
 mtable(
   msup(\( a + b \) : 2) ` = ` msup(c 2) + 4 &sdot \( mfrac(1 : 2) * a * b \)
   : msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
   : msup(a 2) + msup(b 2) ` = ` msup(c 2)
 )
-`===
+....
 
-`===
+....
   msub("C" x) msub("H" (2 y))
   mover(&rightarrow : \( "burned in" _ msub("O" 2) \))
   x _ "C" msub("O" 2) + y _ msub("H" 2) "O"
-`===
+....
 
 Using half angle formula:
 {`tan #(mfrac(π 12)) = mfrac(1 - cos #(mfrac(π 6)) : sin #(mfrac(π 6))) = 2 - msqrt(3)}
 ```
 [Result](lab/MathML.jpg)
+
+By default a content block contains Arcadam mathematical notation.
 
 The mathematical notation uses a human-readable form of MathML. MathML
 entities written with a "&" are supported as well as equivalent Unicode
