@@ -433,8 +433,8 @@ mtable(
 
 ....
   msub("C" x) msub("H" (2 y))
-  mover(&rightarrow : \( "burned in" _ msub("O" 2) \))
-  x _ "C" msub("O" 2) + y _ msub("H" 2) "O"
+  mover(&rightarrow : \( "burned in O~2~" \))
+  x _ "CO~2~" + y _ "H~2~O"
 ....
 
 Using half angle formula:
