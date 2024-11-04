@@ -712,7 +712,7 @@ contents of the document:
 > 
 > _apply_ - apply the attributes on blocks and on inline text
 > 
-> _linebreaks_ - process the line break character `+`
+> _linebreaks_ - process enumerations and the line break character `+`
 
 The current style class controls which transformation steps are 
 applied. For example, code blocks use the ".verbatim" style class 
