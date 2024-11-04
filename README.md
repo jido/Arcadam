@@ -205,7 +205,7 @@ Example:
 
 ```
 1. This is number one
-** It has two bullets
+** It has two bullet points
 ** This is the second bullet
 . This is number two
   .. This is a sublist
@@ -221,6 +221,22 @@ Use "+" to force a list item on multiple lines. If it is used on an empty
 line, that starts a new paragraph inside the list item. If "+" is
 non-indented but the following text is indented, a code block is added
 to the list item.
+
+### Enumerations
+
+The dash "-" at the start of a line is reserved for an enumeration. An enumeration item does not behave like a list item.
+In particular it does not allow nesting and is sensitive to leading whitespace.
+
+In contrast with a list, an enumeration can appear in the middle of an indented paragraph.
+
+Example:
+
+```
+Choose a size:
+- short
+- regular
+- large
+```
 
 ### Styled Blocks
 
