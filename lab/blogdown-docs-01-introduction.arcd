@@ -9,10 +9,10 @@ We recommend using the RStudio IDE with *blogdown* because there are a number of
 
 We assume you have already installed:
 
-* R [](https://www.r-project.org) [>R-base] and 
-* the RStudio IDE [](https://posit.co/download/rstudio-desktop/). 
+* R ([](https://www.r-project.org)) [>R-base] and 
+* the RStudio IDE ([](https://posit.co/download/rstudio-desktop/)). 
 
-If you are not using the RStudio IDE, please install [+Pandoc] [](http://pandoc.org). Instructions are available on the reference site [](https://pandoc.org/installing.html).
+If you are not using the RStudio IDE, please install [+Pandoc] ([](http://pandoc.org)). Instructions are available on the reference site ([](https://pandoc.org/installing.html)).
 
 The *blogdown* package is available on CRAN and you can install it with:
 
@@ -64,7 +64,8 @@ This section is designed to provide a beginner-friendly workflow. In later secti
 
 To keep this example _actually_ quick, we will assume that you are using the RStudio IDE and will rely on some of the built-in features that help *blogdown* users.[^]
 
-[^]: The instructions here rely on a recent RStudio IDE version, v1.4.1106. You may download all RStudio official releases from [](https://posit.co/download/rstudio-desktop/).
+[^]:
+The instructions here rely on a recent RStudio IDE version, v1.4.1106. You may download all RStudio official releases from [](https://posit.co/download/rstudio-desktop/).
 
 We also assume that you have followed the installation instructions in Section [Installation]().
 
@@ -149,9 +150,11 @@ knitr::include_graphics('images/lithium-theme.png')
 
 Let's introduce an important and helpful technology that you just used: [+_LiveReload_]. Serving your site uses LiveReload, which means your website[^] will be automatically rebuilt and reloaded in your web browser[^] when you modify any source file of your website and save it. Basically, once you launch the website in a web browser, you do not need to rebuild it explicitly anymore. All you need to do is edit the source files, such as R Markdown documents, and save them. There is no need to click any buttons or run any commands. LiveReload is implemented via [+`blogdown::serve_site()`] and Hugo, and you will only need to use it once per work session.
 
-[^]: Until you set up your website to be deployed, LiveReload only updates the _local_ version of your website. This version is only visible to you. In order to make your website searchable, discoverable, and live on the Internet, you will need to upload your website's files to a site builder. See Chapter [Deployment]() for details.
+[^]:
+Until you set up your website to be deployed, LiveReload only updates the _local_ version of your website. This version is only visible to you. In order to make your website searchable, discoverable, and live on the Internet, you will need to upload your website's files to a site builder. See Chapter [Deployment]() for details.
 
-[^]: You can also think of the RStudio Viewer as a web browser.
+[^]:
+You can also think of the RStudio Viewer as a web browser.
 
 ### Edit content
 
@@ -375,7 +378,7 @@ Netlify has a free plan with plenty of useful features, so we recommend signing 
 
 1. Click on the "Sign Up" button. 
 
-1. If you have a GitHub account [](https://github.com), we recommend signing up using your existing GitHub account (no need to create another account), so select "GitHub" (you may need to sign in), and click to "Authorize Netlify."
+1. If you have a GitHub account ([](https://github.com)), we recommend signing up using your existing GitHub account (no need to create another account), so select "GitHub" (you may need to sign in), and click to "Authorize Netlify."
 
 1. From your account, if you used Netlify Drop, you can (and should) change your random subdomain to a more meaningful one. You may read the docs for changing a site's default Netlify subdomain here: [](https://docs.netlify.com/domains-https/custom-domains/#assign-a-domain-to-a-site)
 
@@ -409,7 +412,8 @@ There are a few essential RStudio addins\index{RStudio addins} to make it easy t
 
 "Insert Image":: This addin allows you to insert any image in your computer to your currently opened post.[^] Figure [](#fig:insert-image) shows how the addin looks like. This addin copies the image to the final location for your post files, and adds the Markdown/HTML code to embed the image. You can specify the width and height of the image, as well as the alternative text. The addin will show the final image file path after the image is uploaded. You can edit the path if necessary. If the image already exists, the addin will ask you whether you want to overwrite it as in Figure [](#fig:overwrite-image): when in doubt, change the name in the "Target file path" text input to avoid a conflict with previous images you have inserted.
 
-[^]: Check [](https://lcolladotor.github.io/2018/03/07/blogdown-insert-image-addin) for a more in-depth explanation and for how to insert an image without using this addin.
+[^]:
+Check [](https://lcolladotor.github.io/2018/03/07/blogdown-insert-image-addin) for a more in-depth explanation and for how to insert an image without using this addin.
 
 = Create a new post using the RStudio addin.
 [#fig:new-post]:
@@ -445,11 +449,13 @@ If your website was created using the function `blogdown::new_site()` instead of
 
 Then you will see a pane in RStudio named "Build," and there is a button "Build Website." When you click this button, RStudio will call `blogdown::build_site()` to build the website. This will automatically generate files in the `public/` directory.[^]
 
-[^]: Or wherever your publishing directory is located. It is `public/` by default, but it can be changed by specifying the field `publishDir: "myNewDirectory"` in the `config.yaml` file.
-
 We strongly recommend that you uncheck the option "Preview site after building" in your RStudio project options (Figure [](#fig:project-options)).[^] You can also uncheck the option "Re-knit current preview when supporting files change," since this option is not really useful after you call `serve_site()`.
 
-[^]: In case you wonder why: unless you have set the option `relativeurls` to `true` in `config.toml`, it requires a web server to preview the website locally, otherwise even if you can see the homepage of your website in the RStudio Viewer, most links like those links to CSS and JavaScript files are unlikely to work. When the RStudio Viewer shows you the preview, it does not actually launch a web server.
+[^]:
+Or wherever your publishing directory is located. It is `public/` by default, but it can be changed by specifying the field `publishDir: "myNewDirectory"` in the `config.yaml` file.
+
+[^]:
+In case you wonder why: unless you have set the option `relativeurls` to `true` in `config.toml`, it requires a web server to preview the website locally, otherwise even if you can see the homepage of your website in the RStudio Viewer, most links like those links to CSS and JavaScript files are unlikely to work. When the RStudio Viewer shows you the preview, it does not actually launch a web server.
 
 = RStudio project options.
 [#fig:project-options]:
@@ -492,7 +498,8 @@ There are a few things you need to know about R's startup profile file before us
 
 1. You can use a global profile file `~/.Rprofile`,[^] or a per-project file `.Rprofile` under the root directory of your RStudio project. The former will be applied to all R sessions that you start, unless you have provided the latter to override it. 
 
-[^]: The tilde `~` denotes your home directory in your system.
+[^]:
+The tilde `~` denotes your home directory in your system.
 
 1. The name "startup profile file" means that R only executes this file when you first start your R session. This means that when you modify and save your `.Rprofile`, you must restart R for the changes to take effect. 
 
@@ -630,7 +637,8 @@ If you use the file extension `.Rmd` for a post, you need to make a decision on 
 
 In general, Pandoc's Markdown features are richer than Goldmark's. For example, Goldmark does not support LaTeX math and Pandoc does. We have added the [[+MathJax]](https://www.mathjax.org/#docs) support to the default theme ([hugo-lithium](https://github.com/yihui/hugo-lithium)) in *blogdown* to render LaTeX math on HTML pages, but there is a caveat for plain Markdown posts: you have to include inline math expressions in a pair of backticks `+`$math$`+`, e.g., `+`$S_n = \sum_{i=1}^n X_i$`+`. Similarly, math expressions of the display style have to be written in `+`$$math$$`+`. For `.Rmd` posts to be rendered to `.html`, you can use `$math$` for inline math expressions, and `$$math$$` for display-style expressions.[^]
 
-[^]: The reason that we need the backticks for plain Markdown documents is that we have to prevent the LaTeX code from being interpreted as Markdown by Blackfriday. Backticks will make sure the inner content is not translated as Markdown to HTML, e.g., `+`$$x *y* z$$`+` will be converted to `+<code>$$x *y* z$$</code>+`. Without the backticks, it will be converted to `$$x <em>y</em> z$$`, which is not a valid LaTeX math expression for MathJax. Similar issues can arise when you have other special characters like underscores in your math expressions.
+[^]:
+The reason that we need the backticks for plain Markdown documents is that we have to prevent the LaTeX code from being interpreted as Markdown by Blackfriday. Backticks will make sure the inner content is not translated as Markdown to HTML, e.g., `+`$$x *y* z$$`+` will be converted to `+<code>$$x *y* z$$</code>+`. Without the backticks, it will be converted to `$$x <em>y</em> z$$`, which is not a valid LaTeX math expression for MathJax. Similar issues can arise when you have other special characters like underscores in your math expressions.
 
 The main disadvantages of rendering `.Rmd` to `.html` are:
 
@@ -723,7 +731,8 @@ If you choose to dig a rather deep hole, someday you will have no choice but kee
 --- Liyun Chen[^]
 ____
 
-[^]: Translated from her Chinese Weibo.
+[^]:
+Translated from her Chinese Weibo.
 
 ### New site, new theme
 
@@ -745,7 +754,8 @@ Alternatively, in the R console, you may type `blogdown::new_site(theme = 'user/
 
 1. Play with the new site for a while and if you do not like it, you can repeat the above steps, otherwise edit the options in the configuration file (`config.yaml` or `config.toml`). If you do not understand certain options, go to the documentation of the theme, which is often the README page of the GitHub repository. Not all options have to be changed.
 
-[^]: For most themes, you can find this by navigating to the theme of your choice from [](http://themes.gohugo.io) and then clicking on "Download."
+[^]:
+For most themes, you can find this by navigating to the theme of your choice from [](http://themes.gohugo.io) and then clicking on "Download."
 
 ### Existing site, new theme
 
