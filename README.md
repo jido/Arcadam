@@ -101,6 +101,16 @@ superscri^pt^ for "pt"
 To enter text which contains format markers, enclose the text with "+" to prevent
 the generator from interpreting them.
 
+When applying multiple styles in combination, they must be in the following order:
+
+```
+#~`*_+Combined style+_*`~#
+```
+
+Subscript cannot be combined with superscript. They are both ignored 
+in the middle of monospace text. Double format markers can be used for 
+portions of the text as long as it is interpreted by the generator.
+
 ### Breaks
 
 Horizontal line:
@@ -361,6 +371,8 @@ Field label
 = Picker label
 [picker]
 Any valid Arcadam content
+
+[?submit Send](target) [?cancel](home) [?clear]()
 ====
 ```
 
@@ -371,7 +383,18 @@ a checkbox description or text for an option appears in the second column.
 All form elements can have a value. If an element also has an id, then a
 substitution is defined from the id of the element to its value. In case
 of a checkbox, the substitution is only defined when the checkbox is 
-checked. Most symbols can be used to check it.
+checked.
+
+Buttons have an action and are displayed when the output format allows
+user interaction. The "submit" action sends the substitution values set in
+the form to the target. The "cancel" action abandons the form and loads 
+the target. The "clear" action clears all the selections. The "call" 
+action sends information about the button to a predefined function named 
+in the target.
+
+The cancel and clear buttons show a dialog asking for confirmation 
+if the user made any changes. A button can be activated by clicking a 
+picture as described in [Block Title](#block-title).
 
 ### Tabs
 
@@ -487,7 +510,8 @@ attributes.
 
 If a block title is added to a block image, it is used as caption. 
 Additionally, if the image caption contains a link then clicking on the 
-image loads the (first) link.
+image loads the (first) link. If it is reduced to a link without text
+then clicking the image loads the link but there is no caption displayed.
 
 ### Escape character
 
