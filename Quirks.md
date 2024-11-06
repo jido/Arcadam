@@ -16,14 +16,14 @@ Since macros, directives etc. of AsciiDoc rely on a link-like syntax a lot of fe
 
 This table shows Arcadam syntax compared to AsciiDoc:
 
-| feature                | linking it             | set target                             | AsciiDoctor
-|------------------------|------------------------|----------------------------------------|--
-| anchor                 | `[link text](#target)` | `[#target]:` or <br> `[id=target]`     | `<<target,link text>>` /<br> `[#target]` or `[[target]]`
-| heading link           | `[Title Text]()`       | `## Title Text`                        | `<<Title Text>>` / `== Title Text`
-| foot note              | `[^note-name]`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)*
-| bibliography reference | `[>reference]`         | `[>reference]: contents` and <br> `{:bibliography:}` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]`
-| index item             | `{:index:}` where to put it           | `[+item]`              | `[index]` <br> `== Index` / `((item))`
-| include region         | `[:include region](filepath)` | `[:begin region]:` then <br> `[:end region]:` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]`
+| feature                | linking it             | set target                             | AsciiDoctor |
+|------------------------|------------------------|----------------------------------------|-------------|
+| anchor                 | `[link text](#target)` | `[#target]:` or <br> `[id=target]`     | `<<target,link text>>` /<br> `[#target]` or `[[target]]` |
+| heading link           | `[Title Text]()`       | `## Title Text`                        | `<<Title Text>>` / `== Title Text` |
+| foot note              | `{^note-name}`         | `[^note-name]:` <br>  `note text`      | `footnote:[note text]` *(combined)* |
+| bibliography reference | `{>reference}`         | `[>reference]:` <br> `contents` and <br> `[!bibliography]` where to put it | `<<reference>>` /<br> `[bibliography]` <br> `== References` then <br> `- [[[reference]]]` |
+| index item             | `[!index]` where to put it           | `{+item}`              | `[index]` <br> `== Index` / `((item))` |
+| include region         | `[!include region](filepath)` | `{:begin region}` then <br> `{:end region}` | `include::filepath[tag=region]` /<br> `tag::region[]` then `end::region[]` |
 
 AsciiDoc also has a link-like syntax for these, for example setting an anchor target can be written:
 
@@ -31,7 +31,7 @@ AsciiDoc also has a link-like syntax for these, for example setting an anchor ta
 anchor:target[]
 ```
 
-Markdown in Github flavour recently added footnotes with a syntax near identical to Arcadam.
+Markdown in Github flavour recently added footnotes with a syntax similar to Arcadam.
 Most other features are not natively supported including setting a named anchor.
 This is how to link to a heading in Markdown, which requires knowledge of how the anchor name is built:
 
@@ -210,7 +210,6 @@ A block header could look like:
 ```
 = Title
 [#anchor]:
-[:begin region]:
 :substitution: value
 [group]
 --
