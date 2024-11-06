@@ -624,7 +624,7 @@ This paragraph contains #underlined text#{.underline}.
 [!include region](Shared-file.arcd)
 ```
 
-Use "?include" as the text of a hyperlink to substitute it with the contents 
+Use "!include" as the text of a hyperlink to substitute it with the contents 
 of an Arcadam file found at the specified location.
 
 The hyperlink text may provide a tag name so only the designated 
@@ -661,7 +661,7 @@ the line.
 require 'sinatra'
 # {1}```
 
-get '/hi' do 
+get '/hi' do
   # {2}```
   "Hello World!"
   # {3}```
