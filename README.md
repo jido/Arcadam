@@ -497,7 +497,7 @@ _     horizontal space
 
 ### Customisation
 
-Arcadam offers custom content blocks, custom controls, custom elements and custom marks.
+Arcadam offers custom content blocks, custom controls, custom elements and custom markers.
 
 ```
 [content=text/html]
@@ -511,7 +511,7 @@ Inline control: [?type Optional details](brackets required here)
 
 {@ custom element}
 
-[@custom mark]:
+[@custom marker]:
 ```
 
 When the content block type contains "/" it is considered a MIME type.
@@ -522,8 +522,8 @@ On the other hands, the end brackets are required even if they are empty for an 
 A custom element can be used anywhere. It always starts with a special character.
 Note that there is a limited choice of special characters so an inline custom control can be used instead when adding a customisation.
 
-A custom mark applies to the following paragraph or block. It must be on its own line.
-A custom mark always starts with a special character.
+A custom marker applies to the following paragraph or block. It must be on its own line.
+A custom marker always starts with a special character.
 
 ### Block Title
 
@@ -720,9 +720,8 @@ a line.
 The following are included in the translation:
 
 * formatting
-* in-line attributes
-* hyperlinks and inline content
-* labels (references, footnotes and anchors)
+* hyperlinks and custom controls (images and buttons)
+* markers and custom elements (bibliography, footnotes and anchors)
 * callouts
 * user-defined substitutions
 * comments
@@ -764,29 +763,29 @@ locale.
 The generator applies the following steps in order to transform the
 contents of the document:
 
-> _localize_ - process includes and apply translations to the text (if
+> _localize_ - localise the text using translations (if
 > enabled)
 > 
-> _specialchars_ - replace special characters with their corresponding 
-> entities (`<`, `>` and `&` for HTML). This step also
-> enables syntax highlighting in code blocks and MathML conversion in math blocks.
+> _convert_ - replace special characters with their corresponding 
+> entities (`<`, `>` and `&` for HTML). This step also converts
+> custom content (for example math to MathML) and enables syntax highlighting in code blocks
 > 
-> _callouts_ - process callouts and code tags
+> _customize_ - process callouts, includes, custom elements and custom controls
 > 
 > _format_ - apply inline text formatting
 > 
 > _substitute_ - replace references with substitution values
-> 
+>
 > _symbols_ - replace sequences of characters with symbols, for example 
 > replace `->` with →
-> 
-> _apply_ - apply the attributes on blocks and on inline text
-> 
-> _linebreaks_ - process enumerations and the line break character `+`
+>
+> _apply_ - apply markers and attributes
+>
+> _layout_ - process pages breaks, enumerations and the line break character `+`
 
 The current style class controls which transformation steps are 
 applied. For example, code blocks use the ".verbatim" style class 
-which only does the _specialchars_ and _callouts_ transformations.
+which only does the _customize_ and _convert_ transformations.
 
 To choose which steps are applied for a particular style class, define
 a special substitution called "steps" followed by the style class.
@@ -794,5 +793,5 @@ a special substitution called "steps" followed by the style class.
 Example:
 
 ```IDL
-:steps.formatted: substitute,format,symbols
+:steps.formatted: substitute, format, symbols
 ```
