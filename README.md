@@ -383,13 +383,13 @@ A form layout has two columns, one for labels and one for form elements.
 An input field label or a picker label appears in the first column while
 a checkbox description or text for an option appears in the second column.
 
-All form elements can have a value. If an element also has an id, then a
-substitution is defined from the id of the element to its value. In case
-of a checkbox, the substitution is only defined when the checkbox is 
+All form elements can have a value. If an element also has an id then the
+value becomes a replacement value using the id of the element. In case of
+a checkbox, the replacement value is only defined when the checkbox is 
 checked.
 
 Buttons have an action and are displayed when the output format allows
-user interaction. The "submit" action sends the substitution values set in
+user interaction. The "submit" action sends the replacement values set in
 the form to the target. The "cancel" action abandons the form and loads 
 the target. The "clear" action clears all the selections. The "call" 
 action sends information about the button to a predefined function named 
@@ -449,7 +449,7 @@ a term. The tablist "value" attribute defines the initial tab selection.
 = Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
 where {`a}, {`b} and {`c} are the side lengths. 
 ....
-// Comments, references and callouts are allowed
+// Comments, replacement values and callouts are allowed
 mtable(
   msup(\( a + b \) : 2) ` = ` msup(c 2) + 4 &sdot \( mfrac(1 : 2) * a * b \)
   : msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
@@ -474,8 +474,8 @@ The mathematical notation uses a human-readable form of MathML. MathML
 entities written with a "&" are supported as well as equivalent Unicode
 characters to write complex formulas. Spaces are required.
 
-Attributes can be applied by appending a tilde "~" and a substitution name to any object.
-The substitution value contains the attributes.
+Attributes can be applied by appending a tilde "~" and the name of a replacement value to any object.
+The replacement value contains the attributes.
 Formulas can be aligned in a table-like matrix using "mtable" with the backtick "`" as cell separator and the colon ":" as row separator.
 
 Symbols with a special meaning are:
@@ -490,7 +490,7 @@ _     horizontal space
 `     cell separator
 " "   regular text
 ( )   align contents in a row
-{ }   substitution reference
+{ }   name of replacement value
 [ ]   reserved
 //    comment
 ```
@@ -560,23 +560,23 @@ Example:
 See also [Text Formatting](#text-formatting) to prevent format markers from
 being interpreted over a span of text using "+".
 
-### Substitutions
+### Replacement values
 
 ```IDL
-:substitution: value to be inserted
+:value-name: value to be inserted
 ```
 
-Once defined, substitution values can be reused anywhere.
+Once defined, replacement values can be used anywhere.
 
 Example:
 
 ```markdown
-Using the {substitution}
+Using the {value-name}
 
-[{substitution}](/index.html)
+[{value-name}](/index.html)
 ```
 
-The substitution is replaced with the value to be inserted.
+The value name is replaced with the value to be inserted.
 
 ### Attributes
 
@@ -703,7 +703,7 @@ Comments are for information only.
 
 Arcadam documents can be localised for an international audience.
 
-Define the "translations" substitution to enable it:
+Define the "translations" replacement value to enable it:
 
 ```
 :translations: cn en es fr jp kr ru
@@ -723,7 +723,7 @@ The following are included in the translation:
 * hyperlinks and custom controls (images and buttons)
 * markers and custom elements (bibliography, footnotes and anchors)
 * callouts
-* user-defined substitutions
+* user-defined replacement values
 * comments
 
 By default, code and content blocks are excluded. To include a code block
@@ -763,6 +763,8 @@ locale.
 The generator applies the following steps in order to transform the
 contents of the document:
 
+> _apply_ - apply markers and attributes
+> 
 > _localize_ - localise the text using translations (if
 > enabled)
 > 
@@ -774,12 +776,10 @@ contents of the document:
 > 
 > _format_ - apply inline text formatting
 > 
-> _substitute_ - replace references with substitution values
+> _replace_ - put replacement values in place of value names
 >
 > _symbols_ - replace sequences of characters with symbols, for example 
 > replace `->` with →
->
-> _apply_ - apply markers and attributes
 >
 > _layout_ - process pages breaks, enumerations and the line break character `+`
 
@@ -788,7 +788,7 @@ applied. For example, code blocks use the ".verbatim" style class
 which only does the _customize_ and _convert_ transformations.
 
 To choose which steps are applied for a particular style class, define
-a special substitution called "steps" followed by the style class.
+a special replacement value called "steps" followed by the style class.
 
 Example:
 
