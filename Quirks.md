@@ -59,7 +59,7 @@ it becomes a code block instead
 
 ### More notes:
 
-Arcadam commands, such as attribute line, substitution definition, block title and comments count as empty lines (no indent).
+Arcadam commands, such as attribute line, replacement value definition, block title and comments count as empty lines (no indent).
 
 ```
     This code block indent
@@ -89,9 +89,9 @@ it is missing an end delimiter
 ~~~
 
 This document is really broken. Because of the non-indented line, the code block ends early. 
-The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter instead.
+The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter instead. Also an empty line is missing after the end delimiter.
 
-Hopefully that issue is easy to spot for writers.
+Hopefully the issue is easy to spot for writers.
 
 ```
   A code block
@@ -131,10 +131,11 @@ The only supported format letter is "h" (header row or column).
 
 | Quarter +
 2022
-3+^| Q1 3+^| Q2
+3+^| Q1
+3+^| Q2
 | Km | 12.4 | 40.0 | 12.9 | 8.5 | 15.7 .3+.>| 38.8 (provisional)
 | Fz | 44.9 | 3.14 | 101.0 | 86.6 | 66.3
-| Tt | 6.2 | 6.9 | 5.6 | 10.1 | 4.4
+| Tt | 6.2  | 6.9  | 5.6 | 10.1 | 4.4
 |===
 ```
 
@@ -161,8 +162,8 @@ If the cell starts without a space between "`|`" and the content then it is not 
 
 ## Block boundaries
 
-Unlike Asciidoc, the number of repeated characters in a block boundary is fixed (length 4 or 2) and cannot be increased.
-AsciiDoctor uses matched boundary lengths for block nesting.
+Unlike Asciidoc or Markdown, the number of repeated characters in a block boundary is fixed (length 4, 3 or 2) and cannot be increased.
+Arcadam does not use matched boundary lengths for block nesting.
 
 Nesting of the same block is supported in Arcadam by adding an attribute in the line immediately before the start of the block.
 
@@ -185,7 +186,7 @@ The attributes for the default use of each kind of block are:
 ////
 ```
 
-Code and math blocks cannot nest inside themselves and are not shown in the list above.
+Code and content blocks cannot nest inside themselves and are not shown in the list above.
 
 Example:
 
@@ -200,6 +201,8 @@ block within this block:
 ====
 A small example
 ====
+
+in the note
 ====
 ```
 
@@ -210,14 +213,14 @@ A block header could look like:
 ```
 = Title
 [#anchor]:
-:substitution: value
+:replacement: value
 [group]
 --
 ```
 
 The same applies to other elements like a paragraph, a list or a heading.
 
-Note that a block title or a substitution is not recognised in the middle of a paragraph. 
+Note that header elements are not recognised in the middle of a paragraph. 
 It is recommended to always leave an empty line after the end of a paragraph.
 
 A block boundary *without* an attribute in the line above can be either a block ending or the start of a non-nested block.
