@@ -174,7 +174,8 @@ content/
 │   ├── 2015-01-01-lorem-ipsum
 │   └── 2016-12-30-hello-markdown
 ```
-[?info](1):: *blogdown* knitted this for you
+
+[?info *blogdown* knitted this for you](1)
 
 The default behavior of *blogdown* is to automatically knit posts that have not been knitted before when you serve your site, so this file has already been knitted---that is why you can see it in your local preview. 
 

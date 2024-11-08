@@ -672,9 +672,9 @@ get '/hi' do
 end
 ```
 
-[?info](1):: Library import
-[?info](2):: URL mapping
-[?info](3):: HTTP response body
+[?info Import](1):: Library import
+[?info Mapping](2):: URL mapping
+[?info Response](3):: HTTP response body
 ~~~
 
 For automatic callout numbering use `{#}` and `(#)` instead of numbers.
