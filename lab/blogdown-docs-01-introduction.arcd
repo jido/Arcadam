@@ -1,5 +1,5 @@
 # {?num} Get Started
-:role: mainmatter
+:key:role mainmatter
 
 In this chapter, we show how to create a simple website from scratch using *blogdown*. The website will contain a home page, an "About" page, one R Markdown post, and two plain Markdown posts. You will learn the basic concepts for creating websites with *blogdown*. 
 
@@ -65,7 +65,7 @@ This section is designed to provide a beginner-friendly workflow. In later secti
 To keep this example _actually_ quick, we will assume that you are using the RStudio IDE and will rely on some of the built-in features that help *blogdown* users.{^}
 
 [^]:
-The instructions here rely on a recent RStudio IDE version, v1.4.1106. You may download all RStudio official releases from [](https://posit.co/download/rstudio-desktop/).
+> The instructions here rely on a recent RStudio IDE version, v1.4.1106. You may download all RStudio official releases from [](https://posit.co/download/rstudio-desktop/).
 
 We also assume that you have followed the installation instructions in Section [Installation]().
 
@@ -151,10 +151,10 @@ knitr::include_graphics('images/lithium-theme.png')
 Let's introduce an important and helpful technology that you just used: {+_LiveReload_}. Serving your site uses LiveReload, which means your website{^} will be automatically rebuilt and reloaded in your web browser{^} when you modify any source file of your website and save it. Basically, once you launch the website in a web browser, you do not need to rebuild it explicitly anymore. All you need to do is edit the source files, such as R Markdown documents, and save them. There is no need to click any buttons or run any commands. LiveReload is implemented via {+`blogdown::serve_site()`} and Hugo, and you will only need to use it once per work session.
 
 [^]:
-Until you set up your website to be deployed, LiveReload only updates the _local_ version of your website. This version is only visible to you. In order to make your website searchable, discoverable, and live on the Internet, you will need to upload your website's files to a site builder. See Chapter [?num Deployment]() for details.
+> Until you set up your website to be deployed, LiveReload only updates the _local_ version of your website. This version is only visible to you. In order to make your website searchable, discoverable, and live on the Internet, you will need to upload your website's files to a site builder. See Chapter [?num Deployment]() for details.
 
 [^]:
-You can also think of the RStudio Viewer as a web browser.
+> You can also think of the RStudio Viewer as a web browser.
 
 ### {?num} Edit content
 
@@ -400,20 +400,23 @@ There are a few essential RStudio addins\index{RStudio addins} to make it easy t
 
 "New Post":: This addin provides a dialog box for you to enter the metadata of your blog post, including the title, author, date, and so on. See Figure [?fig](#new-post) for an example. This addin actually calls the function `blogdown::new_post()` under the hood, but does a few things automatically:
 
-    * As you type the title of the post, it will generate a filename for you, and you can edit it if you do not like the automatically generated one. In fact, you can also use this addin to create normal pages under any directories under `content/`. For example, if you want to add a resume page, you can change the filename to `resume.md` from the default `post/YYYY-mm-dd-resume.md`.
+* As you type the title of the post, it will generate a filename for you, and you can edit it if you do not like the automatically generated one. In fact, you can also use this addin to create normal pages under any directories under `content/`. For example, if you want to add a resume page, you can change the filename to `resume.md` from the default `post/YYYY-mm-dd-resume.md`.
 
-    * You can select the date from a calendar widget provided by Shiny.^[Shiny is an R package for building interactive web apps using R. Using this addin, the calendar widget allows you to view an interactive calendar by month to select dates. This is a simple use of Shiny, but you can read more about Shiny apps here: https://shiny.rstudio.com.]
+* You can select the date from a calendar widget provided by Shiny.{^}
 
-    * It will scan the categories and tags of existing posts, so when you want to input categories or tags, you can select them from the dropdown menus, or create new ones.
-    
-    * After a new post is created, it will be automatically opened, so you can start writing the content immediately.
+* It will scan the categories and tags of existing posts, so when you want to input categories or tags, you can select them from the dropdown menus, or create new ones.
+
+* After a new post is created, it will be automatically opened, so you can start writing the content immediately.
 
 "Update Metadata":: This addin allows you to update the YAML metadata of the currently opened post. See Figure [?fig](#update-meta) for an example. The main advantage of this addin is that you can select categories and tags from dropdown menus instead of having to remember them.
 
 "Insert Image":: This addin allows you to insert any image in your computer to your currently opened post.{^} Figure [?fig](#insert-image) shows how the addin looks like. This addin copies the image to the final location for your post files, and adds the Markdown/HTML code to embed the image. You can specify the width and height of the image, as well as the alternative text. The addin will show the final image file path after the image is uploaded. You can edit the path if necessary. If the image already exists, the addin will ask you whether you want to overwrite it as in Figure [?fig](#overwrite-image): when in doubt, change the name in the "Target file path" text input to avoid a conflict with previous images you have inserted.
 
+[^]
+> Shiny is an R package for building interactive web apps using R. Using this addin, the calendar widget allows you to view an interactive calendar by month to select dates. This is a simple use of Shiny, but you can read more about Shiny apps here: [?](https://shiny.rstudio.com).
+
 [^]:
-Check [](https://lcolladotor.github.io/2018/03/07/blogdown-insert-image-addin) for a more in-depth explanation and for how to insert an image without using this addin.
+> Check [?](https://lcolladotor.github.io/2018/03/07/blogdown-insert-image-addin) for a more in-depth explanation and for how to insert an image without using this addin.
 
 = {?fig} Create a new post using the RStudio addin.
 [#new-post]:
@@ -452,10 +455,10 @@ Then you will see a pane in RStudio named "Build," and there is a button "Build 
 We strongly recommend that you uncheck the option "Preview site after building" in your RStudio project options (Figure [?fig](#project-options)).{^} You can also uncheck the option "Re-knit current preview when supporting files change," since this option is not really useful after you call `serve_site()`.
 
 [^]:
-Or wherever your publishing directory is located. It is `public/` by default, but it can be changed by specifying the field `publishDir: "myNewDirectory"` in the `config.yaml` file.
+> Or wherever your publishing directory is located. It is `public/` by default, but it can be changed by specifying the field `publishDir: "myNewDirectory"` in the `config.yaml` file.
 
 [^]:
-In case you wonder why: unless you have set the option `relativeurls` to `true` in `config.toml`, it requires a web server to preview the website locally, otherwise even if you can see the homepage of your website in the RStudio Viewer, most links like those links to CSS and JavaScript files are unlikely to work. When the RStudio Viewer shows you the preview, it does not actually launch a web server.
+> In case you wonder why: unless you have set the option `relativeurls` to `true` in `config.toml`, it requires a web server to preview the website locally, otherwise even if you can see the homepage of your website in the RStudio Viewer, most links like those links to CSS and JavaScript files are unlikely to work. When the RStudio Viewer shows you the preview, it does not actually launch a web server.
 
 = {?fig} RStudio project options.
 [#project-options]:
@@ -485,7 +488,7 @@ knitr::kable(matrix(c(
 
 Three of these options are worth further explanations:
 
-* `blogdown.hugo.version`: You can find available Hugo versions at [](https://github.com/gohugoio/hugo/releases/), and find all locally installed Hugo versions via `blogdown::find_hugo('all')`. A common mistake when specifying this option is to omit the version number `0` at the end. For example, only Hugo v0.55.0 exists, but not v0.55, so `options(blogdown.hugo.version = '0.55')` will not work, and you must set it to `0.55.0` precisely.
+* `blogdown.hugo.version`: You can find available Hugo versions at [?](https://github.com/gohugoio/hugo/releases/), and find all locally installed Hugo versions via `blogdown::find_hugo('all')`. A common mistake when specifying this option is to omit the version number `0` at the end. For example, only Hugo v0.55.0 exists, but not v0.55, so `options(blogdown.hugo.version = '0.55')` will not work, and you must set it to `0.55.0` precisely.
 
 * `blogdown.knit.on_save`: By default, the Rmd file is automatically knitted when it is saved. If you prefer clicking the `Knit` button in RStudio to manually knit the file, you may set this option to `FALSE`. If this option is unset, *blogdown* will set it to `TRUE` for the current R session (with a reminder message) when you click the `Knit` button.
 
@@ -500,7 +503,7 @@ There are a few things you need to know about R's startup profile file before us
 1. You can use a global profile file `~/.Rprofile`,{^} or a per-project file `.Rprofile` under the root directory of your RStudio project. The former will be applied to all R sessions that you start, unless you have provided the latter to override it. 
 
 [^]:
-The tilde `~` denotes your home directory in your system.
+> The tilde `~` denotes your home directory in your system.
 
 1. The name "startup profile file" means that R only executes this file when you first start your R session. This means that when you modify and save your `.Rprofile`, you must restart R for the changes to take effect. 
 
@@ -578,13 +581,15 @@ Table [?tab](#md-diff) summarizes the main differences among the three file exte
 [#md-diff]:
 [cols="<"]
 |===
-|Feature      |.Rmd |.Rmarkdown |.md/.markdown 
 
-|Run R code   |yes  |yes        |no   
-|Bibliography |yes  |yes        |no   
-|Cross references | yes | yes   |no   
-|LaTeX math   |yes  |maybe      |maybe
-|HTML widgets |yes  |yes        |no   
+|Feature      |.Rmd |.Rmarkdown | .md/.markdown |
+|:------------|-----|-----------|---------------|
+|Run R code   |yes  |yes        | no            |
+|Bibliography |yes  |yes        | no            |
+|Cross references | yes | yes   | no            |
+|LaTeX math   |yes  |maybe      | maybe         |
+|HTML widgets |yes  |yes        | no            |
+
 |===
 
 Basically, you cannot execute any R code in a plain Markdown document (`.md` or `.markdown`), whereas in an R Markdown document (`.Rmd` or `.Rmarkdown`), you can embed R code chunks (`+```{r}+`). However, you can still embed R code in plain Markdown using the syntax for fenced code blocks `+```r+` (note there are no curly braces `{}`). Such code blocks will not be executed and may be suitable for pure demonstration purposes. Below is an example of an R code chunk in R Markdown:
@@ -609,7 +614,7 @@ A plain Markdown post is directly rendered to HTML through [{+Goldmark}](https:/
 
 ### {?num} Basic features of R Markdown
 
-If you use R Markdown {>R-rmarkdown} with *blogdown*, we recommend that you read the documentation of Pandoc and *bookdown* at least once to know all the possible features. We will not repeat the details in this book, but list the features briefly below, which are also demonstrated on the example website [](https://blogdown-demo.rbind.io).
+If you use R Markdown {>R-rmarkdown} with *blogdown*, we recommend that you read the documentation of Pandoc and *bookdown* at least once to know all the possible features. We will not repeat the details in this book, but list the features briefly below, which are also demonstrated on the example website [?](https://blogdown-demo.rbind.io).
 
 * Inline formatting: `+_italic_+` / `+**bold**+` text and `+`inline code`+`.
 
@@ -639,7 +644,7 @@ If you use the file extension `.Rmd` for a post, you need to make a decision on 
 In general, Pandoc's Markdown features are richer than Goldmark's. For example, Goldmark does not support LaTeX math and Pandoc does. We have added the [{+MathJax}](https://www.mathjax.org/#docs) support to the default theme ([hugo-lithium](https://github.com/yihui/hugo-lithium)) in *blogdown* to render LaTeX math on HTML pages, but there is a caveat for plain Markdown posts: you have to include inline math expressions in a pair of backticks `+`$math$`+`, e.g., `+`$S_n = \sum_{i=1}^n X_i$`+`. Similarly, math expressions of the display style have to be written in `+`$$math$$`+`. For `.Rmd` posts to be rendered to `.html`, you can use `$math$` for inline math expressions, and `$$math$$` for display-style expressions.{^}
 
 [^]:
-The reason that we need the backticks for plain Markdown documents is that we have to prevent the LaTeX code from being interpreted as Markdown by Blackfriday. Backticks will make sure the inner content is not translated as Markdown to HTML, e.g., `+`$$x *y* z$$`+` will be converted to `+<code>$$x *y* z$$</code>+`. Without the backticks, it will be converted to `$$x <em>y</em> z$$`, which is not a valid LaTeX math expression for MathJax. Similar issues can arise when you have other special characters like underscores in your math expressions.
+> The reason that we need the backticks for plain Markdown documents is that we have to prevent the LaTeX code from being interpreted as Markdown by Blackfriday. Backticks will make sure the inner content is not translated as Markdown to HTML, e.g., `+`$$x *y* z$$`+` will be converted to `+<code>$$x *y* z$$</code>+`. Without the backticks, it will be converted to `$$x <em>y</em> z$$`, which is not a valid LaTeX math expression for MathJax. Similar issues can arise when you have other special characters like underscores in your math expressions.
 
 The main disadvantages of rendering `.Rmd` to `.html` are:
 
@@ -709,7 +714,7 @@ All of these files are contained in the `themes/` folder, and are kept separate 
 
 ### {?num} Choosing themes
 
-If you care a lot about the appearance of your website, you will probably spend quite a bit of time in the beginning looking for a Hugo theme that you like from the collection listed at [](https://themes.gohugo.io). Please note that not all themes have been tested with *blogdown*. If you find a certain theme does not work well with *blogdown*, you may report to [](https://github.com/rstudio/blogdown/issues), and we will try to investigate the reason, but it can be time-consuming to learn and understand how a new theme works, so we recommend that you learn more about Hugo by yourself before asking, and we also encourage users to help each other there.
+If you care a lot about the appearance of your website, you will probably spend quite a bit of time in the beginning looking for a Hugo theme that you like from the collection listed at [?](https://themes.gohugo.io). Please note that not all themes have been tested with *blogdown*. If you find a certain theme does not work well with *blogdown*, you may report to [?](https://github.com/rstudio/blogdown/issues), and we will try to investigate the reason, but it can be time-consuming to learn and understand how a new theme works, so we recommend that you learn more about Hugo by yourself before asking, and we also encourage users to help each other there.
 
 There are now about 400 Hugo themes to choose from. To save you some time, we list a few themes below that match our taste:
 
@@ -733,13 +738,13 @@ If you choose to dig a rather deep hole, someday you will have no choice but kee
 ____
 
 [^]:
-Translated from her Chinese Weibo.
+> Translated from her Chinese Weibo.
 
 ### New site, new theme
 
 To use a Hugo theme other than `hugo-lithium` with a new site (which we showed in Section [?num A Quick Example]()), we recommend the following workflow:
 
-1. Carefully pick a theme at [](https://themes.gohugo.io), and find the link to its GitHub repository,{^} which is of the form `https://github.com/user/repo`. For example, the source of the [Hugo theme Anatole](https://themes.gohugo.io/anatole/) is located at [](https://github.com/lxndrblz/anatole).
+1. Carefully pick a theme at [?](https://themes.gohugo.io), and find the link to its GitHub repository,{^} which is of the form `https://github.com/user/repo`. For example, the source of the [Hugo theme Anatole](https://themes.gohugo.io/anatole/) is located at [?](https://github.com/lxndrblz/anatole).
 
 1. Create a new project in RStudio (`File -> New Project -> New Directory -> Website using blogdown`) (see Figures [?fig](#new-project) and [?fig](#blogdown-project)). 
 
@@ -756,7 +761,7 @@ Alternatively, in the R console, you may type `blogdown::new_site(theme = 'user/
 1. Play with the new site for a while and if you do not like it, you can repeat the above steps, otherwise edit the options in the configuration file (`config.yaml` or `config.toml`). If you do not understand certain options, go to the documentation of the theme, which is often the README page of the GitHub repository. Not all options have to be changed.
 
 [^]:
-For most themes, you can find this by navigating to the theme of your choice from [](http://themes.gohugo.io) and then clicking on "Download."
+> For most themes, you can find this by navigating to the theme of your choice from [?](http://themes.gohugo.io) and then clicking on "Download."
 
 ### {?num} Existing site, new theme
 
@@ -795,7 +800,7 @@ There are a lot of ways to start building a website and deploy it. Because of th
 
 To start a new website:
 
-1. Carefully pick a theme at [](https://themes.gohugo.io), and find the link to its GitHub repository, which is of the form `https://github.com/user/repo`.
+1. Carefully pick a theme at [?](https://themes.gohugo.io), and find the link to its GitHub repository, which is of the form `https://github.com/user/repo`.
 
 1. Create a new project in RStudio, and type the code `blogdown::new_site(theme = 'user/repo')` in the R console, where `user/repo` is from the link in Step 1.
 

@@ -114,7 +114,7 @@ A line with no indent after an indented line always starts a new paragraph, even
   That is a code block
 ```
 
-If the first indented line is a list item (starts with dots, stars or contains ":: ") then it is treated as an indented paragraph and never as code.
+If the first indented line is a list item (starts with "1.", dots, stars or contains ":: ") then it is treated as an indented paragraph and never as code.
 A list item can contain multiple paragraphs using "+" to join them to the list item.
 It can also contain a code block introduced with a non-indented "+".
 
@@ -128,11 +128,12 @@ The only supported format letter is "h" (header row or column).
 [cols="h,6*>",rows="h,^"]
 |===
 || jan | feb | mar | apr | may | jun
-
+|:::
 | Quarter +
 2022
 3+^| Q1
 3+^| Q2
+
 | Km | 12.4 | 40.0 | 12.9 | 8.5 | 15.7 .3+.>| 38.8 (provisional)
 | Fz | 44.9 | 3.14 | 101.0 | 86.6 | 66.3
 | Tt | 6.2  | 6.9  | 5.6 | 10.1 | 4.4
@@ -213,7 +214,7 @@ A block header could look like:
 ```
 = Title
 [#anchor]:
-:replacement: value
+:key:replacement value
 [group]
 --
 ```

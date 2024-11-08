@@ -27,9 +27,9 @@ Example:
 
 ```IDL
 # Document title
-:authors: Author Name <author@email.org>
-:revision: v2.0, 2019-03-22
-:toc:
+:key:authors Author Name <author@email.org>
+:key:revision v2.0, 2019-03-22
+:key:toc
 ```
 
 ### Paragraphs
@@ -116,7 +116,7 @@ portions of the text as long as it is interpreted by the generator.
 Horizontal line:
 
 ```
-'''
+---
 ```
 
 Page break (not visible in the browser if the output is a HTML document):
@@ -139,7 +139,7 @@ That may force a page break in the middle of a paragraph.
 [Go to an arbitrary webpage](https://www.github.com)
 
 [#anchor]:
-Part 1: This text is selected by the anchor.
+> Part 1: This text is selected by the anchor.
 
 [Go to Part 1](#anchor)
 ```
@@ -153,7 +153,7 @@ with an asterisk "\*". It will be automatically set to the file extension
 associated with the output format.
 
 When the output format allows it, footnotes {`^`} and bibliographic references
-{`>`} are also hyperlinks.
+{`>`} are also hyperlinks. The "> " on the line that follows a marker is optional.
 
 Example:
 
@@ -161,29 +161,25 @@ Example:
 There are contractual implications to this statement.{^terms}
 
 [^terms]:
-Please refer to our Terms and Conditions {>T&C} for more information.
+> Please refer to our Terms and Conditions {>T&C} for more information.
 ```
 
 ### Inline Content
 
 ```markdown
 = sample image
-!![Arcadam logo](Arcadam-logo.png)
+[!image Arcadam logo](Arcadam-logo.png)
 
-The Github mascot: ![Github](octocat.jpg)
-
-And again: [?image Github](octocat.jpg)
+The Github mascot: [?image Github](octocat.jpg)
 ```
 
-Use "!" in front of a hyperlink to insert an image.
-Double the "!" to put the image in a new block rather than in line with the text.
-Alternatively use the "image" custom control to insert an image or the "video" custom control to insert a video.
+Use the "image" [custom control](#customisation) to insert an image or the "video" custom control to insert a video.
+The word should have "!" in front to put the content in a new block
+or it should have "?" in front for content floating in line with the text.
 
-The hyperlink text will be used as the "alt" label in HTML.
+The remainder of the hyperlink text is used as the "alt" label in HTML.
 
-Captions are set using a [Block Title](#block-title).
-
-See also [Customisation](#customisation).
+Content captions are set using a [Block Title](#block-title).
 
 ### Lists
 
@@ -203,14 +199,16 @@ Item 3:: Third description
 
 Number 1 for the first item is optional and no other number is permitted.
 A list that immediately follows an item from another list is automatically 
-nested. Leading whitespace has no effect but an indented list cannot start in
-the middle of an indented paragraph, there must be an empty line in-between.
+nested. Similarly, an indented list item that immediately follows a
+non-indented list item is automatically nested. Differences in the level
+of whitespace has no effect.
 
+An indented list cannot start in the middle of an indented paragraph, there must be an empty line in-between.
 Ordered and unordered list markers can be repeated to indicate the level, 
 just like [headers](#headers). Additional levels can be used in a 
 description list by adding another ":" each time.
 
-However these levels are not enforced so there could be a list level 1 (`*`)
+Note that these levels are not enforced so there could be a list level 1 (`*`)
 nested inside a list level 2 (`**`). It is good style to match the marker
 level with the nesting level of the list.
 
@@ -218,12 +216,13 @@ Example:
 
 ```
 1. This is number one
-** It has two bullet points
-** This is the second bullet
+* It has two bullet points
+* This is the second bullet
 . This is number two
-  .. This is a sublist
-  .. with three elements
-  .. This is the third element
+  . This is a sublist
+  . with three elements
+  . This is the third element
+  .. Other list nested inside
 
 [list]
 1. The list attribute forces a
@@ -238,7 +237,7 @@ to the list item.
 ### Enumerations
 
 The dash "-" at the start of a line is reserved for an enumeration. An enumeration item does not behave like a list item.
-In particular it does not allow nesting and is sensitive to leading whitespace.
+In particular it does not allow nesting and does not allow leading whitespace unless it is an indented paragraph.
 
 In contrast with a list, an enumeration can appear in the middle of an indented paragraph.
 
@@ -310,10 +309,10 @@ plug-in or external app
 
 ```IDL
 |===
-| Header 1 \
-| Header 2 \
+| Header 1
+| Header 2
 | Header 3
-
+|:
 | Row 1 Column 1 | Row 1 Column 2
 | Row 1 Column 3
 
@@ -322,11 +321,13 @@ plug-in or external app
 |===
 ```
 
-All the headers must be on the same line, or "\\" must be used to escape the 
-line breaks otherwise the table is generated without a header row.
+A line starting with "|:" separates the header row from the following rows.
+If that line is missing the table has no headers by default.
+The only additional content allowed on the headers separation line is a
+sequence of characters containing only "|", ":" and "-".
 
-Each new row should start on a new line. An empty line before a new cell 
-marks the beginning of the second table row.
+Each new row should start on a new line. If a row is split in multiple lines
+there should be an empty line before the next row.
 
 Arcadam markup can be used inside a table cell.
 When the contents of a cell are written on multiple lines then the start of 
@@ -339,7 +340,7 @@ Other table styles:
 ```
 ,===
 Header 1,Header 2,Header 3
-
+|:-
 Row 1 Column 1,Row 1 Column 2,Row 1 Column 3
 Row 2 Column 1,Row 2 Column 2,Row 2 Column 3
 ,===
@@ -348,7 +349,7 @@ Row 2 Column 1,Row 2 Column 2,Row 2 Column 3
 ```
 :===
 Header 1:Header 2:Header 3
-
+|:-
 Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
 Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
@@ -384,7 +385,7 @@ An input field label or a picker label appears in the first column while
 a checkbox description or text for an option appears in the second column.
 
 All form elements can have a value. If an element also has an id then the
-value becomes a replacement value using the id of the element. In case of
+value becomes a replacement value using the id of the element as key. In case of
 a checkbox, the replacement value is only defined when the checkbox is 
 checked.
 
@@ -392,8 +393,8 @@ Buttons have an action and are displayed when the output format allows
 user interaction. The "submit" action sends the replacement values set in
 the form to the target. The "cancel" action abandons the form and loads 
 the target. The "clear" action clears all the selections. The "call" 
-action sends information about the button to a predefined function named 
-in the target.
+action sends information about the button to a predefined function with
+the name that follows and with the target as parameter.
 
 The cancel and clear buttons show a dialog asking for confirmation 
 if the user made any changes. A button can be activated by clicking a 
@@ -466,6 +467,7 @@ mtable(
 Using half angle formula:
 {`tan #(mfrac(π 12)) = mfrac(1 - cos #(mfrac(π 6)) : sin #(mfrac(π 6))) = 2 - msqrt(3)}
 ```
+
 [Result](lab/MathML.jpg)
 
 By default a content block contains Arcadam mathematical notation.
@@ -474,7 +476,7 @@ The mathematical notation uses a human-readable form of MathML. MathML
 entities written with a "&" are supported as well as equivalent Unicode
 characters to write complex formulas. Spaces are required.
 
-Attributes can be applied by appending a tilde "~" and the name of a replacement value to any object.
+Attributes can be applied by appending a tilde "~" and a replacement key name to any object.
 The replacement value contains the attributes.
 Formulas can be aligned in a table-like matrix using "mtable" with the backtick "`" as cell separator and the colon ":" as row separator.
 
@@ -490,7 +492,7 @@ _     horizontal space
 `     cell separator
 " "   regular text
 ( )   align contents in a row
-{ }   name of replacement value
+{ }   replacement key name
 [ ]   reserved
 //    comment
 ```
@@ -523,7 +525,7 @@ A custom element can be used anywhere. It always starts with a special character
 Note that there is a limited choice of special characters so an inline custom control can be used instead when adding a customisation.
 
 A custom marker applies to the following paragraph or block. It must be on its own line.
-A custom marker always starts with a special character.
+A custom marker always starts with a special character. The optional ">" symbol at the beginning of the next line is removed in the output.
 
 ### Block Title
 
@@ -546,6 +548,8 @@ Additionally, if the image caption contains a link then clicking on the
 image loads the (first) link. If it is reduced to a link without text
 then clicking the image loads the link but there is no caption displayed.
 
+That can be used to activate a custom control with an image click.
+
 ### Escape character
 
 The backslash "\\" is used to prevent the generator from interpreting the
@@ -563,20 +567,20 @@ being interpreted over a span of text using "+".
 ### Replacement values
 
 ```IDL
-:value-name: value to be inserted
+:key:key-name value to be inserted
 ```
 
-Once defined, replacement values can be used anywhere.
+Once defined, replacement values can be added anywhere using the key name.
 
 Example:
 
 ```markdown
-Using the {value-name}
+Using the {key-name}
 
-[{value-name}](/index.html)
+[{key-name}](/index.html)
 ```
 
-The value name is replaced with the value to be inserted.
+The key name is replaced with the value to be inserted.
 
 ### Attributes
 
@@ -706,7 +710,7 @@ Arcadam documents can be localised for an international audience.
 Define the "translations" replacement value to enable it:
 
 ```
-:translations: cn en es fr jp kr ru
+:key:translations cn en es fr jp kr ru
 ```
 
 This tells the generator to look for translations in the listed
@@ -776,7 +780,7 @@ contents of the document:
 > 
 > _format_ - apply inline text formatting
 > 
-> _replace_ - put replacement values in place of value names
+> _replace_ - put replacement values in place of key names
 >
 > _symbols_ - replace sequences of characters with symbols, for example 
 > replace `->` with →
@@ -793,5 +797,5 @@ a special replacement value called "steps" followed by the style class.
 Example:
 
 ```IDL
-:steps.formatted: substitute, format, symbols
+:key:steps.formatted substitute, format, symbols
 ```
