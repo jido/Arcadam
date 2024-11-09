@@ -59,7 +59,7 @@ A non-indented line should not follow immediately a code block or it will interr
 
 ### More notes:
 
-Arcadam commands, such as attribute line, replacement value definition, block title and comments count as empty lines (no indent).
+Arcadam commands, such as attribute line, replacement value definition, block title and comments count as non-indented lines.
 
 ```
     This code block indent

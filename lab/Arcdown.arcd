@@ -225,7 +225,7 @@ Example:
     .. Other list nested inside
     . Third element of sublist
     1.. Nested sublist with
-    multiline content
+      multiline content
   . This is number three
   
   [list]
@@ -237,8 +237,9 @@ An indented paragraph that follows an indented list item is automatically attach
 
 Use "+" on an empty line to attach a paragraph to a non-indented list item.
 If the paragraph is indented then it is attached as a code block.
-Additional lines of a non-indented list item can optionally be aligned with the first line
-using ">" at the beginning of each. That can continue for more than one paragraph.
+Additional lines of a non-indented list item can optionally be indented using ">" at the
+beginning of each. That can continue for multiple paragraphs with an empty ">" line
+joining them.
 
 ### Enumerations
 
