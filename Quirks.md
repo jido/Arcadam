@@ -1,6 +1,6 @@
 # Quirks and differences
 
-Although the Arcadam syntax is superficially very similar to AsciiDoc with Markdown links, there are some important differences.
+Although Arcadam is superficially very similar to AsciiDoc with a Markdown-like syntax, there are some important differences.
 
 ## Links and macros
 
@@ -45,17 +45,17 @@ A notable difference with AsciiDoc is the way indented text is handled.
 
 The rule is:
 
-> *If an indented block follows an indented code block, then it is treated as a normal paragraph.*
-> *If a line made of a non-indented "+" is followed by an indented block, the indented block is treated*
-> *as a code block and added to the previous element separated by an empty line.*
+> *If an indented block follows another indented block then it is treated as a normal paragraph.*
+> 
+> *If an indented block follows a non-indented line then it is treated as a code block.*
+> 
+> *A list item is not treated as a normal paragraph or code block.*
 
-Let us go through this.
+List items are recognised by looking at the first line of the block.
 
-* Indented code block: it can be a delimited or a non-delimited code block and must not start like a list item
-* Follows: in case of a non-delimited code block the paragraph must be after an empty line.
-For a delimited block it must be after the end delimiter or an empty line
-* Non-indented "+": that is normally used to join paragraphs in a list, but if the block is indented
-it becomes a code block instead
+Code blocks can be delimited or non-delimited. A non-delimited code block ends with an empty line.
+
+A non-indented line should not follow immediately a code block or it will interrupt it.
 
 ### More notes:
 
@@ -77,7 +77,8 @@ In the output all three lines will be at the same level.
 no-indent text is not part of the code block
 ```
 
-Unlike AsciiDoctor, all the lines of the code block must be indented. The second line above is a normal paragraph.
+Unlike AsciiDoctor, all the lines of the code block must be indented. The second line above is a normal paragraph
+and there should be an empty line before.
 
 ~~~
   ```
@@ -89,7 +90,8 @@ it is missing an end delimiter
 ~~~
 
 This document is really broken. Because of the non-indented line, the code block ends early. 
-The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter instead. Also an empty line is missing after the end delimiter.
+The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter instead.
+In addition, an empty line is missing after the end delimiter.
 
 Hopefully the issue is easy to spot for writers.
 
@@ -104,19 +106,20 @@ A new paragraph
 All lines in an indented paragraph are expected to have the same indent, so this is considered incorrectly formatted.
 
 A line with no indent after an indented line always starts a new paragraph, even if it follows a normal paragraph.
+There should be an empty line between the paragraphs.
 
 ```
   . Item in a numbered list
   continued on the next line
-  +
+
   Another paragraph attached
 +
   That is a code block
 ```
 
-If the first indented line is a list item (starts with "1.", dots, stars or contains ":: ") then it is treated as an indented paragraph and never as code.
-A list item can contain multiple paragraphs using "+" to join them to the list item.
-It can also contain a code block introduced with a non-indented "+".
+If the first indented line is a list item (starts with "1.", dots, stars or contains ":: ") then it is never treated as code.
+A list item can contain multiple indented paragraphs or delimited code blocks.
+It can also contain a non-delimited code block introduced with "+" on an empty line.
 
 ## Tables
 

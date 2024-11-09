@@ -218,22 +218,27 @@ Example:
 ```
 1. This is number one
 * It has two bullet points
-* This is the second bullet
+* That is the second bullet
 . This is number two
   . This is a sublist
   . with three elements
-  . This is the third element
   .. Other list nested inside
+  . Third element of sublist
+  1.. Nested sublist with
+  multiline content
+. This is number three
 
 [list]
 1. The list attribute forces a
-new list to start up
+> new list to start up
 ```
 
-Use "+" to force a list item on multiple lines. If it is used on an empty 
-line, that starts a new paragraph inside the list item. If "+" is
-non-indented but the following text is indented, a code block is added
-to the list item.
+An indented paragraph that follows an indented list item is automatically attached to it.
+
+Use "+" on an empty line to attach a paragraph to a non-indented list item.
+If the paragraph is indented then it is attached as a code block.
+Additional lines of a non-indented list item can optionally be aligned with the first line
+using ">" at the beginning of each. That can continue for more than one paragraph.
 
 ### Enumerations
 
@@ -261,24 +266,24 @@ Code blocks (monospaced):
   to a code block
   
   Normal text after a code block
-  +
+
   That is another paragraph.
   
-  A second code block starts here
-
-```
-Another way to create
-a code block delimited
-with ```
-```
-
   ```
   An indented code block
   can also be delimited.
   
   It allows empty lines
   ```
+
+```
+Another way to create a code
+block is to use the ``` block
+delimiter
+```
 ~~~
+
+A single paragraph of indented text becomes a code block, but any indented paragraph that follows is normal text unless it is delimited.
 
 Other blocks:
 
@@ -525,7 +530,7 @@ A custom element can be used anywhere. It always starts with a special character
 Note that there is a limited choice of special characters so an inline custom control can be used instead when adding a customisation.
 
 A custom marker applies to the following paragraph or block. It must be on its own line.
-A custom marker always starts with a special character. The optional ">" symbol at the beginning of the next line is removed in the output.
+A custom marker always starts with a special character. The optional ">" symbol at the beginning of the lines that follow is removed in the output.
 
 ### Block Title
 
@@ -591,7 +596,7 @@ Additional attributes can be applied using commas to separate them.
 Example:
 
 ```XML
-[code=xml,.extract]
+[code=xml,.partial]
   <root>
     <element>
       This is XML text which 
