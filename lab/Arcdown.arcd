@@ -28,6 +28,7 @@ Example:
 
   ```
   # Document title
+  
   :key:authors Author Name <author@email.org>
   :key:revision v2.0, 2019-03-22
   :key:toc
@@ -136,14 +137,13 @@ That may force a page break in the middle of a paragraph.
   
   [Go to an arbitrary webpage](https://www.github.com)
   
-  [#anchor]:
-  > Part 1: This text is selected by the anchor.
+  Part 1: {#anchor} This text is selected by the anchor.
   
   [Go to Part 1](#anchor)
   ```
 
 The text inside square brackets becomes a hyperlink which loads the content
-specified in the round brackets. If the square brackets are only [?] or empty
+specified in the round brackets. If the square brackets are only [?]
 then the address is shown as link. If the round brackets are empty and the
 text matches a section title then the link goes to that section.
 
@@ -348,6 +348,12 @@ interpret the contents of the cell until another "|" or the end of the line.
 Other table styles:
 
   ```
+  [table]
+  |Row 1 Column 1 |Row 1 Column 2 |Row 1 Column 3
+  |Row 2 Column 1 |Row 2 Column 2 |Row 2 Column 3
+  ```
+
+  ```
   ,===
   Header 1,Header 2,Header 3
   |-
@@ -371,7 +377,7 @@ Other table styles:
   [form]
   ====
   = Field label
-  [!input Default value]
+  [!input input-id= Default value]
   
   [checkbox]
   |+| Checkbox description
@@ -397,7 +403,10 @@ a checkbox description or text for an option appears in the second column.
 All form elements can have a value. If an element also has an id then the
 value becomes a replacement value using the id of the element as key. In case of
 a checkbox, the replacement value is only defined when the checkbox is
-checked.
+checked. In case of options, if the list is a description list then the
+item is used as value and the description as text. If the list is
+a numbered list then the item number is used as value. If the list is
+a bullet list then the text is used both as value and as text.
 
 Buttons have an action and are displayed when the output format allows
 user interaction. The "submit" action sends the replacement values set in
@@ -408,7 +417,12 @@ the name that follows and with the target as parameter.
 
 The cancel and clear buttons show a dialog asking for confirmation
 if the user made any changes. A button can be activated by clicking a
-picture as described in [Block Title]().
+picture used as button label:
+
+  ```
+  :key:submit-button [?image](submit-button.png)
+  [?submit {submit-button}](target)
+  ```
 
 ### Tabs
 
@@ -555,10 +569,7 @@ attributes.
 
 If a block title is added to a block image, it is used as caption.
 Additionally, if the image caption contains a link then clicking on the
-image loads the (first) link. If it is reduced to a link without text
-then clicking the image loads the link but there is no caption displayed.
-
-That can be used to activate a custom control with an image click.
+image loads the (first) link.
 
 ### Escape character
 

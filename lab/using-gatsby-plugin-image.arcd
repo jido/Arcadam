@@ -419,5 +419,5 @@ If you're running into issues getting everything to work together we recommend f
 > If not, make sure you're using the same object you saw return from your query.
 
 . Are the images working yet?
-
+>
 > If you still see problems and think it's a bug, please [file an issue](https://github.com/gatsbyjs/gatsby/issues) and let us know how far in these steps you progressed.
