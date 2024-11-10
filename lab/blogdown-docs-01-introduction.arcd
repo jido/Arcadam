@@ -784,7 +784,7 @@ To use a Hugo theme other than `hugo-lithium` with a new site (which we showed i
 
   1. In the "Hugo theme" field, enter the `user/repo` from the link in Step 1. Click "Create Project". 
 
-  Alternatively, in the R console, you may type `blogdown::new_site(theme = 'user/repo')`:
+   Alternatively, in the R console, you may type `blogdown::new_site(theme = 'user/repo')`:
 +
 [code=r,eval=FALSE]
   ```

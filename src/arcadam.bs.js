@@ -12,7 +12,7 @@ var Belt_HashMapString = require("rescript/lib/js/belt_HashMapString.js");
 
 var backtick = "`";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:subs: value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n____\nQuote text using\nunderscores\n____\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n** sublist\n** one more\n  1... nested numbered list\n  on two lines\n  ... nested 2\n* Third\n[list]\n. Number one\n\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text without\n  * line breaks is added\n  to a code block\n\n  Normal paragraph after code block\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[:begin region]:\nThis text can be included\non its own.\n[:end region]:\nNew block starts after label\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:key:subs value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n___\nQuote text using\nunderscores\n___\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n** first sublist\n\n  * sublist\n  * one more\n   1... nested numbered list\n   on two lines\n   ... nested 2\n* Third\n[list]\n. Number one\n\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text without\n  * line breaks is added\n  to a code block\n\n  Normal paragraph after code block\n\n  Another paragraph\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[-begin region]:\nThis text can be included\non its own.\n[-end region]:\nNew block starts after marker\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
 
 var alpha = "A-Za-z";
 
@@ -151,16 +151,16 @@ function consumeHyperlink(line) {
         ];
 }
 
-function consumeLabel(line) {
-  var labelLine = /^\[\s*([^\]]+)\]:\s*$/;
-  var match = getMatches(labelLine, line);
+function consumeMarker(line) {
+  var markerLine = /^\[\s*([^\]]+)\]:\s*$/;
+  var match = getMatches(markerLine, line);
   if (match.length !== 2) {
     return [];
   }
-  var label = match[1];
+  var marker = match[1];
   return [{
-            TAG: "Label",
-            _0: label
+            TAG: "Marker",
+            _0: marker
           }];
 }
 
@@ -246,7 +246,7 @@ function consumeBlockDelimiter(line) {
         return ["FreeBlockDelimiter"];
     case "====" :
         return ["ExampleBlockDelimiter"];
-    case "____" :
+    case "___" :
         return ["QuoteBlockDelimiter"];
     case "```" :
         return ["CodeBlockDelimiter"];
@@ -329,7 +329,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      282,
+                      286,
                       10
                     ],
                     Error: new Error()
@@ -374,7 +374,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      301,
+                      305,
                       10
                     ],
                     Error: new Error()
@@ -413,13 +413,13 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      309,
+                      313,
                       10
                     ],
                     Error: new Error()
                   };
             }
-            var tokens$7 = consumeLabel(line);
+            var tokens$7 = consumeMarker(line);
             if (Caml_obj.notequal(tokens$7, [])) {
               return Promise.resolve([
                           Belt_Array.concat(tok, tokens$7),
@@ -530,22 +530,22 @@ function consumeLine(tok, lnum) {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
                           "arcadam.res",
-                          353,
+                          357,
                           8
                         ],
                         Error: new Error()
                       };
                 }
-                var tokens$2 = consumeLabel(line);
+                var tokens$2 = consumeMarker(line);
                 var exit$1 = 0;
                 if (tokens$2.length !== 1) {
                   exit$1 = 2;
                 } else {
-                  var _label = tokens$2[0];
-                  if (typeof _label !== "object") {
+                  var _marker = tokens$2[0];
+                  if (typeof _marker !== "object") {
                     exit$1 = 2;
                   } else {
-                    if (_label.TAG === "Label") {
+                    if (_marker.TAG === "Marker") {
                       return Promise.resolve([
                                   Belt_Array.concat(tok, tokens$2),
                                   "Initial",
@@ -561,7 +561,7 @@ function consumeLine(tok, lnum) {
                           RE_EXN_ID: "Assert_failure",
                           _1: [
                             "arcadam.res",
-                            358,
+                            362,
                             10
                           ],
                           Error: new Error()
@@ -672,16 +672,16 @@ function parseAttribute(atext, attributes) {
   Belt_HashMapString.set(attributes, name, "");
 }
 
-function parseLabel(atext) {
-  var pattern = "^\\s*([:#^>][" + alpha + "]([" + alnum + "])*)";
-  var labelExpr = new RegExp(pattern);
-  var k = getMatches(labelExpr, atext);
+function parseMarker(atext) {
+  var pattern = "^\\s*([!-@^][" + alpha + "]([" + alnum + "])*)";
+  var markerExpr = new RegExp(pattern);
+  var k = getMatches(markerExpr, atext);
   if (k.length !== 3) {
     console.log("Failed to parse:", k);
     return ;
   }
   var name = k[1];
-  console.log("Parse: label", name);
+  console.log("Parse: marker", name);
 }
 
 function parseDocument(tok) {
@@ -707,8 +707,8 @@ function parseDocument(tok) {
                 return Belt_HashMapString.set(_substitutions, name$1, value);
             case "Attribute" :
                 return parseAttribute(token._0, _attributes);
-            case "Label" :
-                return parseLabel(token._0);
+            case "Marker" :
+                return parseMarker(token._0);
             case "SubstitutionDef" :
                 state.contents = {
                   TAG: "Substitution",
@@ -789,7 +789,7 @@ exports.consumeHeading = consumeHeading;
 exports.consumeSubstitution = consumeSubstitution;
 exports.consumeAttribute = consumeAttribute;
 exports.consumeHyperlink = consumeHyperlink;
-exports.consumeLabel = consumeLabel;
+exports.consumeMarker = consumeMarker;
 exports.consumeBulletListItem = consumeBulletListItem;
 exports.consumeNumberedListItem = consumeNumberedListItem;
 exports.consumeBlockDelimiter = consumeBlockDelimiter;
@@ -802,7 +802,7 @@ exports.consumeCodeLine = consumeCodeLine;
 exports.consumeIndentedLine = consumeIndentedLine;
 exports.consumeListLine = consumeListLine;
 exports.parseAttribute = parseAttribute;
-exports.parseLabel = parseLabel;
+exports.parseMarker = parseMarker;
 exports.parseDocument = parseDocument;
 exports.subs = subs;
 exports.attrs = attrs;

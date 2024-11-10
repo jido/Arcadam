@@ -15,7 +15,7 @@ A small example
 ====
 ====
 
-:subs: value&more
+:key:subs value&more
 ## Arcadam Test ->> part 1
 
 [Go to ${backtick}Products page${backtick} on this site](/Products.html)
@@ -31,10 +31,10 @@ Part 1: This text is selected by the anchor.
 
 [Arcadam Test ->> part 1]()
 
-____
+___
 Quote text using
 underscores
-____
+___
 
 ====
 Example block used to
@@ -51,11 +51,13 @@ Paragraph:
 * First<
 multi line
 * Second&&
-** sublist
-** one more
-  1... nested numbered list
-  on two lines
-  ... nested 2
+** first sublist
+
+  * sublist
+  * one more
+   1... nested numbered list
+   on two lines
+   ... nested 2
 * Third
 [list]
 . Number one
@@ -71,6 +73,8 @@ ${backtick}${backtick}${backtick}
 
   Normal paragraph after code block
 
+  Another paragraph
+
 ${backtick}${backtick}${backtick}
 Another way to create
 a code block delimited
@@ -80,11 +84,11 @@ with ${backtick}${backtick}${backtick}
 This is not a new block
 ${backtick}${backtick}${backtick}
 
-[:begin region]:
+[-begin region]:
 This text can be included
 on its own.
-[:end region]:
-New block starts after label
+[-end region]:
+New block starts after marker
 
 [.styleclass]
 [mylist.first]
@@ -143,13 +147,13 @@ type token =
   | NumberedListItem(int) // . List item
   | IndentedBulletListItem(int) // * List item
   | IndentedNumberedListItem(int) // . List item
-  | Label(string) // [label]:
+  | Marker(string) // [marker]:
   | SubstitutionDef(string) // :name: value
   | Hyperlink(string) // [text](address)
   | FreeBlockDelimiter // --
   | CodeBlockDelimiter // ```
+  | QuoteBlockDelimiter // ___
   | ExampleBlockDelimiter // ====
-  | QuoteBlockDelimiter // ____
   | SidebarBlockDelimiter // ****
   | BlockTitle(string) // .Block title
   | SubstitutionUse(string) // {name}
@@ -204,10 +208,10 @@ let consumeHyperlink = line => {
   }
 }
 
-let consumeLabel = line => {
-  let labelLine = %re("/^\[\s*([^\]]+)\]:\s*$/")
-  switch labelLine->getMatches(line) {
-  | [_, label] => [Label(label)]
+let consumeMarker = line => {
+  let markerLine = %re("/^\[\s*([^\]]+)\]:\s*$/")
+  switch markerLine->getMatches(line) {
+  | [_, marker] => [Marker(marker)]
   | _ => []
   }
 }
@@ -243,8 +247,8 @@ let consumeBlockDelimiter = line =>
   | "" => [Empty]
   | "--" => [FreeBlockDelimiter]
   | "```" => [CodeBlockDelimiter]
+  | "___" => [QuoteBlockDelimiter]
   | "====" => [ExampleBlockDelimiter]
-  | "____" => [QuoteBlockDelimiter]
   | "****" => [SidebarBlockDelimiter]
   | _ => []
   }
@@ -307,7 +311,7 @@ let tokeniseInitialLine = (line, tok, lnum) => {
         | [Attribute(_attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
         | _ =>
           assert(tokens == [])
-          let tokens = consumeLabel(line)
+          let tokens = consumeMarker(line)
           if tokens != [] {
             resolve((tok->Array.concat(tokens), Initial, lnum))
           } else {
@@ -351,9 +355,9 @@ let consumeLine = (tok, lnum) =>
       | [Attribute(_attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
       | _ =>
         assert(tokens == []) // Appease the compiler
-        let tokens = consumeLabel(line)
+        let tokens = consumeMarker(line)
         switch tokens {
-        | [Label(_label)] => resolve((tok->Array.concat(tokens), Initial, lnum))
+        | [Marker(_marker)] => resolve((tok->Array.concat(tokens), Initial, lnum))
         | _ =>
           assert(tokens == []) // Appease the compiler
           let tokens = consumeRegularLine(line)
@@ -416,11 +420,11 @@ let parseAttribute = (atext, attributes) => {
   }
 }
 
-let parseLabel = atext => {
-  let pattern = `^\\s*([:#^>][${alpha}]([${alnum}])*)`
-  let labelExpr = Js.Re.fromString(pattern)
-  switch labelExpr->getMatches(atext) {
-  | [_, name, _] => Js.log2("Parse: label", name)
+let parseMarker = atext => {
+  let pattern = `^\\s*([!-@^][${alpha}]([${alnum}])*)`
+  let markerExpr = Js.Re.fromString(pattern)
+  switch markerExpr->getMatches(atext) {
+  | [_, name, _] => Js.log2("Parse: marker", name)
   | k => Js.log2("Failed to parse:", k)
   }
 }
@@ -436,7 +440,7 @@ let parseDocument = tok => {
   tok->Array.forEach(token =>
     switch token {
     | Attribute(attributeList) => parseAttribute(attributeList, _attributes)
-    | Label(label) => parseLabel(label)
+    | Marker(marker) => parseMarker(marker)
     | SubstitutionDef(name) => state := Substitution(name)
     | Text(value) =>
       switch state.contents {
