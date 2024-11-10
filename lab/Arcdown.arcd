@@ -116,11 +116,11 @@ portions of the text as long as it is interpreted by the generator.
 
 Horizontal line:
 
-   ---
+    ---
 
 Page break (not visible in the browser if the output is a HTML document):
 
-   <<<
+    <<<
 
 Arcadam tries to break the text at a natural place between pages, like the end of a paragraph.
 Add ">>>" at the end of the line to prevent this behaviour in a specific place.
@@ -263,13 +263,14 @@ Code blocks (monospaced):
 
 [code]
 ....
-  Indented text without
-  line breaks is added 
-  to a code block
-  
-  Normal text after a code block
 
-  That is another paragraph.
+    Indented text without
+    line breaks is added 
+    to a code block
+  
+   Normal text after a code block
+
+   That is another paragraph.
   
   ```
   An indented code block
@@ -290,10 +291,10 @@ A single paragraph of indented text becomes a code block, but any indented parag
 Other blocks:
 
   ```
-  ____
+  ___
   Quote text using
-  underscores
-  ____
+  three underscores
+  ___
   
   ====
   Example block used to
@@ -338,7 +339,8 @@ Each new row should start on a new line. If a row is split in multiple lines
 there should be an empty line before the next row.
 
 Arcadam markup can be used inside a table cell.
-When the contents of a cell are written on multiple lines then the start of
+When the contents of a cell are written on multiple lines they can optionally be
+indented with ">" at the beginning of each. The start of
 next cell must be in a normal paragraph or on a new line.
 If there is no space between "|" and the text that follows, the generator doesn't
 interpret the contents of the cell until another "|" or the end of the line.
@@ -572,8 +574,10 @@ being interpreted over a span of text using "+".
 
 ### Replacement values
 
-   :key:key-name value to be inserted
+    :key:key-name value to be inserted
 
+If the value continues on more than one line then the additional lines must
+be introduced with ">" at the start. Arcadam blocks and commands cannot be used.
 Once defined, replacement values can be added anywhere using the key name.
 
 Example:

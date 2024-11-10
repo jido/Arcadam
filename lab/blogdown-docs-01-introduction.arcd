@@ -607,16 +607,16 @@ Table [?tab](#md-diff) summarizes the main differences among the three file exte
 
 = {!tab} Differences among the three document formats.
 [#md-diff]:
-[cols="<"]
+[cols="4*<"]
 |===
 
-|Feature      |.Rmd |.Rmarkdown | .md/.markdown |
-|:------------|-----|-----------|---------------|
-|Run R code   |yes  |yes        | no            |
-|Bibliography |yes  |yes        | no            |
-|Cross references | yes | yes   | no            |
-|LaTeX math   |yes  |maybe      | maybe         |
-|HTML widgets |yes  |yes        | no            |
+|Feature      |.Rmd |.Rmarkdown | .md/.markdown
+|:------------|-----|-----------|---------------
+|Run R code   |yes  |yes        | no
+|Bibliography |yes  |yes        | no
+|Cross references | yes | yes   | no
+|LaTeX math   |yes  |maybe      | maybe
+|HTML widgets |yes  |yes        | no
 
 |===
 
@@ -764,11 +764,11 @@ If you do not understand HTML, CSS, or JavaScript, and have no experience with H
 
 Another thing to keep in mind is that the more effort you make in a complicated theme, the more difficult it is to switch to other themes in the future, because you may have customized a lot of things that are not straightforward to port to another theme. So please ask yourself seriously, "Do I like this fancy theme so much that I will definitely not change it in the next couple of years?"
 
-____
+___
 If you choose to dig a rather deep hole, someday you will have no choice but keep on digging, even with tears.
 
 --- Liyun Chen{^}
-____
+___
 
 [^]:
 > Translated from her Chinese Weibo.

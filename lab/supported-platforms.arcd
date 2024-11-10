@@ -2,56 +2,57 @@
 
 These images are a great way to quickly get started with Ubuntu Core and to explore Ubuntu Core's features and evaluate its potential. Canonical produces official images for the following platforms:
 
+[!include Links]
 |===
 |  Platform / model name  |  Hardware / CPU  |  Cores / memory / storage  |  Image links
 |:
 | *Generic x86* +
-`ubuntu-core-24` +
-`ubuntu-core-22` +
-`ubuntu-core-20` | Full x86 32/64 bit | as defined | [core-24-amd64]({i24-amd64}) +
-[core-22-amd64]({i22-amd64}) +
-[core-20-amd64]({i20-amd64})
+> `ubuntu-core-24` +
+> `ubuntu-core-22` +
+> `ubuntu-core-20` | Full x86 32/64 bit | as defined | [core-24-amd64]({i24-amd64}) +
+>                                                      [core-22-amd64]({i22-amd64}) +
+>                                                      [core-20-amd64]({i20-amd64})
 
 | *Raspberry Pi 5* +
-`ubuntu-core-24-pi` | Broadcom BCM2712 +
-Cortex-A76 (ARM v8) 64-bit | 4 cores &#124; 4/8 GB RAM +
-no built-in storage | [core-24-pi-arm64]({i24-pi-arm64})
+> `ubuntu-core-24-pi` | Broadcom BCM2712 +
+>                       Cortex-A76 (ARM v8) 64-bit | 4 cores &#124; 4/8 GB RAM +
+>                                                    no built-in storage | [core-24-pi-arm64]({i24-pi-arm64})
 
 | *Raspberry Pi 4* +
-`ubuntu-core-24-pi` +
-`ubuntu-core-22-pi` +
-`ubuntu-core-20-pi` | Broadcom BCM2711 +
-Cortex-A72 (ARM v8) 64-bit | 4 cores &#124; 1/2/4/8 GB RAM +
-no built-in storage | [core-24-pi-arm64]({i24-pi-arm64}) +
-[core-22-pi-armhf]({i22-pi-armhf}) +
-[core-22-pi-arm64]({i22-pi-arm64}) +
-[core-20-pi-armhf]({i20-pi-armhf}) +
-[core-20-pi-arm64]({i20-pi-arm64})
+> `ubuntu-core-24-pi` +
+> `ubuntu-core-22-pi` +
+> `ubuntu-core-20-pi` | Broadcom BCM2711 +
+>                       Cortex-A72 (ARM v8) 64-bit | 4 cores &#124; 1/2/4/8 GB RAM +
+>                                                    no built-in storage | [core-24-pi-arm64]({i24-pi-arm64}) +
+>                                                                          [core-22-pi-armhf]({i22-pi-armhf}) +
+>                                                                          [core-22-pi-arm64]({i22-pi-arm64}) +
+>                                                                          [core-20-pi-armhf]({i20-pi-armhf}) +
+>                                                                          [core-20-pi-arm64]({i20-pi-arm64})
 
 | *Raspberry Pi CM 3* +
-`ubuntu-core-22-pi` +
-`ubuntu-core-20-pi` | Broadcom BCM2837 +
-ARM Cortex-A53 64-bit | 4 cores &#124; 1 GB RAM +
-no built-in storage | [core-22-pi-armhf]({i22-pi-armhf}) +
-[core-22-pi-arm64]({i22-pi-arm64}) +
-[core-20-pi-armhf]({i20-pi-armhf}) +
-[core-20-pi-arm64]({i20-pi-arm64})
+> `ubuntu-core-22-pi` +
+> `ubuntu-core-20-pi` | Broadcom BCM2837 +
+>                       ARM Cortex-A53 64-bit | 4 cores &#124; 1 GB RAM +
+>                                               no built-in storage | [core-22-pi-armhf]({i22-pi-armhf}) +
+>                                                                     [core-22-pi-arm64]({i22-pi-arm64}) +
+>                                                                     [core-20-pi-armhf]({i20-pi-armhf}) +
+>                                                                     [core-20-pi-arm64]({i20-pi-arm64})
 
 | *Raspberry Pi Zero 2 W and Raspberry Pi 3* +
-`ubuntu-core-22-pi` +
-`ubuntu-core-20-pi` | Broadcom BCM2837 +
-ARM Cortex-A53 64-bit | 4 cores &#124; 0.5/1 GB RAM +
-no built-in storage | [core-22-pi-armhf]({i22-pi-armhf}) +
-[core-22-pi-arm64]({i22-pi-arm64}) +
-[core-20-pi-armhf]({i20-pi-armhf}) +
-[core-20-pi-arm64]({i20-pi-arm64})
+> `ubuntu-core-22-pi` +
+> `ubuntu-core-20-pi` | Broadcom BCM2837 +
+>                       ARM Cortex-A53 64-bit | 4 cores &#124; 0.5/1 GB RAM +
+>                                               no built-in storage | [core-22-pi-armhf]({i22-pi-armhf}) +
+>                                                                     [core-22-pi-arm64]({i22-pi-arm64}) +
+>                                                                     [core-20-pi-armhf]({i20-pi-armhf}) +
+>                                                                     [core-20-pi-arm64]({i20-pi-arm64})
 
 | *Raspberry Pi 2* +
-`ubuntu-core-22-pi` +
-`ubuntu-core-20-pi` | Broadcom BCM2836 +
-ARM Cortex-A7 | 4 cores &#124; 1 GB RAM +
-no built-in storage | [core-22-pi-armhf]({i22-pi-armhf}) +
-[core-20-pi-armhf]({i20-pi-armhf})
+> `ubuntu-core-22-pi` +
+> `ubuntu-core-20-pi` | Broadcom BCM2836 +
+>                       ARM Cortex-A7 | 4 cores &#124; 1 GB RAM +
+>                                       no built-in storage | [core-22-pi-armhf]({i22-pi-armhf}) +
+>                                                             [core-20-pi-armhf]({i20-pi-armhf})
 
 |===
 
@@ -69,6 +70,7 @@ Ubuntu community members also work with, and produce, images for other platforms
 
 // LINKS
 
+{:begin Links}
 :key:i24-pi-arm64  https://cdimage.ubuntu.com/ubuntu-core/24/stable/current/ubuntu-core-24-arm64+raspi.img.xz
 :key:i24-amd64     https://cdimage.ubuntu.com/ubuntu-core/24/stable/current/ubuntu-core-24-amd64.img.xz
 :key:i22-pi-armhf  https://cdimage.ubuntu.com/ubuntu-core/22/stable/current/ubuntu-core-22-armhf+raspi.img.xz
@@ -88,3 +90,4 @@ Ubuntu community members also work with, and produce, images for other platforms
 :key:i18-nuc       https://cdimage.ubuntu.com/ubuntu-core/18/stable/current/ubuntu-core-18-amd64.img.xz
 :key:i18-amd64     https://cdimage.ubuntu.com/ubuntu-core/18/stable/current/ubuntu-core-18-amd64.img.xz
 :key:i18-i386      https://cdimage.ubuntu.com/ubuntu-core/18/stable/current/ubuntu-core-18-i386.img.xz
+{:end Links}

@@ -126,14 +126,15 @@ It can also contain a non-delimited code block introduced with "+" on an empty l
 Arcadam does not support all the table formatting options of AsciiDoc. 
 
 The only supported format letter is "h" (header row or column).
+If it is combined with other formatting "h" must be added after the alignment symbols.
 
 ```
-[cols="h,6*>",rows="h,^"]
+[cols="h,6*>",rows="h,.^"]
 |===
 || jan | feb | mar | apr | may | jun
 |:::
 | Quarter +
-2022
+> 2022
 3+^| Q1
 3+^| Q2
 
@@ -176,6 +177,9 @@ The attributes for the default use of each kind of block are:
 ```
 [group]
 --
+
+[quoted]
+___
 
 [example]
 ====
