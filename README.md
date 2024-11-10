@@ -378,8 +378,8 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 [!input input-id= Default value]
 
 [checkbox]
-|+| Checkbox description
-| | Unchecked checkbox
+|+| Checkbox description | value
+| | Unchecked checkbox description
 
 [options,value="choice 2"]
 * choice 1
@@ -401,7 +401,9 @@ a checkbox description or text for an option appears in the second column.
 All form elements can have a value. If an element also has an id then the
 value becomes a replacement value using the id of the element as key. In case of
 a checkbox, the replacement value is only defined when the checkbox is
-checked. In case of options, if the list is a description list then the
+checked. The default value is "on".
+
+In case of options, if the list is a description list then the
 item is used as value and the description as text. If the list is
 a numbered list then the item number is used as value. If the list is
 a bullet list then the text is used both as value and as text.
