@@ -411,17 +411,18 @@ a bullet list then the text is used both as value and as text.
 Buttons have an action and are displayed when the output format allows
 user interaction. The "submit" action sends the replacement values set in
 the form to the target. The "cancel" action abandons the form and loads
-the target. The "clear" action clears all the selections. The "call"
-action sends information about the button to a predefined function with
-the name that follows and with the target as parameter.
+the target. The "clear" action clears all the selections.
 
 The cancel and clear buttons show a dialog asking for confirmation
 if the user made any changes. A button can be activated by clicking a
-picture used as button label:
+picture used as button label. The "call" custom control sends
+information about the button to a predefined function with the name
+and the parameter value that follow. For example:
 
 ```
 :key:submit-button [?image](submit-button.png)
-[?submit {submit-button}](target)
+:key:submit-action [?call my-function](param)
+[?submit {submit-button}]({submit-action})
 ```
 
 ### Tabs
