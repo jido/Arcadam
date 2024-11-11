@@ -62,6 +62,7 @@ multi line
 [list]
 . Number one
 
+= Block title
 ${backtick}${backtick}${backtick}
 unindented code block
   indented line inside code block
@@ -166,7 +167,7 @@ type lineType =
   | List
 
 let consumeBlockTitle = line => {
-  let blockTitleLine = %re("/^\.([^\s].*)$/")
+  let blockTitleLine = %re("/^=\s+(.*)$/")
   switch blockTitleLine->getMatches(line) {
   | [_, title] => [BlockTitle(title)]
   | _ => []
@@ -278,7 +279,7 @@ let tokeniseInitialLine = (line, tok, lnum) => {
   | _ => {
       let chara = Js.String.charAt(0, line)
       switch chara {
-      | "." =>
+      | "=" =>
         let tokens = consumeBlockTitle(line)
         switch tokens {
         | [BlockTitle(_title)] => resolve((tok->Array.concat(tokens), Initial, lnum))
@@ -421,7 +422,7 @@ let parseAttribute = (atext, attributes) => {
 }
 
 let parseMarker = atext => {
-  let pattern = `^\\s*([!-@^][${alpha}]([${alnum}])*)`
+  let pattern = `^\\s*([!-@[-${backtick}|~][${alpha}]([${alnum}])*)`
   let markerExpr = Js.Re.fromString(pattern)
   switch markerExpr->getMatches(atext) {
   | [_, name, _] => Js.log2("Parse: marker", name)

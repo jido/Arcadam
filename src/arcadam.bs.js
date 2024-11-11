@@ -12,7 +12,7 @@ var Belt_HashMapString = require("rescript/lib/js/belt_HashMapString.js");
 
 var backtick = "`";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:key:subs value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n___\nQuote text using\nunderscores\n___\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n** first sublist\n\n  * sublist\n  * one more\n   1... nested numbered list\n   on two lines\n   ... nested 2\n* Third\n[list]\n. Number one\n\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text without\n  * line breaks is added\n  to a code block\n\n  Normal paragraph after code block\n\n  Another paragraph\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[-begin region]:\nThis text can be included\non its own.\n[-end region]:\nNew block starts after marker\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:key:subs value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n___\nQuote text using\nunderscores\n___\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n** first sublist\n\n  * sublist\n  * one more\n   1... nested numbered list\n   on two lines\n   ... nested 2\n* Third\n[list]\n. Number one\n\n= Block title\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text without\n  * line breaks is added\n  to a code block\n\n  Normal paragraph after code block\n\n  Another paragraph\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[-begin region]:\nThis text can be included\non its own.\n[-end region]:\nNew block starts after marker\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
 
 var alpha = "A-Za-z";
 
@@ -64,7 +64,7 @@ function specialCharsStep(text) {
 }
 
 function consumeBlockTitle(line) {
-  var blockTitleLine = /^\.([^\s].*)$/;
+  var blockTitleLine = /^=\s+(.*)$/;
   var match = getMatches(blockTitleLine, line);
   if (match.length !== 2) {
     return [];
@@ -303,24 +303,29 @@ function tokeniseInitialLine(line, tok, lnum) {
                       "Following",
                       lnum
                     ]);
-      case "." :
-          var tokens$3 = consumeBlockTitle(line);
+      case ":" :
+          var tokens$3 = consumeSubstitution(line);
           var exit = 0;
-          if (tokens$3.length !== 1) {
+          if (tokens$3.length !== 2) {
             exit = 2;
           } else {
-            var _title = tokens$3[0];
-            if (typeof _title !== "object") {
+            var _name = tokens$3[0];
+            if (typeof _name !== "object" || _name.TAG !== "SubstitutionDef") {
               exit = 2;
             } else {
-              if (_title.TAG === "BlockTitle") {
-                return Promise.resolve([
-                            Belt_Array.concat(tok, tokens$3),
-                            "Initial",
-                            lnum
-                          ]);
+              var _value = tokens$3[1];
+              if (typeof _value !== "object") {
+                exit = 2;
+              } else {
+                if (_value.TAG === "Text") {
+                  return Promise.resolve([
+                              Belt_Array.concat(tok, tokens$3),
+                              "Initial",
+                              lnum
+                            ]);
+                }
+                exit = 2;
               }
-              exit = 2;
             }
           }
           if (exit === 2) {
@@ -329,52 +334,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      286,
-                      10
-                    ],
-                    Error: new Error()
-                  };
-            }
-            var tokens$4 = consumeRegularLine(line);
-            return Promise.resolve([
-                        Belt_Array.concat(tok, tokens$4),
-                        "Following",
-                        lnum
-                      ]);
-          }
-          break;
-      case ":" :
-          var tokens$5 = consumeSubstitution(line);
-          var exit$1 = 0;
-          if (tokens$5.length !== 2) {
-            exit$1 = 2;
-          } else {
-            var _name = tokens$5[0];
-            if (typeof _name !== "object" || _name.TAG !== "SubstitutionDef") {
-              exit$1 = 2;
-            } else {
-              var _value = tokens$5[1];
-              if (typeof _value !== "object") {
-                exit$1 = 2;
-              } else {
-                if (_value.TAG === "Text") {
-                  return Promise.resolve([
-                              Belt_Array.concat(tok, tokens$5),
-                              "Initial",
-                              lnum
-                            ]);
-                }
-                exit$1 = 2;
-              }
-            }
-          }
-          if (exit$1 === 2) {
-            if (!Caml_obj.equal(tokens$5, [])) {
-              throw {
-                    RE_EXN_ID: "Assert_failure",
-                    _1: [
-                      "arcadam.res",
-                      305,
+                      306,
                       10
                     ],
                     Error: new Error()
@@ -382,6 +342,46 @@ function tokeniseInitialLine(line, tok, lnum) {
             }
             return Promise.resolve([
                         consumeRegularLine(line),
+                        "Following",
+                        lnum
+                      ]);
+          }
+          break;
+      case "=" :
+          var tokens$4 = consumeBlockTitle(line);
+          var exit$1 = 0;
+          if (tokens$4.length !== 1) {
+            exit$1 = 2;
+          } else {
+            var _title = tokens$4[0];
+            if (typeof _title !== "object") {
+              exit$1 = 2;
+            } else {
+              if (_title.TAG === "BlockTitle") {
+                return Promise.resolve([
+                            Belt_Array.concat(tok, tokens$4),
+                            "Initial",
+                            lnum
+                          ]);
+              }
+              exit$1 = 2;
+            }
+          }
+          if (exit$1 === 2) {
+            if (!Caml_obj.equal(tokens$4, [])) {
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "arcadam.res",
+                      287,
+                      10
+                    ],
+                    Error: new Error()
+                  };
+            }
+            var tokens$5 = consumeRegularLine(line);
+            return Promise.resolve([
+                        Belt_Array.concat(tok, tokens$5),
                         "Following",
                         lnum
                       ]);
@@ -413,7 +413,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      313,
+                      314,
                       10
                     ],
                     Error: new Error()
@@ -530,7 +530,7 @@ function consumeLine(tok, lnum) {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
                           "arcadam.res",
-                          357,
+                          358,
                           8
                         ],
                         Error: new Error()
@@ -561,7 +561,7 @@ function consumeLine(tok, lnum) {
                           RE_EXN_ID: "Assert_failure",
                           _1: [
                             "arcadam.res",
-                            362,
+                            363,
                             10
                           ],
                           Error: new Error()
@@ -673,7 +673,7 @@ function parseAttribute(atext, attributes) {
 }
 
 function parseMarker(atext) {
-  var pattern = "^\\s*([!-@^][" + alpha + "]([" + alnum + "])*)";
+  var pattern = "^\\s*([!-@[-" + backtick + "|~][" + alpha + "]([" + alnum + "])*)";
   var markerExpr = new RegExp(pattern);
   var k = getMatches(markerExpr, atext);
   if (k.length !== 3) {
