@@ -552,7 +552,24 @@ A custom element can be used anywhere. It always starts with a special character
 Note that there is a limited choice of special characters so an inline custom control can be used instead when adding a customisation.
 
 A custom marker applies to the following paragraph or block. It must be on its own line.
-A custom marker always starts with a special character. The optional ">" symbol at the beginning of the lines that follow is removed in the output.
+A custom marker always starts with a special character.
+The optional ">" symbol at the beginning of the lines that follow is removed in the output.
+
+
+A custom marker can be followed by a single character on the same line to change the paragraph or block visibility.
+
+The options are:
+
+| character  | visibility
+|:----------:|------------
+|    `+`     | visible
+|    `-`     | hidden
+|    `>`     | expanded
+|    `^`     | collapsed
+
+The default option is set by the custom marker.
+If the output format is interactive, the viewer can switch between collapsed or expanded.
+By default the block title is used as the toggle.
 
 ### Block Title
 
