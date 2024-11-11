@@ -232,3 +232,30 @@ Note that header elements are not recognised in the middle of a paragraph.
 It is recommended to always leave an empty line after the end of a paragraph.
 
 A block boundary *without* an attribute in the line above can be either a block ending or the start of a non-nested block.
+
+## Empty element
+
+The empty element {:empty} or {:drop}, is not a character. It is an empty value.
+It can be used when some text is expected but you don't want to provide any.
+
+It can be used to unset a replacement value:
+
+```
+:key:toc {:drop}
+```
+
+Or to add a list item without any text:
+
+```
+  * {:empty}
+```
+
+It can also be used to create an empty code block so that the next block is an indented paragraph instead of a code block:
+
+```
+  {:empty}```
+
+  Indented paragraph
+```
+
+The latter should be used sparingly as it could cause confusion. 
