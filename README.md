@@ -193,9 +193,9 @@ Content captions are set using a [Block Title](#block-title).
 * Second bullet
 * Third bullet
 
-Item 1:: First description
-Item 2:: Second description
-Item 3:: Third description
++ Item 1: First description
++ Item 2: Second description
++ Item 3: Third description
 ```
 
 Number 1 for the first item is optional and no other number is permitted.
@@ -205,9 +205,8 @@ non-indented list item is automatically nested. Differences in the level
 of whitespace has no effect.
 
 An indented list cannot start in the middle of an indented paragraph, there must be an empty line in-between.
-Ordered and unordered list markers can be repeated to indicate the level,
-just like [headers](#headers). Additional levels can be used in a 
-description list by adding another ":" each time.
+The list markers can be repeated to indicate the level,
+just like [headers](#headers).
 
 Note that these levels are not enforced so there could be a list level 1 (`*`)
 nested inside a list level 2 (`**`). It is good style to match the marker
@@ -693,12 +692,12 @@ get '/hi' do
   # {3}```
 end
 
-#   {:syntax ruby}```
+#   {:in ruby}```
 ```
 
-[?info Import](1):: Library import
-[?info Mapping](2):: URL mapping
-[?info Response](3):: HTTP response body
+  + [?info Import](1): Library import
+  + [?info Mapping](2): URL mapping
+  + [?info Response](3): HTTP response body
 ~~~
 
 For automatic callout numbering use `{#}` and `(#)` instead of numbers.

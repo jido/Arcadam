@@ -19,7 +19,7 @@ Want to learn more about image optimization challenges? Read the Conceptual Guid
   ```
   npm install gatsby-plugin-image gatsby-plugin-sharp gatsby-source-filesystem gatsby-transformer-sharp
 
-    {:syntax shell}```
+    {:in shell}```
   ```
 
   1. Add the plugins to your `gatsby-config.js`:
@@ -34,7 +34,7 @@ Want to learn more about image optimization challenges? Read the Conceptual Guid
     ],
   }
 
-    {:syntax js}```
+    {:in js}```
   ```
 
 If you already have some of these plugins installed, please check that they're updated to the latest version.
@@ -70,7 +70,7 @@ If you are using an image that will be the same each time the component is used,
      return <StaticImage src="../images/dino.png" alt="A dinosaur" />
    }
 
-     {:syntax jsx}```
+     {:in jsx}```
    ```
 
    If you are using a remote image, pass the image URL in the `src` prop:
@@ -83,7 +83,7 @@ If you are using an image that will be the same each time the component is used,
      return <StaticImage src="https://placekitten.com/800/600" alt="A kitten" />
    }
 
-     {:syntax jsx}```
+     {:in jsx}```
    ```
 
    When you build your site, the `StaticImage` component will load the image from your filesystem or from the remote URL, and it will generate all the sizes and formats that you need to support a responsive image.
@@ -116,7 +116,7 @@ Remote images are downloaded and resized at build time. If the image is changed 
     )
   }
 
-    {:syntax jsx}```
+    {:in jsx}```
   ```
 +
 [NOTE]
@@ -146,7 +146,7 @@ If you need to have dynamic images (such as if they are coming from a CMS), you 
       # highlight-end
     }
   }
-    {:syntax graphql}```
+    {:in graphql}```
   ```
 
   1. *Configure your image.*
@@ -173,7 +173,7 @@ If you need to have dynamic images (such as if they are coming from a CMS), you 
       }
     }
   }
-    {:syntax graphql}```
+    {:in graphql}```
   ```
 
   1. *Display the image.*
@@ -218,7 +218,7 @@ If you need to have dynamic images (such as if they are coming from a CMS), you 
      }
    `
 
-     {:syntax jsx}```
+     {:in jsx}```
    ```
 
 
@@ -255,7 +255,7 @@ The following configuration describes the options that can be customized along w
     ],
   }
 
-    {:syntax javascript}```
+    {:in javascript}```
   ```
 
 
@@ -341,7 +341,7 @@ This is an example of a hero image component with text overlaying an image backg
     )
   }
 
-    {:syntax jsx}```
+    {:in jsx}```
   ```
 
 
@@ -397,7 +397,7 @@ If you're running into issues getting everything to work together we recommend f
       }
     }
   }
-    {:syntax graphql}```
+    {:in graphql}```
   ```
 
   Do you see results with `.cache/caches/gatsby-plugin-image` in the path?
