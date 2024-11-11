@@ -70,7 +70,6 @@ a block.
 
 ### Text Formatting
 
-[code=asciidoc]
   ```
   This is *bold*
   
@@ -85,6 +84,8 @@ a block.
   This is #highlighted#
   
   This is +_normal text_ (no style)+
+  
+    {:syntax asciidoc}```
   ```
 
 Styles can be combined. Any style can be used in the middle of a word by
@@ -93,13 +94,14 @@ don't require doubling.
 
 Example:
 
-[code=asciidoc]
   ```
   *_Combine bold and italic_*
   
   the "it" is __it__alic
   
   superscri^pt^ for "pt"
+  
+    {:syntax asciidoc}```
   ```
 
 To enter text which contains format markers, enclose the text with "+" to prevent
@@ -683,7 +685,6 @@ on its own
 
 [code=ruby]
 ....
-[code=ruby]
   ```
   require 'sinatra'
   # {1}```
@@ -693,6 +694,8 @@ on its own
     "Hello World!"
     # {3}```
   end
+  
+  #   {:syntax ruby}```
   ```
 
 [?info Import](1):: Library import

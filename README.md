@@ -683,7 +683,6 @@ the line.
 ### Callouts
 
 ~~~Eiffel
-[code=ruby]
 ```
 require 'sinatra'
 # {1}```
@@ -693,6 +692,8 @@ get '/hi' do
   "Hello World!"
   # {3}```
 end
+
+#   {:syntax ruby}```
 ```
 
 [?info Import](1):: Library import

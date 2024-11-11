@@ -298,7 +298,6 @@ We have just shown you how you can start adding `.Rmd` content to your website. 
 
 For example, you may see configurations like these in `config.yaml`:
 
-[code=yaml]
   ```
   baseurl: /
   title: A Hugo website
@@ -319,6 +318,8 @@ For example, you may see configurations like these in `config.yaml`:
         url: https://github.com/rstudio/blogdown
       - name: Twitter
         url: https://twitter.com/rstudio
+
+    {:syntax yaml}```
   ```
 
 You can change the website title, e.g., `title: "My own cool website"`, and update the GitHub and Twitter URLs.
