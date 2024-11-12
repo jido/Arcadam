@@ -89,8 +89,10 @@ This is +_normal text_ (no style)+
 ```
 
 Styles can be combined. Any style can be used in the middle of a word by
-doubling the format markers, except for superscript and subscript which
-don't require doubling.
+doubling the format markers (loose formatting), except for superscript and subscript which
+don't require doubling. Single format markers are applied first then
+loose format markers, from left to right. Format markers cannot cross a
+boundary.
 
 Example:
 
@@ -102,18 +104,36 @@ the "it" is __it__alic
 superscri^pt^ for "pt"
 ```
 
-To enter text which contains format markers, enclose the text with "+" to prevent
-the generator from interpreting them.
+To enter text which contains format markers, enclose the text with "`" (monospaced text)
+or with "+" (regular text) to prevent the generator from interpreting the text.
+
+However loose format markers don't affect strict format markers which means text inside double "`" can be bold or italic.
+The formatter ignores a single format marker enclosed with the same marker which is doubled, unless they touch in which
+case a backslash escape \ must be used.
+
+Example:
+
+```markdown
+``monospac~ed~ with *bold* and _italic_ words``
+
+**there *are* bold asterisks**
+
+backtick monospaced: ``\```
+
+++**asterisks** and +pluses\+++
+```
 
 When applying multiple styles in combination, they must be in the following order:
 
-```
-#~`*_+Combined style+_*`~#
-```
+|  Format marker | Style                  |
+|:--------------:|------------------------|
+|      `#`       | highlighted            |
+|     `~ ^`      | subscript, superscript |
+|      `*`       | bold                   |
+|      `_`       | italics                |
+|   `` ` + ``    | monospaced, no style   |
 
-Subscript cannot be combined with superscript. They are both ignored
-in the middle of monospace text. Double format markers can be used for
-portions of the text as long as it is interpreted by the generator.
+Subscript cannot be combined with superscript and monospaced cannot be combined with unstyled.
 
 ### Breaks
 

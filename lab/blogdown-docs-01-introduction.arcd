@@ -1,7 +1,9 @@
-# {!num} Get Started
-
+= Get Started
 :key:role mainmatter
 
+---
+
+# {!num} Get Started
 
 In this chapter, we show how to create a simple website from scratch using *blogdown*. The website will contain a home page, an "About" page, one R Markdown post, and two plain Markdown posts. You will learn the basic concepts for creating websites with *blogdown*. 
 
