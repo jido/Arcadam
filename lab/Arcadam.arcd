@@ -116,25 +116,7 @@ Example:
 To enter text which contains format markers, enclose the text with "`" (monospaced text)
 or with "+" (regular text) to prevent the generator from interpreting the text.
 
-However loose format markers don't affect strict format markers which means text inside double "`" can be bold or italic.
-The formatter ignores a single format marker enclosed by the same marker which is doubled, unless they touch in which
-case a backslash escape \ must be used.
-
-Example:
-
-  ```
-  ``monospac~ed~ with *bold* and _italic_ words``
-  
-  **there *are* bold asterisks**
-  
-  backtick monospaced: ``\```
-  
-  ++**asterisks** and +pluses\+++
-  
-    {:in markdown}```
-  ```
-
-When applying multiple styles in combination, they must be in the following order:
+When applying multiple styles in combination they must be in the following order:
 
 [cols="^,<"]
 |===

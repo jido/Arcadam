@@ -258,4 +258,62 @@ It can also be used to create an empty code block so that the next block is an i
   Indented paragraph
 ```
 
-The latter should be used sparingly as it could cause confusion. 
+The latter should be used sparingly as it could cause confusion.
+
+## Text formatting
+
+Unlike AsciiDoc, Arcadam does not require to enclose text with backtick and plus
+to prevent the processor from interpreting the contents:
+
+    `do *not* __mess__ with my code`
+
+Enclosing with backtick is sufficient.
+
+However loose format markers don't affect strict format markers which means text inside double "`" can be bold or italic.
+The formatter ignores a single format marker enclosed with the same marker which is doubled, unless they touch in which
+case a backslash escape \ must be used.
+
+Example:
+
+```markdown
+``monospac~ed~ with *bold* and _italic_ words``
+
+**there *are* bold asterisks in this text**
+
+backtick monospaced: ``\```
+
+++**asterisks** and +pluses\+++
+```
+
+The backslash is not interpreted inside strict monospaced or unstyled text markers.
+Some more complex examples are:
+
+    **A``B** `C` D``
+
+In this case only "C" is monospaced since "A``B" is bold which makes a boundary around the two letters,
+and the formatter works from left to right.
+
+But "C" is enclosed with double backticks "``", so should the monospaced markers be ignored?
+They would only be if the double backticks were used as format markers which is not the case here.
+
+    ``+not `` *styled*+``
+
+Although the formatter works from left to right, it applies strict formatting first—in this case
+it is the "unstyled" formatting that comes first.
+The double backtick inside the text is therefore not interpreted and the output contains `not `` *styled*` in monospaced format.
+
+    +_x_\+ ^2^+
+
+The underscores around "x" are preserved thanks to the "+" format markers, but so is the backslash.
+The output contains the text: `_x_\ ²+`.
+To preserve the middle plus instead, the two parts should be surrounded by separate pairs of "+":
+
+    +_x_+\+ +^2^+
+
+Note the backslash escape to separate the two plus signs.
+
+    ``\`ls -l *| cut -d \\* -f1 \```
+
+Here the middle part with "cut -d" is in bold.
+Single backticks cannot be used to stop it because they are part of the text, but backslash escape
+can be applied on the asterisk to prevent the bold formatting.
