@@ -10,11 +10,14 @@ The syntax of Arcadam is heavily inspired by AsciiDoc and by Markdown.
 ### Headers
 
 ```
-# Document Title
+= Document Title
+---
 
-## Level 1 Section Title
+# Level 1 Section Title
 
-### Level 2 Section Title...
+## Level 2 Section Title
+
+### Level 3 Section Title...
 ```
 
 Use "#" in front of the header, repeated as needed to increase the level.
@@ -26,11 +29,11 @@ as the authors or a marker for the generator to insert a table of contents.
 Example:
 
 ```IDL
-# Document title
-
+= Document title
 :key:authors Author Name <author@email.org>
 :key:revision v2.0, 2019-03-22
 :key:toc
+---
 ```
 
 ### Paragraphs
