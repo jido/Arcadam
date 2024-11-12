@@ -49,7 +49,7 @@ The rule is:
 > 
 > *If an indented block follows a non-indented line then it is treated as a code block.*
 > 
-> *A list item is not treated as a normal paragraph or code block.*
+> *A list item is considered as a normal paragraph.*
 
 List items are recognised by looking at the first line of the block.
 
