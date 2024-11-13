@@ -317,3 +317,17 @@ Note the backslash escape to separate the two plus signs.
 Here the middle part with "cut -d" is in bold.
 Single backticks cannot be used to stop it because they are part of the text, but backslash escape
 can be applied on the asterisk to prevent the bold formatting.
+Alternatively you could use unstyled formatting since there is no "+" in the text:
+
+    ``+`ls -l *| cut -d \* -f1 `+``
+
+Last example:
+
+    __``a `*b c` d``__
+    __``a `*b c` d``__ More*
+
+On the first line, the whole inside part has italic monospaced style applied.
+
+On the second line the strict bold formatting is applied first.
+The output contains `__``a `\` then `b c`\`` d``__ More` in bold.
+Escape the final asterisk with `\*` to restore the original format.
