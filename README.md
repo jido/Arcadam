@@ -602,7 +602,7 @@ image loads the (first) link.
 
 ### Escape character
 
-The backslash "\" is used to prevent the generator from interpreting the
+The backslash "\\" is used to prevent the generator from interpreting the
 following character specially.
 
 Example:
