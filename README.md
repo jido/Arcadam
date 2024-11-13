@@ -7,7 +7,7 @@ A lightweight markup language to format documents using plain text
 
 The syntax of Arcadam is heavily inspired by AsciiDoc and by Markdown.
 
-### Headers
+### Headings
 
 ```
 = Document Title
@@ -20,7 +20,7 @@ The syntax of Arcadam is heavily inspired by AsciiDoc and by Markdown.
 ### Level 3 Section Title...
 ```
 
-Use "#" in front of the header, repeated as needed to increase the level.
+Use "#" in front of the heading, repeated as needed to increase the level.
 
 There must be only one document title in the document. The document title may be followed immediately by an
 optional document header which contains metadata related to the document, such
@@ -109,13 +109,13 @@ or with "+" (regular text) to prevent the generator from interpreting the text.
 
 When applying multiple styles in combination they must be in the following order:
 
-|  Format marker | Style                  |
-|:--------------:|------------------------|
-|      `#`       | highlighted            |
+|  Format marker | Style                 |
+|:--------------:|-----------------------|
+|      `#`       | highlighted           |
 |     `~ ^`      | subscript, superscript |
-|      `*`       | bold                   |
-|      `_`       | italics                |
-|   `` ` + ``    | monospaced, no style   |
+|      `*`       | bold                  |
+|      `_`       | italic                |
+|   `` ` + ``    | monospaced, no style  |
 
 Subscript cannot be combined with superscript and monospaced cannot be combined with unstyled.
 
@@ -161,7 +161,7 @@ with an asterisk "*". It will be automatically set to the file extension
 associated with the output format.
 
 When the output format allows it, footnotes {`^`} and bibliographic references
-{`>`} are also hyperlinks. The initial ">" on the line that follows a marker is optional.
+{`>`} are also hyperlinks.
 
 Example:
 
@@ -171,6 +171,9 @@ There are contractual implications to this statement.{^terms}
 [^terms]:
 > Please refer to our Terms and Conditions {>T&C} for more information.
 ```
+
+> [!NOTE]
+> The initial ">" on the lines that follows a marker is optional.
 
 ### Inline Content
 
@@ -213,7 +216,7 @@ of whitespace has no effect.
 
 An indented list cannot start in the middle of an indented paragraph, there must be an empty line in-between.
 The list markers can be repeated to indicate the level,
-just like [headers](#headers).
+just like [headings](#headings).
 
 Note that these levels are not enforced so there could be a list level 1 (`*`)
 nested inside a list level 2 (`**`). It is good style to match the marker
@@ -459,7 +462,7 @@ This is the contact tab
 ```
 
 If a block title is defined for a tab then that replaces the item in the
-tablist for the tab title.
+tablist as the tab title.
 
 When the output format allows user interaction then the chosen tab is
 displayed and other tabs display only their titles. Tabset content that
@@ -477,8 +480,8 @@ a term. The tablist "value" attribute defines the initial tab selection.
 ### Mathematical Notation
 
 ```C
-= Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif) \
-where {`a}, {`b} and {`c} are the side lengths. 
+= Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif)
+> where {`a}, {`b} and {`c} are the side lengths. 
 ....
 // Comments, replacement values and callouts are allowed
 mtable(
@@ -562,12 +565,12 @@ A custom marker can be followed by a single character on the same line to change
 
 The options are:
 
-| character  | visibility |
-|:----------:|------------|
-|    `+`     | visible    |
-|    `-`     | hidden     |
-|    `>`     | expanded   |
-|    `^`     | collapsed  |
+| character  | display option |
+|:----------:|----------------|
+|    `+`     | visible        |
+|    `-`     | hidden         |
+|    `>`     | expanded       |
+|    `^`     | collapsed      |
 
 The default option is set by the custom marker.
 If the output format is interactive, the viewer can switch between collapsed or expanded. 
@@ -587,7 +590,11 @@ apples,oranges,pears
 ```
 
 A block title starts with "=" and a space. It comes before the
-attributes.
+attributes. A block title can continue on more than one line;
+then any additional line must begin with a ">".
+
+If a document starts with a block title applied to
+a horizontal line, it is used as the document title.
 
 If a block title is added to a block image, it is used as caption.
 Additionally, if the image caption contains a link then clicking on the
@@ -605,7 +612,7 @@ Example:
 ```
 
 See also [Text Formatting](#text-formatting) to prevent format markers from
-being interpreted over a span of text using "+".
+being interpreted over a span of text using "+" or "`".
 
 ### Replacement values
 
@@ -843,5 +850,5 @@ a special replacement value called "steps" followed by the style class.
 Example:
 
 ```IDL
-:key:steps.formatted substitute, format, symbols
+:key:steps.formatted replace, format, symbols
 ```
