@@ -204,7 +204,7 @@ Example:
 An indented paragraph that follows an indented list item is automatically attached to it.
 
 Use "+" on an empty line to attach a paragraph to a non-indented list item.
-If the paragraph is indented then it is attached as a code block unless it has ">" before the indent.
+If the paragraph is indented then it is attached as a code block unless the indent begins with ">".
 
 Additional lines of a non-indented list item can optionally be indented using ">" at the
 beginning of each. That can continue for multiple paragraphs with an empty ">" line
@@ -296,8 +296,9 @@ If a document starts with a block title applied to
 a horizontal line, it is used as the document title.
 
 If a block title is added to a block image, it is used as caption.
-Additionally, if the image caption contains a link then clicking on the
+If the image caption contains a link then clicking on the
 image loads the (first) link.
+In indented text the block title must be the first line of a paragraph.
 
 ### Replacement values
 
@@ -750,6 +751,7 @@ block
 ```
 
 Comments are for information only.
+Only line comments can be used in an indented paragraph.
 
 ### Localisation
 

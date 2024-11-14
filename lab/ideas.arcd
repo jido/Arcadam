@@ -212,3 +212,59 @@ Add term to index without output :-(
 . Item 09
 . Item 0A
 
+
+# Admonitions
+
+Github uses this syntax:
+
+> [!NOTE]
+> Note contents here
+
+Custom control syntax:
+[!NOTE]
+
+If it is in indented context, can't use [NOTE] attribute. So would be good to have the option of using custom control.
+
+It may just insert the admonition icon though, might not change the paragraph styling unless you use styling tricks.
+
+* List item
+> [!TIP]
+> Here is a tip
+  * Sublist
+  [!WARNING]
+  I want to warn you
+
+
+# Indented commands
+
+Would be nice if more things could work in indented context. We already have:
+
+- List items
+- Code blocks
+- Enumerations
+- Standalone custom controls(?)
+
+Only list items and code blocks are competing for the first indented block.
+The other objects must be in indented paragraph context.
+How about adding single-line comment to the list?
+
+  * indented list item
+
+  Indented paragraph attached to the list
+  // Comment here
+  
+  // or in first line of paragraph
+  
+* Non-indented list item
+> // Comment here
+> continuation of list item
+
+Attributes -> no
+Markers -> maybe? not keen
+Section heading -> no
+Breaks -> maybe? don't think it's needed
+Block title?
+
+* A block title comes on the first line
+* It starts with "=" and space
+* It can be applied to other things than a block: image caption...
