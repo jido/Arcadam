@@ -192,9 +192,7 @@ Among all YAML fields, we want to bring these to your attention:
 
 * {+`publishdate`}: You may specify a future date to publish a post. Similar to draft posts, future posts are only rendered in the local preview mode.
 
-// \index{Post Weight}
-
-* {+`weight`}: This field can take a numeric value to tell Hugo the order of pages when sorting them, e.g., when you generate a list of all pages under a directory, and two posts have the same date, you may assign different weights to them to get your desired order on the list.
+* {+`weight`, +Post Weight}: This field can take a numeric value to tell Hugo the order of pages when sorting them, e.g., when you generate a list of all pages under a directory, and two posts have the same date, you may assign different weights to them to get your desired order on the list.
 
 * `slug`: A character string as the tail of the URL. It is particularly useful when you define custom rules for permanent URLs (see Section [?num](Options)).
 
@@ -270,9 +268,7 @@ In this section, we will explain how the default theme in *blogdown* works, whic
 
 ### {!num} The default theme
 
-// \index{Hugo Lithium Theme}
-
-The default theme in *blogdown*, {+hugo-lithium}, is hosted on GitHub at [?](https://github.com/yihui/hugo-lithium). It was originally written by Jonathan Rutheiser, and I have made several changes to it. This theme is suitable for those who prefer minimal styles, and want to build a website with a few pages and some blog posts.
+The default theme in *blogdown*, {+hugo-lithium, Hugo Lithium Theme}, is hosted on GitHub at [?](https://github.com/yihui/hugo-lithium). It was originally written by Jonathan Rutheiser, and I have made several changes to it. This theme is suitable for those who prefer minimal styles, and want to build a website with a few pages and some blog posts.
 
 Typically a theme repository on GitHub has a `README` file, which also serves as the documentation of the theme. After you read it, the next file to look for is `config.toml` under the `exampleSite` directory, which contains sample configurations for a website based on this theme. If a theme does not have a `README` file or `exampleSite` directory, you probably should not use it.
 
@@ -384,9 +380,7 @@ You can learn more about Hugo templates from the official documentation ([?](htt
 
 ### {!num} A minimal example
 
-// \index{XMin Theme}
-
-[{+XMin}](https://github.com/yihui/hugo-xmin) is a Hugo theme I wrote from scratch in about 12 hours. Roughly half an hour was spent on templates, 3.5 hours were spent on tweaking the CSS styles, and 8 hours were spent on the documentation ([?](https://xmin.yihui.org)). I think this may be a representative case of how much time you would spend on each part when designing a theme. It is perhaps our nature to spend much more time on cosmetic stuff like CSS than essential stuff like templates. Meanwhile, coding is often easier than documentation.
+[{+XMin, XMin Theme}](https://github.com/yihui/hugo-xmin) is a Hugo theme I wrote from scratch in about 12 hours. Roughly half an hour was spent on templates, 3.5 hours were spent on tweaking the CSS styles, and 8 hours were spent on the documentation ([?](https://xmin.yihui.org)). I think this may be a representative case of how much time you would spend on each part when designing a theme. It is perhaps our nature to spend much more time on cosmetic stuff like CSS than essential stuff like templates. Meanwhile, coding is often easier than documentation.
 
 We will show the source code of the XMin theme. Because the theme may be updated occasionally in the future, you may follow this link to obtain a fixed version that we will talk about in this section: [?](https://github.com/yihui/hugo-xmin/tree/4bb305). Below is a tree view of all files and directories in the theme:
 
@@ -444,9 +438,7 @@ The most important directories of a theme are `layouts/` and `static/`. HTML tem
 
 To understand `layouts/`, you must know some basics about HTML (see Section [?num](Html)) because the templates under this directory are mostly HTML documents or fragments. There are many possible types of subdirectories under `layouts/`, but we are only going to introduce two here: `_default/` and `partials/`.
 
-// \index{Partials}
-
-* The {+`_default/`} directory is where you put the default templates for your web pages. In the XMin theme, we have three templates: `single.html`, `list.html`, and `terms.html`.
+* The {+`_default/`, \_default} directory is where you put the default templates for your web pages. In the XMin theme, we have three templates: `single.html`, `list.html`, and `terms.html`.
 
   * {+`single.html`} is a template for rendering single pages. A single page basically corresponds to a Markdown document under `content/`, and it contains both the (YAML) metadata and content. Typically we want to render the page title, author, date, and the content. Below is the source code of XMin's `single.html`:
 
@@ -474,7 +466,7 @@ To understand `layouts/`, you must know some basics about HTML (see Section [?nu
 
     You see a lot of pairs of double curly braces `{{}}`, and that is how you program the templates using Hugo's variables and functions.
 
-    The template starts with a partial template `header.html`, for which you will see the source code soon. For now, you can imagine it as all the HTML tags before the body of your page (e.g., `<html><head>`). {+Partial templates} are mainly for reusing HTML code. For example, all HTML pages may share very similar `<head></head>` tags, and you can factor out the common parts into partial templates.
+    The template starts with a partial template `header.html`, for which you will see the source code soon. For now, you can imagine it as all the HTML tags before the body of your page (e.g., `<html><head>`). {+Partial templates, Partials} are mainly for reusing HTML code. For example, all HTML pages may share very similar `<head></head>` tags, and you can factor out the common parts into partial templates.
 
     The metadata of a page is included in a `<div>` element with the class `article-meta`. We recommend that you assign classes to HTML elements when designing templates, so that it will be easier to apply CSS styles to these elements using class names. In a template, you have access to many variables provided by Hugo, e.g., the `.Title` variable stores the value of the page title, and we write the title in a `<span>` in a first-level header `<h1>`. Similarly, the author and date are written in `<h2>`, but only if they are provided in the YAML metadata. The syntax `{{ with FOO }}{{ . }}{{ end }}` is a shorthand of `{{if FOO }}{{ FOO }}{{ end }}`, i.e., it saves you the effort of typing the expression `FOO` twice by using `{{ . }}`. The method `.Format` can be applied to a date object, and in this theme, we format dates in the form `YYYY/mm/dd` (`2006/01/02` is the way to specify the format in Go).
 
@@ -876,8 +868,8 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
     See [?](https://github.com/yihui/hugo-xmin/pull/7) for an implementation with examples.
 
-  + *Display categories and tags in a post if provided in its YAML.*: Add the code below where you want to place the categories and
-    {+tags} in `single.html`, e.g., in `<div class="article-meta"></div>`.
+  + *Display categories and {+tags} in a post if provided in its YAML.*: Add the code below where you want to place the categories and
+    tags in `single.html`, e.g., in `<div class="article-meta"></div>`.
 
     ```
     <p class="terms">
@@ -917,9 +909,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
     See [?](https://github.com/yihui/hugo-xmin/pull/16) for a full implementation.
 
-// \index{GitHub Edit Page}
-
-  + *Add a {+GitHub Edit button} or link to a page.*: If none of the above features look exciting to you (which would not surprise me), this little feature is really a great example of showing you the power of plain-text files and static websites, when combined with GitHub (or other services that support the online editing of plain-text files). I believe it would be difficult, if not impossible, to implement this feature in dynamic website frameworks like WordPress.
+  + *Add a {+GitHub Edit, GitHub Edit Page} button or link to a page.*: If none of the above features look exciting to you (which would not surprise me), this little feature is really a great example of showing you the power of plain-text files and static websites, when combined with GitHub (or other services that support the online editing of plain-text files). I believe it would be difficult, if not impossible, to implement this feature in dynamic website frameworks like WordPress.
 
     Basically, when you browse any text files in a repository on GitHub, you can edit them right on the page by hitting the Edit button (see Figure [?fig](#github-edit) for an example) if you have a GitHub account. If you have write access to the repository, you can commit the changes directly online, otherwise GitHub will fork the repository for you automatically, so that you can edit the file in your own repository, and GitHub will guide you to create a pull request to the original repository. When the original owner sees the pull request, he/she can see the changes you made and decide whether to accept them or not or ask you to make further changes. Although the terminology "pull request" is highly confusing to beginners,{^} it is probably the single greatest feature invented by GitHub, because it makes it so much easier for people to make contributions.
 
@@ -1046,9 +1036,7 @@ blogdown::build_dir("static")
     {:in r}```
 ```
 
-// \index{blogdown::build\_dir()}
-
-The function {+`build_dir()`} finds all Rmd files under a directory, and calls `rmarkdown::render()` to build them to the output formats specified in the YAML metadata of the Rmd files. If your Rmd files should not be rendered by a simple `rmarkdown::render()` call, you are free to provide your own code to render them in `R/build.R`. There is a built-in caching mechanism in the function `build_dir()`: an Rmd file will not be compiled if it is older than its output file(s). If you do not want this behavior, you can force all Rmd files to be recompiled every time: `build_dir(force = TRUE)`.
+The function {+`build_dir()`, blogdown::build\_dir()} finds all Rmd files under a directory, and calls `rmarkdown::render()` to build them to the output formats specified in the YAML metadata of the Rmd files. If your Rmd files should not be rendered by a simple `rmarkdown::render()` call, you are free to provide your own code to render them in `R/build.R`. There is a built-in caching mechanism in the function `build_dir()`: an Rmd file will not be compiled if it is older than its output file(s). If you do not want this behavior, you can force all Rmd files to be recompiled every time: `build_dir(force = TRUE)`.
 
 I have provided a minimal example in the GitHub repository [yihui/blogdown-static,](https://github.com/yihui/blogdown-static) where you can find two Rmd examples under the `static/` directory. One is an HTML5 presentation based on the *xaringan* package, and the other is a PDF document based on *bookdown*.
 

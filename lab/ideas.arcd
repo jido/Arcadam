@@ -1,0 +1,186 @@
+= Ideas lab
+---
+
+# Formatting algorithm
+
+* Look for possible pairs in the text starting with strict formatting
+* Left to right
+* Subscript and superscript are strict
+* Backslash escape doesn't apply inside ++ and ``
+* Combine: eliminate conflicts (e.g. bold inside italic)
+* Then loose formatting, left to right
+* Combine: eliminate conflicts (e.g. strict bold inside loose bold)
+* Are all possible pairs consumed? Result!
+
+
+# Special parts
+
+Asciidoctor: level 0 (#) is a part. Roman numerals
+
+:key:doctype book
+
+Bibliography
+[!bibliography]
+
+Index
+[!index]
+
+Glossary
+
+Preface
+
+Appendix
+etc.
+
+Not numbered sections, but appendix has its own numbering. Any part that repeats can be numbered
+
+Table of contents?
+[!table-of-contents]
+
+Abstract can or can be not a section.
+Put the section inside a block so that it is not indexed?
+Or apply the attribute to a block?
+
+
+# Quotes
+
+[quote="Captain James T. Kirk", in="Star Trek IV: The Voyage Home", date=1986, comment=funny.]   
+- After landing the cloaked Klingon bird of prey in Golden Gate park:
+>
+Everybody remember where we parked.
+
+// Enumeration can use > for next line. Here it is used to transition to the body of the quote
+// without an empty line.
+// It is called enumeration, but - is also meant to be used as quotation dash.
+
+___
+- After landing the cloaked Klingon bird of prey in Golden Gate park:
+
+Everybody remember where we parked.
+
+-- Captain James T. Kirk, Star Trek IV: The Voyage Home, 1986, funny.
+___
+
+
+// Not sure about that one
+""
+I hold it that a little rebellion now and then is a good thing,
+and as necessary in the political world as storms in the physical.
+""
+-- Thomas Jefferson, Papers of Thomas Jefferson: Volume 11
+
+["Thomas Jefferson" 1787]:
+> I hold it that a little rebellion now and then is a good thing,
+> and as necessary in the political world as storms in the physical.
+>
+> -- Papers of Thomas Jefferson: Volume 11
+
+// Bottom footer
+[verses=two lines from the poem Fog,by=Carl Sandburg]
+The fog comes
+on little cat feet.
+
+[verses=Fog,by=Carl Sandburg]
+___
+The fog comes
+on little cat feet.
+
+It sits looking
+over harbor and city
+on silent haunches
+and then moves on.
+___
+
+
+// Top title
+// Author in footer
+= Fog
+[verses]
+___
+The fog comes
+on little cat feet.
+
+It sits looking
+over harbor and city
+on silent haunches
+and then moves on.
+
+-- Carl Sandburg
+___
+
+[verses]
+___
+# Fog
+
+The fog comes
+on little cat feet.
+
+It sits looking
+over harbor and city
+on silent haunches
+and then moves on.
+
+-- Carl Sandburg
+___
+
+
+// Author under title
+= Fog
+[verses, by=Carl Sandburg]
+___
+The fog comes
+on little cat feet.
+
+It sits looking
+over harbor and city
+on silent haunches
+and then moves on.
+___
+
+= Title
+[verses=Comment, by=Author, date=Date]
+___
+Contents
+
+-- [Author, [Date,]] Footer text
+___
+// Without title -> author, date, footer text and comment in footer
+// And without footer text -> replaced by comment in footer
+
+
+# Counters
+
+[!get-counter a] -> a = 1
+
+[!get-next a] -> a = 2
+
+parameter: initial value 99, step +2
+can be negative
+
+{a}
+
+{:next a} -> increment and insert in document
+
+Initial value a letter, roman numeral, greek letter, other language...
+
+z -> aa, ab ...
+foo -> fop, foq, for...
+
+Prefix to insert before the counter value
+
+[!get-counter a=5]("Chapter ")
+
+
+# Index
+
+* {+term}
+Add to index and output term
+
+* {+word, term, ...}
+Add term(s) to index and output word
+
+* {+term1, +term2}
+Add both term1 and term2 to index and output term1
+
+* {+,term}
+Add term to index without output :-(
