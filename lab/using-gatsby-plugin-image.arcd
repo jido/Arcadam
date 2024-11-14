@@ -4,6 +4,9 @@ examples:
 - label: Using Gatsby Image
   href: "https://github.com/gatsbyjs/gatsby/tree/master/examples/using-gatsby-image"
 ---
+= Using the Gatsby Image plugin
+
+---
 
 _If you're looking for a guide on using the deprecated `gatsby-image` package, it can be found in the [How to use Gatsby Image](/docs/how-to/images-and-media/using-gatsby-image) doc._
 
@@ -23,8 +26,8 @@ Want to learn more about image optimization challenges? Read the Conceptual Guid
   ```
 
   1. Add the plugins to your `gatsby-config.js`:
-+
-= gatsby-config.js
+
+  = gatsby-config.js
   ```
   module.exports = {
     plugins: [
@@ -62,27 +65,7 @@ If you are using an image that will be the same each time the component is used,
 
    Import the component, then set the `src` prop to point to the image you added earlier. The path is relative to the source file itself. If your component file was `src/components/dino.js`, then you would load the image like this:
 
-   [!include staticImageListing1]
-
-   If you are using a remote image, pass the image URL in the `src` prop:
-
-   [!include staticImageListing2]
-
-   When you build your site, the `StaticImage` component will load the image from your filesystem or from the remote URL, and it will generate all the sizes and formats that you need to support a responsive image.
-
-   Because the image is loaded at build time, you cannot pass the filename in as a prop, or otherwise generate it outside of the component. It should either be a static string, or a local variable in the component's scope.
-
-   [!include staticImageNotes]
-
-////
-
-{:begin staticImageNotes}
-[IMPORTANT]
-Remote images are downloaded and resized at build time. If the image is changed on the other server, it will not be updated on your site until you rebuild.
-{:end staticImageNotes}
-
-{:begin staticImageListing1}
-= src/components/dino.js
+   = src/components/dino.js
    ```
    import { StaticImage } from "gatsby-plugin-image"
 
@@ -92,10 +75,10 @@ Remote images are downloaded and resized at build time. If the image is changed 
 
      {:in jsx}```
    ```
-{:end staticImageListing1}
 
-{:begin staticImageListing2}
-= src/components/kitten.js
+   If you are using a remote image, pass the image URL in the `src` prop:
+
+   = src/components/kitten.js
    ```
    import { StaticImage } from "gatsby-plugin-image"
 
@@ -105,17 +88,21 @@ Remote images are downloaded and resized at build time. If the image is changed 
 
      {:in jsx}```
    ```
-{:end staticImageListing2}
 
-////
+   When you build your site, the `StaticImage` component will load the image from your filesystem or from the remote URL, and it will generate all the sizes and formats that you need to support a responsive image.
+
+   Because the image is loaded at build time, you cannot pass the filename in as a prop, or otherwise generate it outside of the component. It should either be a static string, or a local variable in the component's scope.
++
+[IMPORTANT]
+Remote images are downloaded and resized at build time. If the image is changed on the other server, it will not be updated on your site until you rebuild.
 
   1. *Configure the image.*
 
    You configure the image by passing props to the `<StaticImage />` component. You can change the size and layout, as well as settings such as the type of placeholder used when lazy loading. There are also advanced image processing options available. You can find the full list of options [in the API docs](/docs/reference/built-in-components/gatsby-plugin-image).
 
    This component renders a 200px by 200px image of a dinosaur. Before loading it will have a blurred, low-resolution placeholder. It uses the `"fixed"` layout, which means the image does not resize with its container.
-+
-= src/components/dino.js
+
+  = src/components/dino.js
   ```
   import { StaticImage } from "gatsby-plugin-image"
 
@@ -146,8 +133,8 @@ If you need to have dynamic images (such as if they are coming from a CMS), you 
   1. *Add the image to your page query.*
 
    Any GraphQL File object that includes an image will have a `childImageSharp` field that you can use to query the image data. The exact data structure will vary according to your data source, but the syntax is like this:
-+
-= src/templates/blogpost.js
+
+  = src/templates/blogpost.js
   ```
   query ($id: String) {
     blogPost(id: { eq: $id }) {
@@ -168,8 +155,8 @@ If you need to have dynamic images (such as if they are coming from a CMS), you 
   1. *Configure your image.*
 
    You configure the image by passing arguments to the `gatsbyImageData` resolver. You can change the size and layout, as well as settings such as the type of placeholder used when lazy loading. There are also advanced image processing options available. You can find the full list of options in the API docs.
-+
-= src/templates/blogpost.js
+
+  = src/templates/blogpost.js
   ```
   query ($id: String) {
     blogPost(id: { eq: $id }) {
@@ -195,8 +182,8 @@ If you need to have dynamic images (such as if they are coming from a CMS), you 
   1. *Display the image.*
 
    You can then use the `GatsbyImage` component to display the image on the page. The `getImage()` function is an optional helper to make your code easier to read. It takes a `File` and returns `file.childImageSharp.gatsbyImageData`, which can be passed to the `GatsbyImage` component.
-+
-= src/templates/blogpost.js
+
+   = src/templates/blogpost.js
    ```
    import { graphql } from "gatsby"
    // highlight-next-line
