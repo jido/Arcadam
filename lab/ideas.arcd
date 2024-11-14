@@ -268,3 +268,80 @@ Block title?
 * A block title comes on the first line
 * It starts with "=" and space
 * It can be applied to other things than a block: image caption...
+
+Do we want multi-level ">" indents?
+
+> > he says
+> 
+
+E.g., a ">"-indented block title on multiple lines - the spec says to use > for the next lines
+
+Also to use [quote] on online forums, instead of nested quote blocks use > >
+Can already do one extra layer of nesting with:
+
+["linus"]:
+> git
+>
+
+Do we want indented ">" indents?
+
+E.g. an indented block title on multiple lines - the spec says to use > for the next lines
+
+Do we want ">"-indented list items?
+
+* Not indented
+> continuation of list item
+> * Sublist
+> > continuation of sublist item
++ 
+[form]
+====
+[checkbox id=foo]
+|+| I agree | consentgiven
+====
++
+> > thank you
+> This belongs to top-level list item
+> 
+
+Currently I need a block:
+
+* Not indented
+> continuation of list item
++ 
+--
+
+* Sublist
+> continuation of sublist item
++
+[form]
+====
+[checkbox id=foo]
+|+| I agree | consentgiven
+====
++
+> thank you
+
+--
++
+> This belongs to top-level list item
+> 
+
+# Include
+
+It should allow nesting blocks without special gymnastics. E.g.
+
+* List item
+  * Sublist item
+  [!include consentForm]
+  thank you
+
+////
+{:begin consentForm}
+[form]
+====
+[checkbox id=foo]
+|+| I agree | consentgiven
+====
+{:end consentForm}
+////
