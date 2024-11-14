@@ -204,7 +204,8 @@ Example:
 An indented paragraph that follows an indented list item is automatically attached to it.
 
 Use "+" on an empty line to attach a paragraph to a non-indented list item.
-If the paragraph is indented then it is attached as a code block.
+If the paragraph is indented then it is attached as a code block unless it has ">" before the indent.
+
 Additional lines of a non-indented list item can optionally be indented using ">" at the
 beginning of each. That can continue for multiple paragraphs with an empty ">" line
 joining them.
