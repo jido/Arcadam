@@ -296,7 +296,7 @@ Do we want ">"-indented list items?
 + 
 [form]
 ====
-[checkbox id=foo]
+[checkbox, id=foo]
 |+| I agree | consentgiven
 ====
 +
@@ -316,7 +316,7 @@ Currently I need a block:
 +
 [form]
 ====
-[checkbox id=foo]
+[checkbox, id=foo]
 |+| I agree | consentgiven
 ====
 +
@@ -326,6 +326,18 @@ Currently I need a block:
 +
 > This belongs to top-level list item
 > 
+
+# Indented marker as attributes replacement
+
+* List item
+> continued
+> 
+> [.with width=200,height=100]:
+> [!image Sunset](sunset.jpg)
+> 
+> this is still part of the first bullet
+
+Still can't do an indented block, but it would work for some stuff.
 
 # Include
 
