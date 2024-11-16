@@ -357,3 +357,68 @@ It should allow nesting blocks without special gymnastics. E.g.
 ====
 {:end consentForm}
 ////
+
+# Goals
+
+Should be easy to tell where a code block or content block starts and ends
+
+So that [!include region] has less work to do
+
+Content block masquerading as code block -> can't use \{:begin} \{:end} inside.
+Can content block be indented, like code block?
+
+Are \{:begin} and \{:end} allowed to be indented with ">"? Shouldn't be necessary.
+
+Region search: split the file on \{:begin\s+
+
+* If the region name matches and there is only one match then assume we found it
+* If there is only one match that "looks like" part of code block assume we found it (ends with }```\s*\n)
+* Else parse the file to find the right match -> eliminate all invalid region tags
+
+Other blocks -> don't have same constraints
+* Should we allow them to be indented? What about attributes?
+
+Reduce use of "+" to join parts
+
+Could use > *N to indent the following block by N levels
+
+* List item
+continued
+>
+[width=200,height=100]
+[!image Sunset](sunset.jpg)
+
+> this is still part of the first bullet
+ 1. sublist item
+ continued
+ 
+ still in sublist
+>> This is part of 
+ the sublist
+> This is part of first
+ bullet
+
+This is not part of the list.
+
+To start a paragraph with different level, use > to indicate the level.
+Indented or non-indented.
+If non-indented use > to set the level of next paragraph
+
+Non-indented = top level
+
+Indented = code block
+
+Indented continuation after > line is part of same regular paragraph
+
+next indented block attaches to it
+
+
+* Any text can be indented with > for layout reasons
+* Commands and block delimiters must not be indented with >
+* A spaces-indented line that follows a ">"-indented line without empty lines in between is a continuation of it
+* The next indented block or paragraph gets attached to it
+* Commands and blocks can be indented with spaces
+* An indented code block follows an empty line if the line before was non-indented (> does not affect that)
+* Space-indented lines that follow an indented code block are attached to it
+* An empty line with as many > as the item level attaches the following block or paragraph to a list item
+* That also works with nested custom markers

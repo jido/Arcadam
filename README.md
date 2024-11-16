@@ -169,46 +169,43 @@ being interpreted over a span of text using "+" or "`".
 
 Number 1 for the first item is optional and no other number is permitted.
 A list that immediately follows an item from another list is automatically
-nested. Similarly, an indented list item that immediately follows a
-non-indented list item is automatically nested. Differences in the level
-of whitespace has no effect.
+nested. The ">" indent sign can be used to mark the nesting level, and it
+can be replaced with spaces after the first line. The count of spaces has
+no importance.
 
 An indented list cannot start in the middle of an indented paragraph, there must be an empty line in-between.
 The list markers can be repeated to indicate the level,
 just like [headings](#headings).
 
-Note that these levels are not enforced so there could be a list level 1 (`*`)
-nested inside a list level 2 (`**`). It is good style to match the marker
-level with the nesting level of the list.
-
 Example:
 
 ```
-1. This is number one
-* It has two bullet points
-* That is the second bullet
-. This is number two
-  . This is a sublist
-  . with three elements
-  .. Other list nested inside
-  . Third element of sublist
-  1.. Nested sublist with
+1. This is item number one
+> * It has two bullet points
+> * That is the second bullet
+. This is item number two
+> 1. This is a sublist
+  . Repeating ">" is optional
+    .. Other list nested inside
+  . Third element of item
+   number two sublist
+  > 1. Nested sublist with
     multiline content
-. This is number three
+. This is item number three
 
 [list]
 1. The list attribute forces a
 > new list to start up
 ```
 
-An indented paragraph that follows an indented list item is automatically attached to it.
+Indented paragraphs that follow an indented list item are automatically attached to it.
+The list ends when a non-indented paragraph starts.
 
-Use "+" on an empty line to attach a paragraph to a non-indented list item.
-If the paragraph is indented then it is attached as a code block unless the indent begins with ">".
-
-Additional lines of a non-indented list item can optionally be indented using ">" at the
-beginning of each. That can continue for multiple paragraphs with an empty ">" line
-joining them.
+Additional lines of a non-indented list item can optionally be indented using an indent
+sign at the beginning of each, which can be replaced with spaces after the first line.
+Alternatively a sequence of "+" nesting signs at the start of an empty line sets the
+nesting level for the next indented block or paragraph.
+Repeated indent or nesting signs can optionally be separated by spaces.
 
 ### Enumerations
 
@@ -219,10 +216,11 @@ Choose a size:
 - large
 ```
 
-The dash "-" at the start of a line is reserved for an enumeration. An enumeration item does not behave like a list item.
-In particular it does not allow nesting and does not allow leading whitespace unless it is an indented paragraph.
+The dash "-" at the start of a line is reserved for an enumeration or a quotation.
+An enumeration item does not behave like a list item.
+In particular it does not allow nesting and can appear in the middle of an indented paragraph.
 
-In contrast with a list, an enumeration can appear in the middle of an indented paragraph.
+An empty line should separate an enumeration from the text that follows.
 
 ### Hyperlinks
 
@@ -298,7 +296,6 @@ a horizontal line, it is used as the document title.
 If a block title is added to a block image, it is used as caption.
 If the image caption contains a link then clicking on the
 image loads the (first) link.
-In indented text the block title must be the first line of a paragraph.
 
 ### Replacement values
 
@@ -325,20 +322,10 @@ The key name is replaced with the value to be inserted.
 Code blocks (monospaced):
 
 ~~~
-  Indented text without
-  line breaks is added 
-  to a code block
-  
-  Normal text after a code block
-
-  That is another paragraph.
-  
-  ```
-  An indented code block
-  can also be delimited.
-  
-  It allows empty lines
-  ```
+  Indented text is added to
+  a code block unless the
+  previous line starts with
+  "+" or ">"
 
 ```
 Another way to create a code
@@ -347,7 +334,16 @@ delimiter
 ```
 ~~~
 
-A single paragraph of indented text becomes a code block, but any indented paragraph that follows is normal text unless it is delimited.
+A paragraph of indented text which is not attached becomes a code block.
+Indented text attaches to the previous paragraph if it is an indented
+paragraph, including indented with ">", or it contains only nesting
+signs "+".
+
+For simplicity the processor only looks at the first character of the
+line: ">", "+" and whitespace prevent the paragraph from becoming a code
+block.
+
+Block delimiters can only be indented with whitespace.
 
 Other blocks:
 
@@ -401,7 +397,7 @@ there should be an empty line before the next row.
 
 Arcadam markup can be used inside a table cell.
 When the contents of a cell are written on multiple lines they can optionally be
-indented with ">" at the beginning of each. The start of
+indented with a ">" indent sign at the beginning of each. The start of
 next cell must be in a normal paragraph or on a new line.
 
 Other table styles:
@@ -613,7 +609,7 @@ On the other hands, the end brackets are required even if they are empty for an 
 A custom element can be used anywhere. It always starts with a special character.
 A custom marker applies to the following paragraph or block. It must be on its own line.
 A custom marker always starts with a special character.
-The optional ">" symbol at the beginning of the lines that follow is removed in the output.
+The optional ">" indent sign at the beginning of the lines that follow is removed in the output.
 
 A custom marker can be followed by a single character on the same line to change the paragraph or block visibility.
 
