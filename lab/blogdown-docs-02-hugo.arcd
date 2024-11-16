@@ -29,11 +29,11 @@ Hugo uses a special file and folder structure to create your website (Figure [?f
 - `themes/`
 - `layouts/`
 
-= {!fig} Possible files and folders created when you create a new site using *blogdown*.
-[code=r,id=folders,echo=FALSE,fig.align=center,out.width=100%]
-```
-knitr::include_graphics('images/folder-structure.png')
-```
+> = {!fig} Possible files and folders created when you create a new site using *blogdown*.
+  [code=r,id=folders,echo=FALSE,fig.align=center,out.width=100%]
+  ```
+  knitr::include_graphics('images/folder-structure.png')
+  ```
 
 
 ## {!num} Configuration
@@ -59,51 +59,51 @@ If you are not familiar with the TOML Syntax, we will give a brief overview and 
 
 TOML is made up of key-value pairs separated by equal signs:
 
-[code=toml]
-```
-key = value
-```
+> [code=toml]
+  ```
+  key = value
+  ```
 
 When you want to edit a configuration in the TOML file, simply change the value. Values that are character strings should be in quotes, whereas Boolean values should be lowercase and bare.
 
 For example, if you want to give your website the title "My Awesome Site," and use relative URLs instead of the default absolute URLs, you may have the following entries in your `config.toml` file.
 
-[code=toml]
-```
-title = "My Awesome Site"
+> [code=toml]
+  ```
+  title = "My Awesome Site"
 
-relativeURLs = true
-```
+  relativeURLs = true
+  ```
 
 Most of your website's global variables are entered in the `config.toml` file in exactly this manner.
 
 Further into your `config` file, you may notice some values in brackets like this:
 
-[code=toml]
-```
-[social]
-    github  = "https://github.com/rstudio/blogdown"
-    twitter = "https://twitter.com/rstudio"
-```
+> [code=toml]
+  ```
+  [social]
+      github  = "https://github.com/rstudio/blogdown"
+      twitter = "https://twitter.com/rstudio"
+  ```
 
 This is a table in the TOML language and Hugo uses them to fill in information on other pages within your site. For instance, the above table will populate the `.Site.Social` variable in your site's templates (more information on this in Section [?num](Templates)).
 
 Lastly, you may find some values in double brackets like this:
 
-[code=toml]
-```
-[[menu.main]]
-    name = "Blog"
-    url = "/blog/"
+> [code=toml]
+  ```
+  [[menu.main]]
+      name = "Blog"
+      url = "/blog/"
 
-[[menu.main]]
-    name = "Categories"
-    url = "/categories/"
+  [[menu.main]]
+      name = "Categories"
+      url = "/categories/"
 
-[[menu.main]]
-    name = "About"
-    url = "/about/"
-```
+  [[menu.main]]
+      name = "About"
+      url = "/about/"
+  ```
 
 In TOML, double brackets are used to indicate an array of tables. Hugo interprets this information as a menu. If the code above was found in a `config.toml` file, the resulting website would have links to Blog, Categories, and About pages in the site's main menu. The location and styling of that menu are specified elsewhere, but the names of each menu's choices and the links to each section are defined here.
 
@@ -155,12 +155,12 @@ All built-in {+options} that you may set for Hugo are listed at [?](https://gohu
 
 Besides the built-in Hugo options, you can set other arbitrary options in `config.toml`. For example, it is very common to see an option named `params`, which is widely used in many Hugo themes. When you see a variable `.Site.Params.FOO` in a Hugo theme, it means an option `FOO` that you set under `[params]` in `config.toml`, e.g., `.Site.Params.author` is `Frida Gomam` with the following config file:
 
-[code=toml]
-```
-[params]
-    author = "Frida Gomam"
-    dateFormat = "2006/01/02"
-```
+> [code=toml]
+  ```
+  [params]
+      author = "Frida Gomam"
+      dateFormat = "2006/01/02"
+  ```
 
 The goal of all these options is to avoid hard-coding anything in Hugo themes, so that users can easily edit a single config file to apply the theme to their websites, instead of going through many HTML files and making changes one by one.
 
@@ -206,52 +206,53 @@ As we mentioned in Section [?num](#output-format), your post can be written in e
 
 Besides all Markdown features, Hugo provides a useful feature named "shortcodes." You can use a {+Shortcode} in the body of your post. When Hugo renders the post, it can automatically generate an HTML snippet based on the parameters you pass to the shortcode. This is convenient because you do not have to type or embed a large amount of HTML code in your post. For example, Hugo has a built-in shortcode for embedding Twitter cards. Normally, this is how you embed a Twitter card (Figure [?fig](#jtleek-tweet)) on a page:
 
-[code=html]
-```
-<blockquote class="twitter-tweet">
-  <p lang="en" dir="ltr">Anyone know of an R package for
-    interfacing with Alexa Skills?
-    <a href="https://twitter.com/thosjleeper">@thosjleeper</a>
-    <a href="https://twitter.com/xieyihui">@xieyihui</a>
-    <a href="https://twitter.com/drob">@drob</a>
-    <a href="https://twitter.com/JennyBryan">@JennyBryan</a>
-    <a href="https://twitter.com/HoloMarkeD">@HoloMarkeD</a> ?
-  </p>
-  &mdash; Jeff Leek (@jtleek)
-  <a href="https://twitter.com/jtleek/status/852205086956818432">
-    April 12, 2017
-  </a>
-</blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8">
-</script>
-```
+> [code=html]
+  ```
+  <blockquote class="twitter-tweet">
+    <p lang="en" dir="ltr">Anyone know of an R package for
+      interfacing with Alexa Skills?
+      <a href="https://twitter.com/thosjleeper">@thosjleeper</a>
+      <a href="https://twitter.com/xieyihui">@xieyihui</a>
+      <a href="https://twitter.com/drob">@drob</a>
+      <a href="https://twitter.com/JennyBryan">@JennyBryan</a>
+      <a href="https://twitter.com/HoloMarkeD">@HoloMarkeD</a> ?
+    </p>
+    &mdash; Jeff Leek (@jtleek)
+    <a href="https://twitter.com/jtleek/status/852205086956818432">
+      April 12, 2017
+    </a>
+  </blockquote>
+  <script async src="//platform.twitter.com/widgets.js" charset="utf-8">
+  </script>
+  ```
 
-= {!fig} A tweet by Jeff Leek.
-[code=r,id=jtleek-tweet,fig.align=center,out.width=80%,echo=FALSE]
-```
-knitr::include_graphics('images/jtleek-tweet.png')
-```
+  = {!fig} A tweet by Jeff Leek.
+  [code=r,id=jtleek-tweet,fig.align=center,out.width=80%,echo=FALSE]
+  ```
+  knitr::include_graphics('images/jtleek-tweet.png')
+  ```
 
 If you use the shortcode, all you need in the Markdown source document is:
 
 [code=go]
+
     {{< tweet user="jtleek", id="852205086956818432" >}}
 
 Basically, you only need to pass the username and ID of the tweet to a shortcode named `tweet`.{^} Hugo will fetch the tweet automatically and render the HTML snippet for you. For more about shortcodes, see [?](https://gohugo.io/extras/shortcodes/).
 
 Shortcodes are supposed to work in plain Markdown documents only. To use shortcodes in R Markdown instead of plain Markdown, you have to call the function `blogdown::shortcode()`, e.g.,
 
-[code=markdown]
-////
-```
-////
-....
-`r ''````{r echo=FALSE}
-blogdown::shortcode(
-  "tweet", user = "jtleek", id = "852205086956818432"
-)
-```
-....
+> [code=markdown]
+  ////
+  ```
+  ////
+  ....
+  `r ''````{r echo=FALSE}
+  blogdown::shortcode(
+    "tweet", user = "jtleek", id = "852205086956818432"
+  )
+  ```
+  ....
 
 [^]:
 > Before Hugo v0.89.0, you only need to pass the ID. Since Twitter has started to require the username since late 2021, this means that you have to use Hugo >= 0.89.0 and provide the username if you want to use the Twitter shortcode. For older versions of Hugo, the shortcodes will be broken, unfortunately.
@@ -274,45 +275,45 @@ Typically a theme repository on GitHub has a `README` file, which also serves as
 
 The `config.toml` of the theme `hugo-lithium` contains the following options:
 
-[code=toml]
-```
-baseurl = "/"
-relativeurls = false
-languageCode = "en-us"
-title = "A Hugo website"
-theme = "hugo-lithium"
-ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown", "_files$", "_cache$"]
+> [code=toml]
+  ```
+  baseurl = "/"
+  relativeurls = false
+  languageCode = "en-us"
+  title = "A Hugo website"
+  theme = "hugo-lithium"
+  ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown", "_files$", "_cache$"]
 
-[permalinks]
-    post = "/:year/:month/:day/:slug/"
+  [permalinks]
+      post = "/:year/:month/:day/:slug/"
 
-[[menu.main]]
-    name = "About"
-    url = "/about/"
-[[menu.main]]
-    name = "GitHub"
-    url = "https://github.com/rstudio/blogdown"
-[[menu.main]]
-    name = "Twitter"
-    url = "https://twitter.com/rstudio"
+  [[menu.main]]
+      name = "About"
+      url = "/about/"
+  [[menu.main]]
+      name = "GitHub"
+      url = "https://github.com/rstudio/blogdown"
+  [[menu.main]]
+      name = "Twitter"
+      url = "https://twitter.com/rstudio"
 
-[params]
-    description = "A website built through Hugo and blogdown."
+  [params]
+      description = "A website built through Hugo and blogdown."
 
-    highlightjsVersion = "9.12.0"
-    highlightjsCDN = "//cdnjs.cloudflare.com/ajax/libs"
-    highlightjsLang = ["r", "yaml"]
-    highlightjsTheme = "github"
+      highlightjsVersion = "9.12.0"
+      highlightjsCDN = "//cdnjs.cloudflare.com/ajax/libs"
+      highlightjsLang = ["r", "yaml"]
+      highlightjsTheme = "github"
 
-    MathJaxCDN = "//cdnjs.cloudflare.com/ajax/libs"
-    MathJaxVersion = "2.7.5"
+      MathJaxCDN = "//cdnjs.cloudflare.com/ajax/libs"
+      MathJaxVersion = "2.7.5"
 
-[params.logo]
-    url = "logo.png"
-    width = 50
-    height = 50
-    alt = "Logo"
-```
+  [params.logo]
+      url = "logo.png"
+      width = 50
+      height = 50
+      alt = "Logo"
+  ```
 
 Some of these options may be obvious to understand, and some may need explanations:
 
@@ -650,14 +651,14 @@ To understand `layouts/`, you must know some basics about HTML (see Section [?nu
 
 There is a special template {+`404.html`}, which Hugo uses to create the 404 page (when a page is not found, this page is displayed):
 
-[code=html]
-```
-{{ partial "header.html" . }}
+> [code=html]
+  ```
+  {{ partial "header.html" . }}
 
-404 NOT FOUND
+  404 NOT FOUND
 
-{{ partial "footer.html" . }}
-```
+  {{ partial "footer.html" . }}
+  ```
 
 With all templates above, we will be able to generate a website from Markdown source files. You are unlikely to be satisfied with the website, however, because the HTML elements are not styled at all, and the default appearance may not look appealing to most people. You may have noticed that in `header.html`, we have included two CSS files, `/css/style.css` and `/css/fonts.css`.
 
@@ -787,35 +788,35 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
 + *Enable Disqus comments.*: Similar to Google Analytics, you can add the built-in template
 
-  ```
-  {{ template "_internal/disqus.html" . }}
+    ```
+    {{ template "_internal/disqus.html" . }}
 
-      {:in html}```
-  ```
+        {:in html}```
+    ```
 
   to `foot_custom.html`, and configure the Disqus shortname in `config.toml`. See [?](https://github.com/yihui/hugo-xmin/pull/4) for details, and a preview at [?](https://deploy-preview-4--hugo-xmin.netlify.com).
 
 + *Enable {+syntax highlighting} via highlight.js.*: Add this to `head_custom.html`
 
-  ```
-  <link href="//YOUR-CDN-LINK/styles/github.min.css" rel="stylesheet">
+    ```
+    <link href="//YOUR-CDN-LINK/styles/github.min.css" rel="stylesheet">
 
-      {:in html}```
-  ```
+        {:in html}```
+    ```
 
   and this to `foot_custom.html`:
 
-  ```
-  <script src="//YOUR-CDN-LINK/highlight.min.js"></script>
-  <script src="//YOUR-CDN-LINK/languages/r.min.js"></script>
+    ```
+    <script src="//YOUR-CDN-LINK/highlight.min.js"></script>
+    <script src="//YOUR-CDN-LINK/languages/r.min.js"></script>
 
-  <script>
-  hljs.configure({languages: []});
-  hljs.initHighlightingOnLoad();
-  </script>
+    <script>
+    hljs.configure({languages: []});
+    hljs.initHighlightingOnLoad();
+    </script>
 
-      {:in html}```
-  ```
+        {:in html}```
+    ```
 
   Remember to replace `YOUR-CDN-LINK` with the link to your preferred CDN host of highlight.js, e.g., `cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0`. For more information about highlight.js, please see its homepage: [?](https://highlightjs.org). If you need to use other CDN hosts, cdnjs.com is a good choice: [?](https://cdnjs.com/libraries/highlight.js) You can also see which languages and CSS themes are supported there.
 
@@ -823,14 +824,14 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
 + *Support math expressions through {+MathJax}.*: Add the code below to `foot_custom.html`.
 
-  ```
-  <script src="//yihui.org/js/math-code.js"></script>
-  <script async
-  src="//YOUR-CDN-LINK/MathJax.js?config=TeX-MML-AM_CHTML">
-  </script>
+    ```
+    <script src="//yihui.org/js/math-code.js"></script>
+    <script async
+    src="//YOUR-CDN-LINK/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
 
-      {:in html}```
-  ```
+        {:in html}```
+    ```
 
   This requires substantial knowledge of JavaScript and familiarity with MathJax to fully understand the code above, and we will leave the explanation of the code to Section [?num](Javascript).
 
@@ -838,23 +839,23 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
 + *Show the {+table of contents} (TOC)*: To show a TOC for R Markdown posts, you only need to add the output format `blogdown::html_page` with the option `toc: true` to YAML:
 
-  ```
-  output:
-    blogdown::html_page:
-      toc: true
+    ```
+    output:
+      blogdown::html_page:
+        toc: true
 
-      {:in yaml}```
-  ```
+        {:in yaml}```
+    ```
 
   For plain Markdown posts, you have to modify the template `single.html`. The TOC of a post is stored in the Hugo template variable `.TableOfContents`. You may want an option to control whether to show the TOC, e.g., you may add an option `toc: true` to the YAML metadata of a Markdown post to show the TOC. The code below can be added before the content of a post in `single.html`:
 
-  ```
-  {{ if .Params.toc }}
-  {{ .TableOfContents }}
-  {{ end }}
+    ```
+    {{ if .Params.toc }}
+    {{ .TableOfContents }}
+    {{ end }}
 
-      {:in html}```
-  ```
+        {:in html}```
+    ```
 
   See [?](https://github.com/yihui/hugo-xmin/pull/7) for an implementation with examples.
 
@@ -882,20 +883,20 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
 + *Add pagination.*: When you have a large number of posts on a website, you may not want to display the full list on a single page, but show N posts (e.g., N = 10) per page. It is easy to add pagination to a website using Hugo's built-in functions and templates. Instead of looping through all posts in a list template (e.g., `range .Data.Pages`), you paginate the full list of posts using the function `.Paginate` (e.g., `range (.Paginate .Data.Pages)`). Below is a template fragment that you may insert to your template file `list.html`:
 
-  ```
-  <ul>
-    {{ $paginator := .Paginate .Data.Pages }}
-    {{ range $paginator.Pages }}
-    <li>
-      <span class="date">{{ .Date.Format "2006/01/02" }}</span>
-      <a href="{{ .URL }}">{{ .Title }}</a>
-    </li>
-    {{ end }}
-  </ul>
-  {{ template "_internal/pagination.html" . }}
+    ```
+    <ul>
+      {{ $paginator := .Paginate .Data.Pages }}
+      {{ range $paginator.Pages }}
+      <li>
+        <span class="date">{{ .Date.Format "2006/01/02" }}</span>
+        <a href="{{ .URL }}">{{ .Title }}</a>
+      </li>
+      {{ end }}
+    </ul>
+    {{ template "_internal/pagination.html" . }}
 
-      {:in html}```
-  ```
+        {:in html}```
+    ```
 
   See [?](https://github.com/yihui/hugo-xmin/pull/16) for a full implementation.
 
@@ -907,54 +908,54 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
   The key to implementing this feature is the variable `.File.Path`, which gives us the source file path of a page under `content/`, e.g., `post/foo.md`. If your website only uses plain Markdown files, the implementation will be very simple. I omitted the full GitHub URL in `...` below, of which an example could be `https://github.com/rbind/yihui/edit/master/content/`.
 
-  ```
-  {{ with .File.Path }}
-  <a href="https://github.com/.../{{ . }}">Edit this page</a>
-  {{ end }}
+    ```
+    {{ with .File.Path }}
+    <a href="https://github.com/.../{{ . }}">Edit this page</a>
+    {{ end }}
 
-      {:in html}```
-  ```
+        {:in html}```
+    ```
 
   However, the case is a little more complicated for *blogdown* users, when R Markdown posts are involved. You cannot just use `.File.Path` because it actually points to the `.html` output file from an `.Rmd` file, whereas the `.Rmd` file is the actual source file. The Edit button or link should not point to the `.html` file. Below is the complete implementation that you may add to a template file depending on where you want to show the Edit link (e.g., `footer.html`):
 
-  ```
-  {{ if .File.Path }}
-    
-  {{ $Rmd := (print .File.BaseFileName ".Rmd") }}
-    
-  {{ if (where (readDir (print "content/" .File.Dir)) "Name" $Rmd) }}
-    {{ $.Scratch.Set "FilePath" (print .File.Dir $Rmd) }}
-  {{ else }}
-    {{ $.Scratch.Set "FilePath" .File.Path }}
-  {{ end }}
-    
-  {{ with .Site.Params.GithubEdit}}
-  <a href='{{ . }}{{ $.Scratch.Get "FilePath" }}'>Edit this page</a>
-  {{ end }}
-    
-  {{ end }}
+    ```
+    {{ if .File.Path }}
 
-      {:in html}```
-  ```
+    {{ $Rmd := (print .File.BaseFileName ".Rmd") }}
+
+    {{ if (where (readDir (print "content/" .File.Dir)) "Name" $Rmd) }}
+      {{ $.Scratch.Set "FilePath" (print .File.Dir $Rmd) }}
+    {{ else }}
+      {{ $.Scratch.Set "FilePath" .File.Path }}
+    {{ end }}
+
+    {{ with .Site.Params.GithubEdit}}
+    <a href='{{ . }}{{ $.Scratch.Get "FilePath" }}'>Edit this page</a>
+    {{ end }}
+
+    {{ end }}
+
+        {:in html}```
+    ```
 
   The basic logic is that for a file, if the same filename with the extension `.Rmd` exists, we will point the Edit link to the Rmd file. First, we define a variable `$Rmd` to be the filename with the `.Rmd` extension. Then we check if it exists. Unfortunately, there is no function in Hugo like `file.exists()` in R, so we have to use a hack: list all files under the directory and see if the Rmd file is in the list. [`$.Scratch`](http://gohugo.io/extras/scratch/) is the way to dynamically store and obtain variables in Hugo templates. Most variables in Hugo are read-only, and you have to use `$.Scratch` when you want to modify a variable. We set a variable `FilePath` in `$.Scratch`, whose value is the full path to the Rmd file when the Rmd file exists, and the path to the Markdown source file otherwise. Finally, we concatenate a custom option `GithubEdit` in `config.toml` with the file path to complete the Edit link `<a>`. Here is an example of the option in `config.toml`:
 
-  ```
-  [params]
-    GithubEdit = "https://github.com/rbind/yihui/edit/master/content/"
+    ```
+    [params]
+      GithubEdit = "https://github.com/rbind/yihui/edit/master/content/"
 
-      {:in toml}```
-  ```
+        {:in toml}```
+    ```
 
   Please note that if you use Hugo on Windows to build and deploy your site, you may have to change the file path separators from backslashes to forward slashes, e.g., you may need `{{ $.Scratch.Set "FilePath" (replace ($.Scratch.Get "FilePath") "\\" "/") }}` in the template. To avoid this complication, we do not recommend that you deploy your site through Windows (see Chapter [?num](Deployment) for deployment methods).
 
   You may see [?](https://github.com/yihui/hugo-xmin/pull/6) for an actual implementation with R Markdown examples, and see the footer of this page for the Edit link: [?](https://deploy-preview-6--hugo-xmin.netlify.com). You can actually see a link in the footer of every page, except the lists of pages (because they do not have source files).
 
-= {fig!} Edit a text file online on GitHub.
-[code=r,id=github-edit,echo=FALSE,fig.align=center, out.width=100%]
-```
-knitr::include_graphics('images/github-edit.png')
-```
+> = {fig!} Edit a text file online on GitHub.
+  [code=r,id=github-edit,echo=FALSE,fig.align=center, out.width=100%]
+  ```
+  knitr::include_graphics('images/github-edit.png')
+  ```
 
 After you digest the XMin theme and the implementations of additional features, it should be much easier to understand other people's templates. There are a large number of Hugo themes but the primary differences among them are often in styles. The basic components of templates are often similar.
 
@@ -1008,23 +1009,22 @@ All files under the {+`static/` directory} are copied to `public/` when Hugo ren
 
 Usually a theme has a `static/` folder, and you can partially override its files using the same mechanism as overriding `layouts/` files, i.e., `static/file` will override `themes/theme-name/static/file`. In the XMin theme, I have two CSS files `style.css` and `fonts.css`. The former is the main style sheet, and the latter is a quite small file to define typefaces only. You may want to define your own typefaces, and you can only provide a `static/css/fonts.css` to override the one in the theme, e.g.,
 
-[code=css]
-```
-body {
-  font-family: "Comic Sans MS", cursive, sans-serif;
-}
-code {
-  font-family: "Courier New", Courier, monospace;
-}
-```
+> [code=css]
+  ```
+  body {
+    font-family: "Comic Sans MS", cursive, sans-serif;
+  }
+  code {
+    font-family: "Courier New", Courier, monospace;
+  }
+  ```
 
 To R Markdown users, another important application of the `static/` directory is to build Rmd documents with custom output formats, i.e., Rmd documents not using the `blogdown::html_page()` format (see Section [?num](#output-format)). For example, you can generate a PDF or presentations from Rmd documents under this directory, so that Hugo will not post-process them but simply copies them to `public/` for publishing. To build these Rmd files, you must provide a custom build script `R/build.R` (see Section [?num](Methods)). You can write a single line of code in this script:
 
-```
-blogdown::build_dir("static")
-
-    {:in r}```
-```
+> [code=r]
+  ```
+  blogdown::build_dir("static")
+  ```
 
 The function {+`build_dir()`, blogdown::build\_dir()} finds all Rmd files under a directory, and calls `rmarkdown::render()` to build them to the output formats specified in the YAML metadata of the Rmd files. If your Rmd files should not be rendered by a simple `rmarkdown::render()` call, you are free to provide your own code to render them in `R/build.R`. There is a built-in caching mechanism in the function `build_dir()`: an Rmd file will not be compiled if it is older than its output file(s). If you do not want this behavior, you can force all Rmd files to be recompiled every time: `build_dir(force = TRUE)`.
 
