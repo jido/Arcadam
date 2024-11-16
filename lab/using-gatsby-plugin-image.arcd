@@ -18,27 +18,27 @@ Want to learn more about image optimization challenges? Read the Conceptual Guid
 ## Getting started
 
 1. Install the following packages:
-+
-  ```
-  npm install gatsby-plugin-image gatsby-plugin-sharp gatsby-source-filesystem gatsby-transformer-sharp
-
-    {:in shell}```
-  ```
+.
+    ```
+    npm install gatsby-plugin-image gatsby-plugin-sharp gatsby-source-filesystem gatsby-transformer-sharp
+    
+      {:in shell}```
+    ```
 
 1. Add the plugins to your `gatsby-config.js`:
-+
-  = gatsby-config.js
-  ```
-  module.exports = {
-    plugins: [
-      `gatsby-plugin-image`,
-      `gatsby-plugin-sharp`,
-      `gatsby-transformer-sharp`,
-    ],
-  }
-
-    {:in js}```
-  ```
+.
+    = gatsby-config.js
+    ```
+    module.exports = {
+      plugins: [
+        `gatsby-plugin-image`,
+        `gatsby-plugin-sharp`,
+        `gatsby-transformer-sharp`,
+      ],
+    }
+    
+      {:in js}```
+    ```
 
 If you already have some of these plugins installed, please check that they're updated to the latest version.
 
@@ -58,72 +58,72 @@ The Gatsby Image plugin includes two image components: one for static and one fo
 If you are using an image that will be the same each time the component is used, such as a logo or front page hero image, you can use the `StaticImage` component. The image can be either a local file in your project, or an image hosted on a remote server. Any remote images are downloaded and resized at build time.
 
 1. *Add the image to your project.*
-+
+.
   If you are using a local image, copy it into the project. A folder such as `src/images` is a good choice.
 
 1. *Add the `StaticImage` component to your template.*
-+
-  Import the component, then set the `src` prop to point to the image you added earlier. The path is relative to the source file itself. If your component file was `src/components/dino.js`, then you would load the image like this:
+.
+   Import the component, then set the `src` prop to point to the image you added earlier. The path is relative to the source file itself. If your component file was `src/components/dino.js`, then you would load the image like this:
 
-   = src/components/dino.js
-   ```
-   import { StaticImage } from "gatsby-plugin-image"
+    = src/components/dino.js
+    ```
+    import { StaticImage } from "gatsby-plugin-image"
+    
+    export function Dino() {
+      return <StaticImage src="../images/dino.png" alt="A dinosaur" />
+    }
+    
+      {:in jsx}```
+    ```
 
-   export function Dino() {
-     return <StaticImage src="../images/dino.png" alt="A dinosaur" />
-   }
+   If you are using a remote image, pass the image URL in the `src` prop:
 
-     {:in jsx}```
-   ```
+    = src/components/kitten.js
+    ```
+    import { StaticImage } from "gatsby-plugin-image"
+    
+    export function Kitten() {
+      return <StaticImage src="https://placekitten.com/800/600" alt="A kitten" />
+    }
+    
+      {:in jsx}```
+    ```
 
-  If you are using a remote image, pass the image URL in the `src` prop:
-
-   = src/components/kitten.js
-   ```
-   import { StaticImage } from "gatsby-plugin-image"
-
-   export function Kitten() {
-     return <StaticImage src="https://placekitten.com/800/600" alt="A kitten" />
-   }
-
-     {:in jsx}```
-   ```
-
-  When you build your site, the `StaticImage` component will load the image from your filesystem or from the remote URL, and it will generate all the sizes and formats that you need to support a responsive image.
-  
-  Because the image is loaded at build time, you cannot pass the filename in as a prop, or otherwise generate it outside of the component. It should either be a static string, or a local variable in the component's scope.
-  
-  [IMPORTANT]
-  Remote images are downloaded and resized at build time. If the image is changed on the other server, it will not be updated on your site until you rebuild.
+   When you build your site, the `StaticImage` component will load the image from your filesystem or from the remote URL, and it will generate all the sizes and formats that you need to support a responsive image.
+   
+   Because the image is loaded at build time, you cannot pass the filename in as a prop, or otherwise generate it outside of the component. It should either be a static string, or a local variable in the component's scope.
+   
+   [IMPORTANT]
+   Remote images are downloaded and resized at build time. If the image is changed on the other server, it will not be updated on your site until you rebuild.
 
 1. *Configure the image.*
-+
-  You configure the image by passing props to the `<StaticImage />` component. You can change the size and layout, as well as settings such as the type of placeholder used when lazy loading. There are also advanced image processing options available. You can find the full list of options [in the API docs](/docs/reference/built-in-components/gatsby-plugin-image).
+.
+   You configure the image by passing props to the `<StaticImage />` component. You can change the size and layout, as well as settings such as the type of placeholder used when lazy loading. There are also advanced image processing options available. You can find the full list of options [in the API docs](/docs/reference/built-in-components/gatsby-plugin-image).
 
-  This component renders a 200px by 200px image of a dinosaur. Before loading it will have a blurred, low-resolution placeholder. It uses the `"fixed"` layout, which means the image does not resize with its container.
+   This component renders a 200px by 200px image of a dinosaur. Before loading it will have a blurred, low-resolution placeholder. It uses the `"fixed"` layout, which means the image does not resize with its container.
 
-   = src/components/dino.js
-   ```
-   import { StaticImage } from "gatsby-plugin-image"
-   
-   export function Dino() {
-     return (
-       <StaticImage
-         src="../images/dino.png"
-         alt="A dinosaur"
-         placeholder="blurred"
-         layout="fixed"
-         width={200}
-         height={200}
-       />
-     )
-   }
-   
-     {:in jsx}```
-   ```
+    = src/components/dino.js
+    ```
+    import { StaticImage } from "gatsby-plugin-image"
+    
+    export function Dino() {
+      return (
+        <StaticImage
+          src="../images/dino.png"
+          alt="A dinosaur"
+          placeholder="blurred"
+          layout="fixed"
+          width={200}
+          height={200}
+        />
+      )
+    }
+    
+      {:in jsx}```
+    ```
 
-  [NOTE]
-  There are a few technical restrictions to the way you can pass props into StaticImage. For more information, refer to the Reference Guide: [Gatsby Image plugin](/docs/reference/built-in-components/gatsby-plugin-image#restrictions-on-using-staticimage). If you find yourself wishing you could use a prop for the image `src` then it's likely that you should be using a dynamic image.
+   [NOTE]
+   There are a few technical restrictions to the way you can pass props into StaticImage. For more information, refer to the Reference Guide: [Gatsby Image plugin](/docs/reference/built-in-components/gatsby-plugin-image#restrictions-on-using-staticimage). If you find yourself wishing you could use a prop for the image `src` then it's likely that you should be using a dynamic image.
 
 
 ### Dynamic images
@@ -131,98 +131,98 @@ If you are using an image that will be the same each time the component is used,
 If you need to have dynamic images (such as if they are coming from a CMS), you can load them via GraphQL and display them using the `GatsbyImage` component. Many CMSs support `gatsby-plugin-image` without needing to download and process images locally. For these, you should see the individual plugin documentation for details on query syntax. See the [CMS images](#using-images-from-a-cms-or-cdn) section for a list of supported CMSs. For other data sources, images are downloaded and processed locally at build time. This includes local data sources where e.g. a JSON file references an image by relative path. This section shows how to use [gatsby-transformer-sharp](/plugins/gatsby-transformer-sharp/) to query for these images.
 
 1. *Add the image to your page query.*
-+
+.
   Any GraphQL File object that includes an image will have a `childImageSharp` field that you can use to query the image data. The exact data structure will vary according to your data source, but the syntax is like this:
 
-  = src/templates/blogpost.js
-  ```
-  query ($id: String) {
-    blogPost(id: { eq: $id }) {
-      title
-      body
-      # highlight-start
-      avatar {
-        childImageSharp {
-          gatsbyImageData(width: 200)
-        }
-      }
-      # highlight-end
-    }
-  }
-    {:in graphql}```
-  ```
-
-1. *Configure your image.*
-+
-  You configure the image by passing arguments to the `gatsbyImageData` resolver. You can change the size and layout, as well as settings such as the type of placeholder used when lazy loading. There are also advanced image processing options available. You can find the full list of options in the API docs.
-
-  = src/templates/blogpost.js
-  ```
-  query ($id: String) {
-    blogPost(id: { eq: $id }) {
-      title
-      body
-      author
-      avatar {
+    = src/templates/blogpost.js
+    ```
+    query ($id: String) {
+      blogPost(id: { eq: $id }) {
+        title
+        body
         # highlight-start
-        childImageSharp {
-          gatsbyImageData(
-            width: 200
-            placeholder: BLURRED
-            formats: [AUTO, WEBP, AVIF]
-          )
+        avatar {
+          childImageSharp {
+            gatsbyImageData(width: 200)
+          }
         }
         # highlight-end
       }
     }
-  }
-    {:in graphql}```
-  ```
+      {:in graphql}```
+    ```
+
+1. *Configure your image.*
+.
+  You configure the image by passing arguments to the `gatsbyImageData` resolver. You can change the size and layout, as well as settings such as the type of placeholder used when lazy loading. There are also advanced image processing options available. You can find the full list of options in the API docs.
+
+    = src/templates/blogpost.js
+    ```
+    query ($id: String) {
+      blogPost(id: { eq: $id }) {
+        title
+        body
+        author
+        avatar {
+          # highlight-start
+          childImageSharp {
+            gatsbyImageData(
+              width: 200
+              placeholder: BLURRED
+              formats: [AUTO, WEBP, AVIF]
+            )
+          }
+          # highlight-end
+        }
+      }
+    }
+      {:in graphql}```
+    ```
 
 1. *Display the image.*
-+
+.
   You can then use the `GatsbyImage` component to display the image on the page. The `getImage()` function is an optional helper to make your code easier to read. It takes a `File` and returns `file.childImageSharp.gatsbyImageData`, which can be passed to the `GatsbyImage` component.
 
-   = src/templates/blogpost.js
-   ```
-   import { graphql } from "gatsby"
-   // highlight-next-line
-   import { GatsbyImage, getImage } from "gatsby-plugin-image"
-
-   function BlogPost({ data }) {
-     // highlight-next-line
-     const image = getImage(data.blogPost.avatar)
-     return (
-       <section>
-         <h2>{data.blogPost.title}</h2>
-         {/* highlight-next-line */}
-         <GatsbyImage image={image} alt={data.blogPost.author} />
-         <p>{data.blogPost.body}</p>
-       </section>
-     )
-   }
-
-   export const pageQuery = graphql`
-     query ($id: String) {
-       blogPost(id: { eq: $id }) {
-         title
-         body
-         author
-         avatar {
-           childImageSharp {
-             gatsbyImageData(
-               width: 200
-               placeholder: BLURRED
-               formats: [AUTO, WEBP, AVIF]
-             )
-           }
-         }
-       }
-     }
-   `
-
-     {:in jsx}```
-   ```
+    = src/templates/blogpost.js
+    ```
+    import { graphql } from "gatsby"
+    // highlight-next-line
+    import { GatsbyImage, getImage } from "gatsby-plugin-image"
+  
+    function BlogPost({ data }) {
+      // highlight-next-line
+      const image = getImage(data.blogPost.avatar)
+      return (
+        <section>
+          <h2>{data.blogPost.title}</h2>
+          {/* highlight-next-line */}
+          <GatsbyImage image={image} alt={data.blogPost.author} />
+          <p>{data.blogPost.body}</p>
+        </section>
+      )
+    }
+  
+    export const pageQuery = graphql`
+      query ($id: String) {
+        blogPost(id: { eq: $id }) {
+          title
+          body
+          author
+          avatar {
+            childImageSharp {
+              gatsbyImageData(
+                width: 200
+                placeholder: BLURRED
+                formats: [AUTO, WEBP, AVIF]
+              )
+            }
+          }
+        }
+      }
+    `
+  
+      {:in jsx}```
+    ```
 
 
 ## Customizing the defaults

@@ -203,7 +203,7 @@ The list ends when a non-indented paragraph starts.
 
 Additional lines of a non-indented list item can optionally be indented using an indent
 sign at the beginning of each, which can be replaced with spaces after the first line.
-Alternatively a sequence of "+" nesting signs at the start of an empty line sets the
+Alternatively a sequence of nesting dots at the start of an empty line sets the
 nesting level for the next indented block or paragraph.
 Repeated indent or nesting signs can optionally be separated by spaces.
 
@@ -325,7 +325,7 @@ Code blocks (monospaced):
   Indented text is added to
   a code block unless the
   previous line starts with
-  "+" or ">"
+  "." or ">"
 
 ```
 Another way to create a code
@@ -337,10 +337,10 @@ delimiter
 A paragraph of indented text which is not attached becomes a code block.
 Indented text attaches to the previous paragraph if it is an indented
 paragraph, including indented with ">", or it contains only nesting
-signs "+".
+signs ".".
 
 For simplicity the processor only looks at the first character of the
-line: ">", "+" and whitespace prevent the paragraph from becoming a code
+line: ">", "." and whitespace prevent the paragraph from becoming a code
 block.
 
 Block delimiters can only be indented with whitespace.

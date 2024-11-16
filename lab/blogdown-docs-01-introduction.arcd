@@ -422,7 +422,7 @@ There are a few essential {+RStudio addins} to make it easy to edit and preview 
 + "Serve Site": This addin calls `blogdown::serve_site()` to continuously serve your website locally using the LiveReload technology, so you can live preview the website. You can continue to edit material for your site while you are previewing it.
 
 + "New Post": This addin provides a dialog box for you to enter the metadata of your blog post, including the title, author, date, and so on. See Figure [?fig](#new-post) for an example. This addin actually calls the function `blogdown::new_post()` under the hood, but does a few things automatically:
-
+.
   * As you type the title of the post, it will generate a filename for you, and you can edit it if you do not like the automatically generated one. In fact, you can also use this addin to create normal pages under any directories under `content/`. For example, if you want to add a resume page, you can change the filename to `resume.md` from the default `post/YYYY-mm-dd-resume.md`.
 
   * You can select the date from a calendar widget provided by Shiny.{^}
@@ -780,7 +780,7 @@ To use a Hugo theme other than `hugo-lithium` with a new site (which we showed i
 1. Create a new project in RStudio (`File -> New Project -> New Directory -> Website using blogdown`) (see Figures [?fig](#new-project) and [?fig](#blogdown-project)). 
 
 1. In the "Hugo theme" field, enter the `user/repo` from the link in Step 1. Click "Create Project". 
-+
+.
   Alternatively, in the R console, you may type `blogdown::new_site(theme = 'user/repo')`:
 
     [code=r,eval=FALSE]
@@ -800,11 +800,11 @@ To use a Hugo theme other than `hugo-lithium` with a new site (which we showed i
 Generally, we do not advise you to switch themes, as each Hugo theme depends on different variables that you provide in the theme-specific configuration file (`config.yaml` or `config.toml`) and in the YAML of the `content/` files. Example sites are often provided for individual themes, so we recommend using `blogdown::new_site()`, then editing the provided example site as a starting point. However, if you do want to test a different Hugo theme with an existing site, you can start with the following workflow:
 
 1. In the R console, install the theme via {+`blogdown::install_theme()`}.
-+
-  [code=r,eval=FALSE]
-  ```
-  blogdown::install_theme(theme = 'lxndrblz/anatole')
-  ```
+.
+    [code=r,eval=FALSE]
+    ```
+    blogdown::install_theme(theme = 'lxndrblz/anatole')
+    ```
 
 1. Manually move the configuration file (`config.yaml` or `config.toml`) from the `themes/theme-name/exampleSite/` directory to the root directory of your website to match the newly installed theme.
 

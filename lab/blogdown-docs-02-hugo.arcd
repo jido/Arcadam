@@ -119,7 +119,7 @@ All built-in {+options} that you may set for Hugo are listed at [?](https://gohu
 * `enableEmoji`: You may set it to `true` so that you can use [{+Emoji} emoticons](http://www.emoji-cheat-sheet.com) like `:smile:` in Markdown.
 
 * {+`permalinks`}: Rules to generate permanent links of your pages. By default, Hugo uses full filenames under `content/` to generate links, e.g., `content/about.md` will be rendered to `public/about/index.html`, and `content/post/2015-07-23-foo.md` will be rendered to `public/post/2015-07-23-foo/index.html`, so the actual links are `/about/` and `/post/2015-07-23-foo/` on the website. Although it is not required to set custom rules for permanent links, it is common to see links of the form `/YYYY/mm/dd/post-title/`. Hugo allows you to use several pieces of information about a source file to generate a link, such as the date (year, month, and day), title, and filename, etc. The link can be independent of the actual filename. For example, you may ask Hugo to render pages under `content/post/` using the date and title for their links:
-+
+.
   ```
   [permalinks]
       post = "/:year/:month/:day/:title/"
@@ -325,7 +325,7 @@ Some of these options may be obvious to understand, and some may need explanatio
 * `ignoreFiles` and `permalinks`: These options have been explained in Section [?num](Options).
 
 * `menu`: This list of options specifies the text and URL of menu items at the top. See Figure [?fig](#lithium) for a sample page. You can change or add more menu items. If you want to order the items, you may assign a `weight` to each item, e.g.,
-+
+.
   ```
   [[menu.main]]
       name = "Home"
@@ -358,8 +358,7 @@ Some of these options may be obvious to understand, and some may need explanatio
 * `description`: A brief description of your website. It is not visible on web pages (you can only see it from the HTML source), but should give search engines a hint about your website.
 
 * `highlightjs*`: These options are used to configure the JavaScript library [highlight.js](https://highlightjs.org) for
-+
-  {+syntax highlighting} of code blocks on the web pages. You can change the version (e.g., `9.12.0`), the CND host (e.g., using [cdnjs](https://cdnjs.com): `//cdnjs.cloudflare.com/ajax/libs`), add more languages (e.g., `["r", "yaml", "tex"]`), and change the theme (e.g., `atom-one-light`). See https://highlightjs.org/static/demo/ for all languages and themes that highlight.js supports.
+{+syntax highlighting} of code blocks on the web pages. You can change the version (e.g., `9.12.0`), the CND host (e.g., using [cdnjs](https://cdnjs.com): `//cdnjs.cloudflare.com/ajax/libs`), add more languages (e.g., `["r", "yaml", "tex"]`), and change the theme (e.g., `atom-one-light`). See https://highlightjs.org/static/demo/ for all languages and themes that highlight.js supports.
 
 * `MathJax*`: The JavaScript library {+MathJax} can render LaTeX math expressions on web pages. Similar to `highlightjsCDN`, you can specify the CDN host of MathJax, e.g., `//cdnjs.cloudflare.com/ajax/libs`, and you can also specify the version of MathJax.
 
@@ -437,7 +436,7 @@ The most important directories of a theme are `layouts/` and `static/`. HTML tem
 To understand `layouts/`, you must know some basics about HTML (see Section [?num](Html)) because the templates under this directory are mostly HTML documents or fragments. There are many possible types of subdirectories under `layouts/`, but we are only going to introduce two here: `_default/` and `partials/`.
 
 * The {+`_default/`, \_default} directory is where you put the default templates for your web pages. In the XMin theme, we have three templates: `single.html`, `list.html`, and `terms.html`.
-+
+.
   * {+`single.html`} is a template for rendering single pages. A single page basically corresponds to a Markdown document under `content/`, and it contains both the (YAML) metadata and content. Typically we want to render the page title, author, date, and the content. Below is the source code of XMin's `single.html`:
 
     ```
@@ -567,7 +566,7 @@ To understand `layouts/`, you must know some basics about HTML (see Section [?nu
     Hugo automatically renders all taxonomy pages, and the path names are the plural forms of the taxonomies, e.g., [?](https://xmin.yihui.org/categories/) and [?](https://xmin.yihui.org/tags/). That is the meaning of `.Data.Plural`. The leading `$` is required because we are inside a loop, and need to access variables from the outside scope. The link of the term is passed to the Hugo function `relURL` via a pipe `|` to make it relative, which is good practice because relative links are more portable (independent of the domain name).
 
 * The `partials/` directory is the place to put the HTML fragments to be reused by other templates via the `partial` function. We have four partial templates under this directory:
-+
+.
   * {+`header.html`} main defines the `<head>` tag and the navigation menu in the `<nav>` tag.
 
       [code=html]
@@ -662,7 +661,7 @@ With all templates above, we will be able to generate a website from Markdown so
 You can find many existing open-source CSS frameworks online that may be applied to a Hugo theme. For example, the most popular CSS framework may be Bootstrap: [?](http://getbootstrap.com). When I was designing XMin, I wondered how far I could go without using any of these existing frameworks, because they are usually very big. For example, `bootstrap.css` has nearly 10000 lines of code when not minimized. It turned out that I was able to get a satisfactory appearance with about 50 lines of CSS, which I will explain in detail below:
 
 * `style.css` defines all styles except the typefaces:
-+
+.
     [code=css]
     ```
     body {
@@ -739,7 +738,7 @@ You can find many existing open-source CSS frameworks online that may be applied
   Embedded elements like images and videos that exceed the page margin are often ugly, so I restrict their maximum width to 100%. Hyphenation is turned on for words in `<main>`. Blockquotes have a gray left sidebar and a light gray background. Tables are centered by default, with only three horizontal rules: the top and bottom borders of the table, and the bottom border of the table head. Table rows are striped to make it easier to read the table especially when the table is wide.
 
 * {+`fonts.css`} is a separate style sheet because it plays a critical role in the appearance of a website, and it is very likely that you will want to customize this file. In most cases, your readers will spend the most time on reading the text on your pages, so it is important to make the text comfortable to read. I'm not an expert in web design, and I just picked Palatino for the body and Lucida Console or Monaco (whichever is available in your system) for the code. It is common to use Google web fonts nowadays. You may try some web fonts and see if you like any of them.
-+
+.
     [code=css]
     ```
     body {
@@ -774,7 +773,7 @@ The example site provides a sample `config.toml`, a home page `_index.md`, an ab
 The XMin is actually a highly functional theme, but we understand that it may be too minimal for you. There are a few commonly used features (intentionally) missing in this theme, and we will teach you how to add them by yourself if desired. All these features and the source code can be applied to other themes, too.
 
 + *Enable Google Analytics.*: Hugo has provided a built-in partial template. For XMin, you can add
-
+.
   ```
   {{ template "_internal/google_analytics.html" . }}
 
@@ -784,7 +783,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
   to `layouts/partials/foot_custom.html` under the root directory of your website (instead of `themes/hugo-xmin/`), and configure `googleAnalytics` in the `config.toml`. See [?](https://github.com/yihui/hugo-xmin/pull/3) for details, and the HTML source of this page for the JavaScript rendered from the template: [?](https://deploy-preview-3--hugo-xmin.netlify.com).
 
 + *Enable Disqus comments.*: Similar to Google Analytics, you can add the built-in template
-
+.
     ```
     {{ template "_internal/disqus.html" . }}
 
@@ -794,7 +793,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
   to `foot_custom.html`, and configure the Disqus shortname in `config.toml`. See [?](https://github.com/yihui/hugo-xmin/pull/4) for details, and a preview at [?](https://deploy-preview-4--hugo-xmin.netlify.com).
 
 + *Enable {+syntax highlighting} via highlight.js.*: Add this to `head_custom.html`
-
+.
     ```
     <link href="//YOUR-CDN-LINK/styles/github.min.css" rel="stylesheet">
 
@@ -820,7 +819,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
   You may see [?](https://github.com/yihui/hugo-xmin/pull/5) for an actual implementation, and a sample page with syntax highlighting at [?](https://deploy-preview-5--hugo-xmin.netlify.com/post/2016/02/14/a-plain-markdown-post/).
 
 + *Support math expressions through {+MathJax}.*: Add the code below to `foot_custom.html`.
-
+.
     ```
     <script src="//yihui.org/js/math-code.js"></script>
     <script async
@@ -835,7 +834,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
   Remember to replace `YOUR-CDN-LINK` with the link to your preferred CDN host of MathJax, e.g., `cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5`.
 
 + *Show the {+table of contents} (TOC)*: To show a TOC for R Markdown posts, you only need to add the output format `blogdown::html_page` with the option `toc: true` to YAML:
-
+.
     ```
     output:
       blogdown::html_page:
@@ -858,7 +857,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
 
 + *Display categories and {+tags} in a post if provided in its YAML.*: Add the code below where you want to place the categories and
   tags in `single.html`, e.g., in `<div class="article-meta"></div>`.
-
+.
     ```
     <p class="terms">
       {{ range $i := (slice "categories" "tags") }}
@@ -879,7 +878,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
   You may see [?](https://github.com/yihui/hugo-xmin/pull/2) for the complete implementation and a preview at [?](https://deploy-preview-2--hugo-xmin.netlify.com/post/2016/02/14/a-plain-markdown-post/).
 
 + *Add pagination.*: When you have a large number of posts on a website, you may not want to display the full list on a single page, but show N posts (e.g., N = 10) per page. It is easy to add pagination to a website using Hugo's built-in functions and templates. Instead of looping through all posts in a list template (e.g., `range .Data.Pages`), you paginate the full list of posts using the function `.Paginate` (e.g., `range (.Paginate .Data.Pages)`). Below is a template fragment that you may insert to your template file `list.html`:
-
+.
     ```
     <ul>
       {{ $paginator := .Paginate .Data.Pages }}
@@ -898,7 +897,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
   See [?](https://github.com/yihui/hugo-xmin/pull/16) for a full implementation.
 
 + *Add a {+GitHub Edit, GitHub Edit Page} button or link to a page.*: If none of the above features look exciting to you (which would not surprise me), this little feature is really a great example of showing you the power of plain-text files and static websites, when combined with GitHub (or other services that support the online editing of plain-text files). I believe it would be difficult, if not impossible, to implement this feature in dynamic website frameworks like WordPress.
-
+.
   Basically, when you browse any text files in a repository on GitHub, you can edit them right on the page by hitting the Edit button (see Figure [?fig](#github-edit) for an example) if you have a GitHub account. If you have write access to the repository, you can commit the changes directly online, otherwise GitHub will fork the repository for you automatically, so that you can edit the file in your own repository, and GitHub will guide you to create a pull request to the original repository. When the original owner sees the pull request, he/she can see the changes you made and decide whether to accept them or not or ask you to make further changes. Although the terminology "pull request" is highly confusing to beginners,{^} it is probably the single greatest feature invented by GitHub, because it makes it so much easier for people to make contributions.
 
   What is really handy is that all you need is a URL of a fixed form to edit a file on GitHub: `https://github.com/USER/REPO/edit/BRANCH/PATH/TO/FILE`. For example, [?](https://github.com/rbind/yihui/edit/master/content/knitr/faq.md), where `USER` is `rbind`, `REPO` is `yihui`, `BRANCH` is `master`, and the file path is `content/knitr/faq.md`.
