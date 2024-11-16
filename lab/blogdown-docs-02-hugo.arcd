@@ -243,16 +243,13 @@ Basically, you only need to pass the username and ID of the tweet to a shortcode
 Shortcodes are supposed to work in plain Markdown documents only. To use shortcodes in R Markdown instead of plain Markdown, you have to call the function `blogdown::shortcode()`, e.g.,
 
 > [code=markdown]
-  ////
-  ```
-  ////
-  ....
+  ~~~~
   `r ''````{r echo=FALSE}
   blogdown::shortcode(
     "tweet", user = "jtleek", id = "852205086956818432"
   )
   ```
-  ....
+  ~~~~
 
 [^]:
 > Before Hugo v0.89.0, you only need to pass the ID. Since Twitter has started to require the username since late 2021, this means that you have to use Hugo >= 0.89.0 and provide the username if you want to use the Twitter shortcode. For older versions of Hugo, the shortcodes will be broken, unfortunately.

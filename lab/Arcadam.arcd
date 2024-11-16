@@ -14,16 +14,16 @@ The syntax of Arcadam is heavily inspired by AsciiDoc and by Markdown.
 
 ### Headings
 
-  ```
-  = Document Title
-  ---
-  
-  # Level 1 Section Title
-  
-  ## Level 2 Section Title
-  
-  ### Level 3 Section Title...
-  ```
+```
+= Document Title
+---
+
+# Level 1 Section Title
+
+## Level 2 Section Title
+
+### Level 3 Section Title...
+```
 
 Use "#" in front of the heading, repeated as needed to increase the level.
 
@@ -31,7 +31,7 @@ The document title may be followed immediately by an
 optional document header which contains metadata related to the document, such
 as the authors or a marker for the generator to insert a table of contents.
 
-Example:
+> Example:
 
   ```
   = Document title
@@ -47,7 +47,7 @@ A sequence of non-empty lines form a paragraph.
 
 To force a line break in the middle of a paragraph, end the line with "+".
 
-Example:
+> Example:
 
   ```
   This is part of a single
@@ -58,7 +58,7 @@ Example:
 
 Paragraphs may be grouped in a free block by enclosing them with "--".
 
-Example:
+> Example:
 
   ```
   --
@@ -77,23 +77,22 @@ a block.
 
 ### Text Formatting
 
-  ```
-  This is *bold*
-  
-  This is _italic_
-  
-  This is `monospaced`
-  
-  This is ^superscript^
-  
-  This is ~subscript~
-  
-  This is #highlighted#
-  
-  This is +_normal text_ (no style)+
-  
-    {:in asciidoc}```
-  ```
+[code=asciidoc]
+```
+This is *bold*
+
+This is _italic_
+
+This is `monospaced`
+
+This is ^superscript^
+
+This is ~subscript~
+
+This is #highlighted#
+
+This is +_normal text_ (no style)+
+```
 
 Styles can be combined. Any style can be used in the middle of a word by
 doubling the format markers (loose formatting), except for superscript and subscript which
@@ -101,7 +100,7 @@ don't require doubling. Single format markers are applied first then
 loose format markers, from left to right. Format markers cannot cross a
 boundary.
 
-Example:
+> Example:
 
   ```
   *_Combine bold and italic_*
@@ -123,11 +122,11 @@ When applying multiple styles in combination they must be in the following order
 
 | Format marker | Style
 |:--------------|-------------
-| `#`           | highlighted
-| `~ ^`         | subscript, superscript
-| `*`           | bold
-| `_`           | italic
-| ``\` +``      | monospaced, no style
+|     `#`       | highlighted
+|    `~ ^`      | subscript, superscript
+|     `*`       | bold
+|     `_`       | italic
+|   ``\` +``    | monospaced, no style
 
 |===
 
@@ -161,91 +160,89 @@ being interpreted over a span of text using "+" or "`".
 
 ### Lists
 
-  ```
-  1. Number one
-  . Number two
-  . Number three
-  
-  * First bullet
-  * Second bullet
-  * Third bullet
-  
-  + Item 1: First description
-  + Item 2: Second description
-  + Item 3: Third description
-  ```
+```
+1. Number one
+. Number two
+. Number three
+
+* First bullet
+* Second bullet
+* Third bullet
+
++ Item 1: First description
++ Item 2: Second description
++ Item 3: Third description
+```
 
 Number 1 for the first item is optional and no other number is permitted.
 A list that immediately follows an item from another list is automatically
-nested. Similarly, an indented list item that immediately follows a
-non-indented list item is automatically nested. Differences in the level
-of whitespace has no effect.
+nested. The ">" indent sign can be used to mark the nesting level, and it
+can be replaced with spaces after the first line. The count of spaces has
+no importance.
 
 An indented list cannot start in the middle of an indented paragraph, there must be an empty line in-between.
 The list markers can be repeated to indicate the level,
 just like [headings]().
 
-Note that these levels are not enforced so there could be a list level 1 +(*)+
-nested inside a list level 2 +(**)+. It is good style to match the marker
-level with the nesting level of the list.
-
-Example:
+> Example:
 
   ```
-  1. This is number one
-  * It has two bullet points
-  * That is the second bullet
-  . This is number two
-    . This is a sublist
-    . with three elements
-    .. Other list nested inside
-    . Third element of sublist
-    1.. Nested sublist with
+  1. This is item number one
+  > * It has two bullet points
+  > * That is the second bullet
+  . This is item number two
+  > 1. This is a sublist
+    . Repeating ">" is optional
+      .. Other list nested inside
+    . Third element of item
+     number two sublist
+    > 1. Nested sublist with
       multiline content
-  . This is number three
+  . This is item number three
   
   [list]
   1. The list attribute forces a
   > new list to start up
   ```
 
-An indented paragraph that follows an indented list item is automatically attached to it.
+Indented paragraphs that follow an indented list item are automatically attached to it.
+The list ends when a non-indented paragraph starts.
 
-Use "+" on an empty line to attach a paragraph to a non-indented list item.
-If the paragraph is indented then it is attached as a code block unless the indent begins with ">".
-
-Additional lines of a non-indented list item can optionally be indented using ">" at the
-beginning of each. That can continue for multiple paragraphs with an empty ">" line
-joining them.
+Additional lines of a non-indented list item can optionally be indented using an indent
+sign at the beginning of each, which can be replaced with spaces after the first line.
+Alternatively a sequence of "+" nesting signs at the start of an empty line sets the
+nesting level for the next indented block or paragraph.
+Repeated indent or nesting signs can optionally be separated by spaces.
 
 ### Enumerations
 
-  ```
-  Choose a size:
-  - short
-  - regular
-  - large
-  ```
+```
+Choose a size:
+- short
+- regular
+- large
+```
 
-The dash "-" at the start of a line is reserved for an enumeration. An enumeration item does not behave like a list item.
-In particular it does not allow nesting and does not allow leading whitespace unless it is an indented paragraph.
+The dash "-" at the start of a line is reserved for an enumeration or a quotation.
+An enumeration item does not behave like a list item.
+In particular it does not allow nesting and can appear in the middle of an indented paragraph.
 
-In contrast with a list, an enumeration can appear in the middle of an indented paragraph.
+An empty line should separate an enumeration from the text that follows.
 
 ### Hyperlinks
 
 [code=markdown]
-  ```
-  [Go to Products page on this site](/Products.html)
-  
-  [Go to Offers page in current path](Offers.html)
-  
-  [Go to an arbitrary webpage](https://www.github.com)
-  
-  Part 1: {#anchor} This text is selected by the anchor.
-  
-  [Go to Part 1](#anchor)
-  ```
+```
+[Go to Products page on this site](/Products.html)
+
+[Go to Offers page in current path](Offers.html)
+
+[Go to an arbitrary webpage](https://www.github.com)
+
+Part 1: {#anchor} This text is selected by the anchor.
+
+[Go to Part 1](#anchor)
+```
 
 The text inside square brackets becomes a hyperlink which loads the content
 specified in the round brackets. If the square brackets are only [?]
@@ -255,9 +252,9 @@ text matches a section title then the link goes to that section.
 When the output format allows it, footnotes {`^`} and bibliographic references
 {`>`} are also hyperlinks.
 
-Example:
+> Example:
 
-[code=markdown]
+  [code=markdown]
   ```
   There are contractual implications to this statement.{^terms}
   
@@ -271,12 +268,12 @@ The initial ">" on the lines that follows a marker is optional.
 ### Inline Content
 
 [code=markdown]
-  ```
-  = sample image
-  [!image Arcadam logo](Arcadam-logo.png)
-  
-  The Github mascot: [?image Github](octocat.jpg)
-  ```
+```
+= sample image
+[!image Arcadam logo](Arcadam-logo.png)
+
+The Github mascot: [?image Github](octocat.jpg)
+```
 
 Use the "image" [custom control](#customisation) to insert an image or the "video" custom control to insert a video.
 The content type should have "!" in front to put the content in a new block
@@ -289,16 +286,16 @@ Content captions are set using a [Block Title]().
 ### Block Title
 
 [code=markdown]
-  ```
-  = Fruit basket
-  ,===
-  apples,oranges,pears
-  ,===
-  
-  = A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
-  [width=200,height=100]
-  [!image Sunset](sunset.jpg)
-  ```
+```
+= Fruit basket
+,===
+apples,oranges,pears
+,===
+
+= A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
+[width=200,height=100]
+[!image Sunset](sunset.jpg)
+```
 
 A block title starts with "=" and a space. It comes before the
 attributes. A block title can continue on more than one line;
@@ -310,7 +307,6 @@ a horizontal line, it is used as the document title.
 If a block title is added to a block image, it is used as caption.
 If the image caption contains a link then clicking on the
 image loads the (first) link.
-In indented text the block title must be the first line of a paragraph.
 
 ### Replacement values
 
@@ -320,9 +316,9 @@ If the value continues on more than one line then the additional lines must
 be introduced with ">" at the start. Arcadam blocks and commands cannot be used.
 Once defined, replacement values can be added anywhere using the key name.
 
-Example:
+> Example:
 
-[code=markdown]
+  [code=markdown]
   ```
   Using the {key-name}
   
@@ -335,34 +331,32 @@ The key name is replaced with the value to be inserted.
 
 Code blocks (monospaced):
 
-[code]
-....
-
-    Indented text without
-    line breaks is added 
-    to a code block
-  
-   Normal text after a code block
-
-   That is another paragraph.
+> [code]
+  ~~~~
+    Indented text is added to
+    a code block unless the
+    previous line starts with
+    "+" or ">"
   
   ```
-  An indented code block
-  can also be delimited.
-  
-  It allows empty lines
+  Another way to create a code
+  block is to use the ``` block
+  delimiter
   ```
+  ~~~~
 
-```
-Another way to create a code
-block is to use the ``` block
-delimiter
-```
-....
+A paragraph of indented text which is not attached becomes a code block.
+Indented text attaches to the previous paragraph if it is an indented
+paragraph, including indented with ">", or it contains only nesting
+signs "+".
 
-A single paragraph of indented text becomes a code block, but any indented paragraph that follows is normal text unless it is delimited.
+For simplicity the processor only looks at the first character of the
+line: ">", "+" and whitespace prevent the paragraph from becoming a code
+block.
 
-Other blocks:
+Block delimiters can only be indented with whitespace.
+
+> Other blocks:
 
   ```
   ___
@@ -381,28 +375,28 @@ Other blocks:
   highlight an idea
   ****
   
-  ....
+  ~~~~
   Content block for text
   content understood by a
   plug-in or external app
-  ....
+  ~~~~
   ```
 
 ### Tables
 
-  ```
-  |===
-  | Header 1
-  | Header 2
-  | Header 3
-  |:
-  | Row 1 Column 1 | Row 1 Column 2
-  | Row 1 Column 3
-  
-  | Row 2 Column 1
-  2+| Row 2 Merged columns 2, 3
-  |===
-  ```
+```
+|===
+| Header 1
+| Header 2
+| Header 3
+|:
+| Row 1 Column 1 | Row 1 Column 2
+| Row 1 Column 3
+
+| Row 2 Column 1
+2+| Row 2 Merged columns 2, 3
+|===
+```
 
 A line starting with "|:" separates the header row from the following rows.
 If that line is missing the table has no headers by default.
@@ -414,10 +408,10 @@ there should be an empty line before the next row.
 
 Arcadam markup can be used inside a table cell.
 When the contents of a cell are written on multiple lines they can optionally be
-indented with ">" at the beginning of each. The start of
+indented with a ">" indent sign at the beginning of each. The start of
 next cell must be in a normal paragraph or on a new line.
 
-Other table styles:
+> Other table styles:
 
   ```
   [table]
@@ -445,28 +439,30 @@ Other table styles:
 
 ### Forms
 
-  ```
-  [form]
-  ====
-  = Field label
-  [!input input-id= Default value]
-  
-  [checkbox]
-  |+| Checkbox description | value
-  | | Unchecked checkbox description
-  
-  [options,value="choice 2"]
-  * choice 1
-  * choice 2
-  * choice 3
-  
-  = Picker label
-  [picker]
-  Any valid Arcadam content
-  
-  [?submit Send](target) [?cancel](home) [?clear]()
-  ====
-  ```
+```
+[form]
+====
+= Field label
+[!input input-id= Default value]
+
+[checkbox]
+|+| Checkbox description | value
+| | Unchecked checkbox description
+
+[options,value="choice 2"]
+* choice 1
+* choice 2
+* choice 3
+
+= Picker label
+[picker]
+Any valid Arcadam content
+
+[?submit Send](target)
+[?cancel](home)
+[?clear]()
+====
+```
 
 A form layout has two columns, one for labels and one for form elements.
 An input field label or a picker label appears in the first column while
@@ -493,7 +489,7 @@ picture used as button label. The "call" custom control sends
 information about the button to a predefined function with the name
 and the parameter value that follow. 
 
-Example:
+> Example:
 
   ```
   :key:submit-button [?image](submit-button.png)
@@ -503,30 +499,30 @@ Example:
 
 ### Tabs
 
-  ```
-  [tabset]
-  --
-  [tablist,id=maintab,value=Products]
-  * Products
-  * Portfolio
-  * Contact
-  
-  [tab="maintab:Products"]
-  ****
-  This is the products tab
-  ****
-  
-  [tab="maintab:Portfolio"]
-  ****
-  This is the portfolio tab
-  ****
-  
-  [tab="maintab:Contact"]
-  ****
-  This is the contact tab
-  ****
-  --
-  ```
+```
+[tabset]
+--
+[tablist,id=maintab,value=Products]
+* Products
+* Portfolio
+* Contact
+
+[tab="maintab:Products"]
+****
+This is the products tab
+****
+
+[tab="maintab:Portfolio"]
+****
+This is the portfolio tab
+****
+
+[tab="maintab:Contact"]
+****
+This is the contact tab
+****
+--
+```
 
 If a block title is defined for a tab then that replaces the item in the
 tablist as the tab title.
@@ -546,27 +542,27 @@ an item. The tablist "value" attribute defines the initial tab selection.
 
 ### Mathematical Notation
 
-  ```
-  = Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif)
-  > where {`a}, {`b} and {`c} are the side lengths. 
-  ....
-  // Comments, replacement values and callouts are allowed
-  mtable(
-    msup(\( a + b \) : 2) ` = ` msup(c 2) + 4 &sdot \( mfrac(1 : 2) * a * b \)
-    : msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
-    : msup(a 2) + msup(b 2) ` = ` msup(c 2)
-  )
-  ....
-  
-  ....
-    msub("C" x) msub("H" (2 y))
-    mover(&rightarrow : \( "burned in O~2~" \))
-    x _ "CO~2~" + y _ "H~2~O"
-  ....
-  
-  Using half angle formula:
-  {`tan #(mfrac(π 12)) = mfrac(1 - cos #(mfrac(π 6)) : sin #(mfrac(π 6))) = 2 - msqrt(3)}
-  ```
+```
+= Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif)
+> where {`a}, {`b} and {`c} are the side lengths. 
+~~~~
+// Comments, replacement values and callouts are allowed
+mtable(
+  msup(\( a + b \) : 2) ` = ` msup(c 2) + 4 &sdot \( mfrac(1 : 2) * a * b \)
+  : msup(a 2) + 2 * a * b + msup(b 2) ` = ` msup(c 2) + 2 * a * b
+  : msup(a 2) + msup(b 2) ` = ` msup(c 2)
+)
+~~~~
+
+~~~~
+  msub("C" x) msub("H" (2 y))
+  mover(&rightarrow : \( "burned in O~2~" \))
+  x _ "CO~2~" + y _ "H~2~O"
+~~~~
+
+Using half angle formula:
+{`tan #(mfrac(π 12)) = mfrac(1 - cos #(mfrac(π 6)) : sin #(mfrac(π 6))) = 2 - msqrt(3)}
+```
 
 [Result](lab/MathML.jpg)
 
@@ -580,7 +576,7 @@ Attributes can be applied by appending a tilde "~" and a replacement key name to
 The replacement value contains the attributes.
 Formulas can be aligned in a table-like matrix using "mtable" with the backtick "`" as cell separator and the colon ":" as row separator.
 
-Symbols with a special meaning are:
+> Symbols with a special meaning are:
 
   ```
   ;     invisible comma
@@ -599,22 +595,22 @@ Symbols with a special meaning are:
 
 ### Customisation
 
-Arcadam offers custom content blocks, custom controls, custom elements and custom markers.
+```
+[content=text/html]
+~~~~
+<strong>&quot;Hello!&quot;</strong>
+~~~~
 
-  ```
-  [content=text/html]
-  ....
-  <strong>&quot;Hello!&quot;</strong>
-  ....
-  
-  [!type Standalone control](additional info)
-  
-  Inline control: [?type Optional details](brackets required here)
-  
-  {@ custom element}
-  
-  [@custom marker]:
-  ```
+[!type Standalone control](additional info)
+
+Inline control: [?type Optional details](brackets required here)
+
+{@ custom element}
+
+[@custom marker]:
+```
+
+Arcadam offers custom content blocks, custom controls, custom elements and custom markers.
 
 When the content block type contains "/" it is considered a MIME type.
 
@@ -624,7 +620,7 @@ On the other hands, the end brackets are required even if they are empty for an 
 A custom element can be used anywhere. It always starts with a special character.
 A custom marker applies to the following paragraph or block. It must be on its own line.
 A custom marker always starts with a special character.
-The optional ">" symbol at the beginning of the lines that follow is removed in the output.
+The optional ">" indent sign at the beginning of the lines that follow is removed in the output.
 
 A custom marker can be followed by a single character on the same line to change the paragraph or block visibility.
 
@@ -647,9 +643,9 @@ An attribute is written inside square brackets and applies to the immediate foll
 
 Additional attributes can be applied using commas to separate them.
 
-Example:
+> Example:
 
-[code=html]
+  [code=html]
   ```
   [code=xml,.partial]
     <root>
@@ -681,9 +677,9 @@ Example:
 ### Include
 
 [code=markdown]
-  ```
-  [!include region](Shared-file.arcd)
-  ```
+```
+[!include region-tag](Shared-file.arcd)
+```
 
 Use the "include" [custom control]() to insert the contents
 of an Arcadam file found at the specified location.
@@ -699,7 +695,7 @@ is disabled by default.
 The begin and end tags define a named region for include:
 
 [code]
-....
+~~~~
 {:begin region}
 This text can be included
 on its own
@@ -713,30 +709,30 @@ on its own
     // {:end coderegion}```
     the line.
     ```
-....
+~~~~
 
 ### Callouts
 
 [code=ruby]
-....
-  ```
-  require 'sinatra'
-  # {1}```
-  
-  get '/hi' do
-    # {2}```
-    "Hello World!"
-    # {3}```
-  end
-  
-  #   {:in ruby}```
-  ```
+~~~~
+```
+require 'sinatra'
+# {1}```
+
+get '/hi' do
+  # {2}```
+  "Hello World!"
+  # {3}```
+end
+
+#   {:in ruby}```
+```
 
   + [?info Import](1): Library import
   + [?info Mapping](2): URL mapping
   + [?info Response](3): HTTP response body
 
-....
+~~~~
 
 For automatic callout numbering use `{#}` and `(#)` instead of numbers.
 Allowed numbers go from 0 to 9 and can be replaced in the output to keep them in sequence.
@@ -753,14 +749,14 @@ the closing comment marker `*/` in C.
 
 ### Comments
 
-  ```
-  // Line comment
-  
-  ////
-  Comment 
-  block
-  ////
-  ```
+```
+// Line comment
+
+////
+Comment 
+block
+////
+```
 
 Comments are for information only.
 Only line comments can be used in an indented paragraph.
@@ -781,7 +777,7 @@ synchronisation marks `@` which serve as placeholders for
 untranslatable text. These marks always appear at the start of
 a line.
 
-The following are included in the translation:
+> The following are included in the translation:
 
   * formatting
   * hyperlinks and custom controls (images and buttons)
@@ -793,25 +789,25 @@ The following are included in the translation:
 By default, code and content blocks are excluded. To include a code block
 use the "localize" attribute:
 
-[code]
-....
-[localize=Y]
-```
-This will be translated.
-```
-    
-    ```
-    Use a localize tag inside a code
-    // {:localize Y +1}```
-    block to translate the line above.
-    You can also extend the selection
-    by adding a number of lines below
-    the tag that should be translated.
-    ```
-....
+> [code]
+  ~~~~
+  [localize=Y]
+  ```
+  This will be translated.
+  ```
+      
+      ```
+      Use a localize tag inside a code
+      // {:localize Y +1}```
+      block to translate the line above.
+      You can also extend the selection
+      by adding a number of lines below
+      the tag that should be translated.
+      ```
+  ~~~~
 
-Conversely, the attribute can be used to prevent the translation
-of text:
+  Conversely, the attribute can be used to prevent the translation
+  of text:
 
   ```
   [localize=N]
