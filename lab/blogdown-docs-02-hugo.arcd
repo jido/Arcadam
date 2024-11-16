@@ -856,7 +856,7 @@ The XMin is actually a highly functional theme, but we understand that it may be
   See [?](https://github.com/yihui/hugo-xmin/pull/7) for an implementation with examples.
 
 + *Display categories and {+tags} in a post if provided in its YAML.*: Add the code below where you want to place the categories and
-  tags in `single.html`, e.g., in `<div class="article-meta"></div>`.
+tags in `single.html`, e.g., in `<div class="article-meta"></div>`.
 .
     ```
     <p class="terms">

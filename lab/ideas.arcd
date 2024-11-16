@@ -388,18 +388,6 @@ continued
 [width=200,height=100]
 [!image Sunset](sunset.jpg)
 
-> this is still part of the first bullet
- 1. sublist item
- continued
- 
- still in sublist
->> This is part of 
- the sublist
-> This is part of first
- bullet
-
-This is not part of the list.
-
 To start a paragraph with different level, use > to indicate the level.
 Indented or non-indented.
 If non-indented use > to set the level of next paragraph
@@ -412,13 +400,47 @@ Indented continuation after > line is part of same regular paragraph
 
 next indented block attaches to it
 
-
 * Any text can be indented with > for layout reasons
-* Commands and block delimiters must not be indented with >
-* A spaces-indented line that follows a ">"-indented line without empty lines in between is a continuation of it
+* A spaces-indented line that follows a ">"-indented line is a continuation of it
 * The next indented block or paragraph gets attached to it
-* Commands and blocks can be indented with spaces
-* An indented code block follows an empty line if the line before was non-indented (> does not affect that)
+* Commands and blocks can be indented with spaces (and ">"?)
+* An indented code block follows an empty line if the line before was non-indented
 * Space-indented lines that follow an indented code block are attached to it
 * An empty line with as many > as the item level attaches the following block or paragraph to a list item
 * That also works with nested custom markers
+
+Using the dot as nesting sign instead of ">" since nesting and indent can differ + Markdown looks funny with ">".
+
+Indenting indents -> only lines that don't start with spaces
+
+> indent me
+  continued
+
+  * list item
+  > next line
+
+> end of list, still indented
+
+adding one level:
+
+> indenting
+> > indent me
+    continued
+
+    * list item
+    > next line
+
+> > end of list, still indented
+
+With all the indent signs:
+
+> > indent me
+> > continued
+> >
+> > * list item
+> > > next line
+> >
+> > end of list, still indented
+
+But what if there are nesting signs "."?
+Should we allow ">."?
