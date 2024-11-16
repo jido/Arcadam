@@ -378,7 +378,7 @@ Region search: split the file on \{:begin\s+
 Other blocks -> don't have same constraints
 * Should we allow them to be indented? What about attributes?
 
-Reduce use of "+" to join parts
+Reduce/eliminate use of "+" to join parts
 
 Could use > *N to indent the following block by N levels
 

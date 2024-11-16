@@ -41,25 +41,97 @@ This is how to link to a heading in Markdown, which requires knowledge of how th
 
 ## Indented code block
 
-A notable difference with AsciiDoc is the way indented text is handled.
+A notable difference with Markdown and AsciiDoc is the way indented text is handled.
+The number of spaces doesn't have any effect in Arcadam.
 
 The rule is:
 
-> *If an indented block follows another indented block then it is treated as a normal paragraph.*
+> *If an indented block follows another indented block then it continues it*
 > 
-> *If an indented block follows a non-indented line then it is treated as a code block.*
+> *If an indented block follows a line which starts with ">" or "." then it is treated as a normal paragraph*
 > 
-> *A list item is considered as a normal paragraph.*
+> *If the line starts with anything else then an indented block is treated as a code block*
 
-List items are recognised by looking at the first line of the block.
+Any number of indented blocks after a line which doesn't start with ">" or "." are code blocks.
 
-Code blocks can be delimited or non-delimited. A non-delimited code block ends with an empty line.
+These two symbols are the indent and nesting signs respectively.
+The lines that follow are expected to start with ">" or with spaces.
 
-A non-indented line should not follow immediately a code block or it will interrupt it.
+The indent sign can be used purely for aesthetic reasons (indent), or to indicate the nesting level after a nesting element.
+
+List items and custom markers are nesting elements.
+
+To tell the Arcadam processor that the next paragraph should be nested, use the indent sign:
+
+```
+* A bullet point
+
+> This is part of the bullet point too!
+```
+
+Without the indent sign the paragraph would be outside the list (or it would become a code block if it had spaces in front).
+
+All the indented lines that follow are at the same nesting level, unless a line uses an extra ">" after an nesting element.
+
+The following are equivalent:
+
+```
+* A bullet point
+> * a nested item
+> > * more nesting
+> > that is part of previous line
+> >
+> > > adding a paragraph to most
+> > > nested item
+> another line of the bullet point
+```
+
+```
+* A bullet point
+> * a nested item
+  > * more nesting
+    that is part of previous line
+
+    > adding a paragraph to most
+      nested item
+> another line of the bullet point 
+```
+
+Note: since the last line doesn't start with spaces, its only nesting is due to the indent sign ">".
+If you were to move this code into an indented item you would need to add one more ">" in front of that last line.
+
+An alternative way to write the same is with the nesting sign ".":
+
+```
+* A bullet point
+.
+  * a nested item
+..
+    * more nesting
+    that is part of previous line
+...
+      adding a paragraph to most
+      nested item
+.
+  another line of the bullet point
+```
+
+The two can be combined, but since indent signs can be used without adding to the nesting there can be more of them needed to achieve the same effect as nesting signs.
+
+Example:
+
+```
+A paragraph
+
+> Just indenting no nesting
+>
+> * A list item
+  > * nested list item
+    > line 2
+>>  Part of the outside list item
+```
 
 ### More notes:
-
-Arcadam commands, such as attribute line, replacement value definition, block title and comments count as non-indented lines.
 
 ```
     This code block indent
@@ -96,30 +168,29 @@ In addition, an empty line is missing after the end delimiter.
 Hopefully the issue is easy to spot for writers.
 
 ```
-  A code block
+> An indented paragraph
   
   A normal paragraph
     with uneven indent
 A new paragraph
 ```
 
-All lines in an indented paragraph are expected to have the same indent, so this is considered incorrectly formatted.
-
 A line with no indent after an indented line always starts a new paragraph, even if it follows a normal paragraph.
 There should be an empty line between the paragraphs.
 
 ```
-  . Item in a numbered list
-  continued on the next line
+. Item in a numbered list
+> continued on the next line
 
   Another paragraph attached
-+
+
+// Non-indented line
   That is a code block
 ```
 
-If the first indented line is a list item (starts with "1.", dots, stars or contains ":: ") then it is never treated as code.
 A list item can contain multiple indented paragraphs or delimited code blocks.
-It can also contain a non-delimited code block introduced with "+" on an empty line.
+
+Any non-indented line which doesn't start with ">" or "." unsets the nesting level, even a comment.
 
 ## Tables
 
@@ -170,7 +241,7 @@ If the cell starts without a space between "`|`" and the content then it is not 
 Unlike Asciidoc or Markdown, the number of repeated characters in a block boundary is fixed (length 4, 3 or 2) and cannot be increased.
 Arcadam does not use matched boundary lengths for block nesting.
 
-Nesting of the same block is supported in Arcadam by adding an attribute in the line immediately before the start of the block.
+Nesting of the same block is supported in Arcadam using indents or by adding an attribute in the line immediately before the start of the block.
 
 The attributes for the default use of each kind of block are:
 
@@ -211,6 +282,12 @@ A small example
 ====
 
 in the note
+
+> = Using indent
+  ====
+  Another example
+  ====
+
 ====
 ```
 
@@ -231,7 +308,7 @@ The same applies to other elements like a paragraph, a list or a heading.
 Note that header elements are not recognised in the middle of a paragraph. 
 It is recommended to always leave an empty line after the end of a paragraph.
 
-A block boundary *without* an attribute in the line above can be either a block ending or the start of a non-nested block.
+A block boundary of the same indent level *without* an attribute in the line above can be either a block ending or the start of a non-nested block.
 
 ## Empty element
 
