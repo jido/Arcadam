@@ -128,6 +128,7 @@ A paragraph
 > * A list item
   > * nested list item
     > line 2
+    
 >>  Part of the outside list item
 ```
 
@@ -137,8 +138,6 @@ A paragraph
     This code block indent
    reduces
   on each line
-
-    This is a paragraph
 ```
 
 A code block indent is decided by the first line, so the code block above is considered incorrectly formatted.
@@ -153,6 +152,8 @@ Unlike AsciiDoctor, all the lines of the code block must be indented. The second
 and there should be an empty line before.
 
 ~~~
+> indented line
+
   ```
   Indented and delimited
   code block
