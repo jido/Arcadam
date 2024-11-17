@@ -107,7 +107,7 @@ An alternative way to write the same is with the nesting sign ".":
 .
   * a nested item
 ..
-    * more nesting
+    * more nesting -
     that is part of previous line
 ...
       adding a paragraph to most
@@ -116,7 +116,7 @@ An alternative way to write the same is with the nesting sign ".":
   another line of the bullet point
 ```
 
-The two can be combined, but since indent signs can be used without adding to the nesting there can be more of them needed to achieve the same effect as nesting signs.
+The two can be combined, but since indent signs can be used without adding to the nesting and nesting can happen without indent signs the number of them needed to achieve the same effect as nesting signs can vary.
 
 Example:
 
@@ -127,7 +127,7 @@ A paragraph
 >
 > * A list item
   > * nested list item
-    > line 2
+      1. inside list
     
 >>  Part of the outside list item
 ```
