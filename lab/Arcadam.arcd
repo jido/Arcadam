@@ -210,6 +210,7 @@ The list ends when a non-indented paragraph starts.
 
 Additional lines of a non-indented list item can optionally be indented using an indent
 sign at the beginning of each, which can be replaced with spaces after the first line.
+The indent sign is required when adding a paragraph if there are no indented lines before.
 Alternatively a sequence of nesting dots at the start of an empty line sets the
 nesting level for the next indented block or paragraph.
 Repeated indent or nesting signs can optionally be separated by spaces.
