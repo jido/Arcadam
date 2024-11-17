@@ -12,7 +12,7 @@ var Belt_HashMapString = require("rescript/lib/js/belt_HashMapString.js");
 
 var backtick = "`";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:key:subs value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n___\nQuote text using\nunderscores\n___\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n** first sublist\n\n  * sublist\n  * one more\n   1... nested numbered list\n   on two lines\n   ... nested 2\n* Third\n[list]\n. Number one\n\n= Block title\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text without\n  * line breaks is added\n  to a code block\n\n  Normal paragraph after code block\n\n  Another paragraph\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[-begin region]:\nThis text can be included\non its own.\n[-end region]:\nNew block starts after marker\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\n.Nested block<\nA small example\n====\n====\n\n:key:subs value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n___\nQuote text using\nunderscores\n___\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n> * first sublist\n    ** sublist\n    ** one more\n      1... nested numbered list\n      on two lines\n      ... nested 2\n..\n    That was all for first sublist.\n* Third\n[list]\n. Number one\n\n= Block title\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text without\n  * line breaks is added\n  to a code block\n\n  Normal paragraph after code block\n\n  Another paragraph\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[-begin region]:\nThis text can be included\non its own.\n[-end region]:\nNew block starts after marker\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
 
 var alpha = "A-Za-z";
 
@@ -97,8 +97,8 @@ function consumeHeading(line) {
         ];
 }
 
-function consumeSubstitution(line) {
-  var pattern = "^:([" + alpha + "][_" + alnum + "]*(\\.[_" + alnum + "]+)*):\\s+(.*)\$";
+function consumeReplacement(line) {
+  var pattern = "^:key:([" + alpha + "][_" + alnum + "]*(\\.[_" + alnum + "]+)*)\\s+(.*)\$";
   var substLine = new RegExp(pattern);
   var match = getMatches(substLine, line);
   if (match.length !== 4) {
@@ -108,7 +108,7 @@ function consumeSubstitution(line) {
   var value = match[3];
   return [
           {
-            TAG: "SubstitutionDef",
+            TAG: "ReplacementKey",
             _0: name
           },
           {
@@ -236,6 +236,20 @@ function consumeNumberedListItem(line) {
   }
 }
 
+function consumeNestingSigns(line) {
+  var itemLine = /^([.]+)\s*$/;
+  var match = getMatches(itemLine, line);
+  if (match.length !== 2) {
+    return [];
+  }
+  var dots = match[1];
+  var level = dots.length;
+  return [{
+            TAG: "Nesting",
+            _0: level
+          }];
+}
+
 function consumeBlockDelimiter(line) {
   switch (line) {
     case "" :
@@ -250,6 +264,8 @@ function consumeBlockDelimiter(line) {
         return ["QuoteBlockDelimiter"];
     case "```" :
         return ["CodeBlockDelimiter"];
+    case "~~~~" :
+        return ["ContentBlockDelimiter"];
     default:
       return [];
   }
@@ -263,7 +279,13 @@ function consumeRegularLine(line) {
         tok = consumeBulletListItem(line);
         break;
     case "." :
-        tok = consumeNumberedListItem(line);
+        var nesting = consumeNestingSigns(line);
+        if (nesting.length !== 1) {
+          tok = consumeNumberedListItem(line);
+        } else {
+          var _level = nesting[0];
+          tok = typeof _level !== "object" || _level.TAG !== "Nesting" ? consumeNumberedListItem(line) : nesting;
+        }
         break;
     case "[" :
         tok = consumeHyperlink(line);
@@ -304,13 +326,13 @@ function tokeniseInitialLine(line, tok, lnum) {
                       lnum
                     ]);
       case ":" :
-          var tokens$3 = consumeSubstitution(line);
+          var tokens$3 = consumeReplacement(line);
           var exit = 0;
           if (tokens$3.length !== 2) {
             exit = 2;
           } else {
             var _name = tokens$3[0];
-            if (typeof _name !== "object" || _name.TAG !== "SubstitutionDef") {
+            if (typeof _name !== "object" || _name.TAG !== "ReplacementKey") {
               exit = 2;
             } else {
               var _value = tokens$3[1];
@@ -334,7 +356,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      306,
+                      325,
                       10
                     ],
                     Error: new Error()
@@ -373,7 +395,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      287,
+                      306,
                       10
                     ],
                     Error: new Error()
@@ -413,7 +435,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      314,
+                      333,
                       10
                     ],
                     Error: new Error()
@@ -530,7 +552,7 @@ function consumeLine(tok, lnum) {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
                           "arcadam.res",
-                          358,
+                          377,
                           8
                         ],
                         Error: new Error()
@@ -561,7 +583,7 @@ function consumeLine(tok, lnum) {
                           RE_EXN_ID: "Assert_failure",
                           _1: [
                             "arcadam.res",
-                            363,
+                            382,
                             10
                           ],
                           Error: new Error()
@@ -702,16 +724,16 @@ function parseDocument(tok) {
                   return ;
                 }
                 var name$1 = name._0;
-                console.log("Parse: substitution will replace", name$1, "with", value);
+                console.log("Parse: will replace key ", name$1, "with", value);
                 state.contents = "General";
                 return Belt_HashMapString.set(_substitutions, name$1, value);
             case "Attribute" :
                 return parseAttribute(token._0, _attributes);
             case "Marker" :
                 return parseMarker(token._0);
-            case "SubstitutionDef" :
+            case "ReplacementKey" :
                 state.contents = {
-                  TAG: "Substitution",
+                  TAG: "Replacement",
                   _0: token._0
                 };
                 return ;
@@ -786,12 +808,13 @@ exports.outputFormat = outputFormat;
 exports.specialCharsStep = specialCharsStep;
 exports.consumeBlockTitle = consumeBlockTitle;
 exports.consumeHeading = consumeHeading;
-exports.consumeSubstitution = consumeSubstitution;
+exports.consumeReplacement = consumeReplacement;
 exports.consumeAttribute = consumeAttribute;
 exports.consumeHyperlink = consumeHyperlink;
 exports.consumeMarker = consumeMarker;
 exports.consumeBulletListItem = consumeBulletListItem;
 exports.consumeNumberedListItem = consumeNumberedListItem;
+exports.consumeNestingSigns = consumeNestingSigns;
 exports.consumeBlockDelimiter = consumeBlockDelimiter;
 exports.consumeRegularLine = consumeRegularLine;
 exports.EndOfBlock = EndOfBlock;

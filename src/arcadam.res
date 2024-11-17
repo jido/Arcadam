@@ -51,13 +51,14 @@ Paragraph:
 * First<
 multi line
 * Second&&
-** first sublist
-
-  * sublist
-  * one more
-   1... nested numbered list
-   on two lines
-   ... nested 2
+> * first sublist
+    ** sublist
+    ** one more
+      1... nested numbered list
+      on two lines
+      ... nested 2
+..
+    That was all for first sublist.
 * Third
 [list]
 . Number one
@@ -148,16 +149,18 @@ type token =
   | NumberedListItem(int) // . List item
   | IndentedBulletListItem(int) // * List item
   | IndentedNumberedListItem(int) // . List item
+  | Nesting(int) // Dots alone
   | Marker(string) // [marker]:
-  | SubstitutionDef(string) // :name: value
+  | ReplacementKey(string) // :key:name value
   | Hyperlink(string) // [text](address)
   | FreeBlockDelimiter // --
   | CodeBlockDelimiter // ```
   | QuoteBlockDelimiter // ___
   | ExampleBlockDelimiter // ====
   | SidebarBlockDelimiter // ****
-  | BlockTitle(string) // .Block title
-  | SubstitutionUse(string) // {name}
+  | ContentBlockDelimiter // ~~~~
+  | BlockTitle(string) // = Block title
+  | ReplacementUse(string) // {name}
 
 type lineType =
   | Initial
@@ -184,11 +187,11 @@ let consumeHeading = line => {
   }
 }
 
-let consumeSubstitution = line => {
-  let pattern = `^:([${alpha}][_${alnum}]*(\\.[_${alnum}]+)*):\\s+(.*)\$`
+let consumeReplacement = line => {
+  let pattern = `^:key:([${alpha}][_${alnum}]*(\\.[_${alnum}]+)*)\\s+(.*)\$`
   let substLine = Js.Re.fromString(pattern)
   switch substLine->getMatches(line) {
-  | [_, name, _, value] => [SubstitutionDef(name), Text(value)]
+  | [_, name, _, value] => [ReplacementKey(name), Text(value)]
   | _ => []
   }
 }
@@ -243,6 +246,16 @@ let consumeNumberedListItem = line => {
   }
 }
 
+let consumeNestingSigns = line => {
+  let itemLine = %re("/^([.]+)\s*$/")
+  switch itemLine->getMatches(line) {
+  | [_, dots] =>
+    let level = dots->String.length
+    [Nesting(level)]
+  | _ => []
+  }
+}
+
 let consumeBlockDelimiter = line =>
   switch line {
   | "" => [Empty]
@@ -251,6 +264,7 @@ let consumeBlockDelimiter = line =>
   | "___" => [QuoteBlockDelimiter]
   | "====" => [ExampleBlockDelimiter]
   | "****" => [SidebarBlockDelimiter]
+  | "~~~~" => [ContentBlockDelimiter]
   | _ => []
   }
 
@@ -259,7 +273,12 @@ let consumeRegularLine = line => {
   let tok = switch chara {
   | "[" => consumeHyperlink(line)
   | "*" => consumeBulletListItem(line)
-  | "." => consumeNumberedListItem(line)
+  | "." =>
+    let nesting = consumeNestingSigns(line)
+    switch nesting {
+    | [Nesting(_level)] => nesting
+    | _ => consumeNumberedListItem(line)
+    }
   | _ => []
   }
   if tok == [] {
@@ -297,9 +316,9 @@ let tokeniseInitialLine = (line, tok, lnum) => {
           resolve((tok->Array.concat(tokens), Following, lnum))
         }
       | ":" =>
-        let tokens = consumeSubstitution(line)
+        let tokens = consumeReplacement(line)
         switch tokens {
-        | [SubstitutionDef(_name), Text(_value)] =>
+        | [ReplacementKey(_name), Text(_value)] =>
           //let subs = subs->List.add((name, value))
           resolve((tok->Array.concat(tokens), Initial, lnum))
         | _ =>
@@ -432,7 +451,7 @@ let parseMarker = atext => {
 
 type parseState =
   | General
-  | Substitution(string)
+  | Replacement(string)
 
 let parseDocument = tok => {
   let _attributes = HashMap.String.make(~hintSize=10)
@@ -442,11 +461,11 @@ let parseDocument = tok => {
     switch token {
     | Attribute(attributeList) => parseAttribute(attributeList, _attributes)
     | Marker(marker) => parseMarker(marker)
-    | SubstitutionDef(name) => state := Substitution(name)
+    | ReplacementKey(name) => state := Replacement(name)
     | Text(value) =>
       switch state.contents {
-      | Substitution(name) =>
-        Js.log4("Parse: substitution will replace", name, "with", value)
+      | Replacement(name) =>
+        Js.log4("Parse: will replace reference", name, "with", value)
         state := General
         _substitutions->HashMap.String.set(name, value)
       | General =>
