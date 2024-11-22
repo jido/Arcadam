@@ -64,7 +64,7 @@ to the block.
 --
 ```
 
-A paragraph must be followed by an empty line or an indented line. If the
+A paragraph should be followed by an empty line. If the
 paragraph is at the end of a block, then the empty or indented line can
 come after the end block marker. In practice, that means it is better to
 separate paragraphs with empty lines and always leave an empty line after
@@ -173,7 +173,6 @@ nested. The ">" indent sign can be used to mark the nesting level, and it
 can be replaced with spaces after the first line. The count of spaces has
 no importance.
 
-An indented list cannot start in the middle of an indented paragraph, there must be an empty line in-between.
 The list markers can be repeated to indicate the level,
 just like [headings](#headings).
 
@@ -203,10 +202,12 @@ The list ends when a non-indented paragraph starts.
 
 Additional lines of a non-indented list item can optionally be indented using an indent
 sign at the beginning of each, which can be replaced with spaces after the first line.
-The indent sign is required when adding a paragraph if there are no indented lines before.
+The indent sign is required when adding a paragraph if there are no indented lines before,
+to signify its nesting.
+
 Alternatively a sequence of nesting dots at the start of an empty line sets the
 nesting level for the next indented block or paragraph.
-Repeated indent or nesting signs can optionally be separated by spaces.
+Repeated indent signs can optionally be separated by spaces.
 
 ### Enumerations
 
@@ -272,7 +273,7 @@ or it should have "?" in front for content floating in line with the text.
 
 The remainder of the text in square brackets is used as the "alt" label in HTML.
 
-Content captions are set using a [Block Title](#block-title).
+Content captions are set using a block title.
 
 ### Block Title
 
@@ -341,10 +342,8 @@ paragraph, including indented with ">", or it contains only nesting
 signs ".".
 
 For simplicity the processor only looks at the first character of the
-line: ">", "." and whitespace prevent the paragraph from becoming a code
+line: ">", "." and whitespace prevent the next paragraph from becoming a code
 block.
-
-Block delimiters can only be indented with whitespace.
 
 Other blocks:
 
@@ -459,8 +458,9 @@ An input field label or a picker label appears in the first column while
 a checkbox description or text for an option appears in the second column.
 
 All form elements can have a value. If an element also has an id then the
-value becomes a replacement value using the id of the element as key. In case of
-a checkbox, the replacement value is only defined when the checkbox is
+value becomes a replacement value using the id of the element as key.
+
+In case of a checkbox, the replacement value is only defined when the checkbox is
 checked. The default value is "on".
 
 In case of options, if the list is a description list then the
@@ -474,7 +474,9 @@ the form to the target. The "cancel" action abandons the form and loads
 the target. The "clear" action clears all the selections.
 
 The cancel and clear buttons show a dialog asking for confirmation
-if the user made any changes. A button can be activated by clicking a
+if the user made any changes.
+
+A button can be activated by clicking a
 picture used as button label. The "call" custom control sends
 information about the button to a predefined function with the name
 and the parameter value that follow. 
@@ -748,7 +750,6 @@ block
 ```
 
 Comments are for information only.
-Only line comments can be used in an indented paragraph.
 
 ### Localisation
 
