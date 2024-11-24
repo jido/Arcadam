@@ -163,7 +163,7 @@ it is missing an end delimiter
 ~~~
 
 This document is really broken. Because of the non-indented line, the code block ends early. 
-The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes a start block delimiter instead.
+The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes the start of an indented code block instead.
 In addition, an empty line is missing after the end delimiter.
 
 Hopefully the issue is easy to spot for writers.
@@ -325,18 +325,8 @@ It can be used to unset a replacement value:
 Or to add a list item without any text:
 
 ```
-  * {:empty}
+* {:empty}
 ```
-
-It can also be used to create an empty code block so that the next block is an indented paragraph instead of a code block:
-
-```
-  {:empty}```
-
-  Indented paragraph
-```
-
-The latter should be used sparingly as it could cause confusion.
 
 ## Text formatting
 

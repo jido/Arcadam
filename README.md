@@ -720,7 +720,7 @@ end
 #   {:in ruby}```
 ```
 
-  + [?info Import](1): Library import
+> + [?info Import](1): Library import
   + [?info Mapping](2): URL mapping
   + [?info Response](3): HTTP response body
 ~~~
