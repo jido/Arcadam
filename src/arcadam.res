@@ -69,13 +69,14 @@ unindented code block
   indented line inside code block
 ${backtick}${backtick}${backtick}
 
-  Indented text without
-  * line breaks is added
-  to a code block
+  Indented text is added
+  * to a code block
 
-  Normal paragraph after code block
+  code block continued
 
-  Another paragraph
+// comment
+
+\tAnother code block
 
 ${backtick}${backtick}${backtick}
 Another way to create
@@ -149,6 +150,8 @@ type token =
   | NumberedListItem(int) // . List item
   | IndentedBulletListItem(int) // * List item
   | IndentedNumberedListItem(int) // . List item
+  | IndentSign(int) // >
+  | Spaces(int)
   | Nesting(int) // Dots alone
   | Marker(string) // [marker]:
   | ReplacementKey(string) // :key:name value
@@ -168,6 +171,23 @@ type lineType =
   | Code
   | Indented
   | List
+
+let consumeSpaces = line => {
+  let spacesIndent = %re("/^[ ]+/")
+  switch spacesIndent->getMatches(line) {
+  | [indent] => [Spaces(indent->String.length)]
+  | _ => []
+  }
+}
+
+let consumeIndentSign = line => {
+  let indentSign = %re("/^(>>|>\s+)/")
+  switch indentSign->getMatches(line) {
+  | [_, ">>"] => [IndentSign(1)]
+  | [_, indent] => [IndentSign(indent->String.length)]
+  | _ => []
+  }
+}
 
 let consumeBlockTitle = line => {
   let blockTitleLine = %re("/^=\s+(.*)$/")
@@ -221,7 +241,7 @@ let consumeMarker = line => {
 }
 
 let consumeBulletListItem = line => {
-  let itemLine = %re("/^\s*([*]+)\s+(.*)$/")
+  let itemLine = %re("/^([*]+)\s+(.*)$/")
   switch itemLine->getMatches(line) {
   | [_, stars, text] =>
     let level = stars->String.length
@@ -234,7 +254,7 @@ let consumeBulletListItem = line => {
 }
 
 let consumeNumberedListItem = line => {
-  let itemLine = %re("/^\s*1?([.]+)\s+(.*)$/")
+  let itemLine = %re("/^1?([.]+)\s+(.*)$/")
   switch itemLine->getMatches(line) {
   | [_, dots, text] =>
     let level = dots->String.length
@@ -273,6 +293,7 @@ let consumeRegularLine = line => {
   let tok = switch chara {
   | "[" => consumeHyperlink(line)
   | "*" => consumeBulletListItem(line)
+  | ">" => consumeIndentSign(line)
   | "." =>
     let nesting = consumeNestingSigns(line)
     switch nesting {
@@ -290,7 +311,7 @@ let consumeRegularLine = line => {
 
 exception EndOfBlock(array<token>)
 
-let tokeniseInitialLine = (line, tok, lnum) => {
+let rec tokeniseInitialLine = (line, tok, lnum) => {
   let tokens = consumeBlockDelimiter(line)
   switch tokens {
   | [CodeBlockDelimiter] => resolve((tok->Array.concat(tokens), Code, lnum))
@@ -340,16 +361,15 @@ let tokeniseInitialLine = (line, tok, lnum) => {
           }
         }
       | " " | "\t" =>
-        let tokens = consumeBulletListItem(line)
-        if tokens == [] {
-          let tokens = consumeNumberedListItem(line)
-          if tokens == [] {
-            resolve((tok->Array.concat([IndentedText(line)]), Indented, lnum))
-          } else {
-            resolve((tok->Array.concat(tokens), List, lnum))
-          }
-        } else {
-          resolve((tok->Array.concat(tokens), List, lnum))
+        let tokens = consumeSpaces(line)
+        switch tokens {
+        | [Spaces(count)] =>
+          let rest = Js.String.sliceToEnd(line, ~from=count)
+          let tok = tok->Array.concat(tokens)
+          tokeniseInitialLine(rest, tok, lnum)
+        | _ =>
+          assert(Js.String.startsWith("\t", line))
+          resolve((tok->Array.concat([Spaces(1)]), Indented, lnum))
         }
       | _ =>
         let tokens = consumeRegularLine(line)
