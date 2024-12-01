@@ -12,7 +12,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@ryyppy/rescript-promise": "^2.1.0",
-    "rescript": "^11.0.0-beta.3"
+    "@rescript/core": "^1.6.1",
+    "rescript": "^11.1.4"
   }
 }

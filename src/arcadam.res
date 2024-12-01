@@ -1,5 +1,3 @@
-open Belt
-
 let backtick = "`"
 
 let source = `
@@ -10,7 +8,7 @@ block within this block:
 
 [example]
 ====
-.Nested block<
+Nested block<
 A small example
 ====
 ====
@@ -104,23 +102,17 @@ let alpha = "A-Za-z"
 let alnum = "0-9" ++ alpha
 
 let getMatches = (regex, someline) =>
-  switch regex->Js.Re.exec_(someline) {
-  | Some(result) =>
-    Js.Re.captures(result)->Array.map(x => Js.Nullable.toOption(x)->(Option.getWithDefault(_, "")))
+  switch regex->RegExp.exec(someline) {
+  | Some(result) => result->RegExp.Result.matches
   | None => []
   }
 
 exception EndOfFile(string)
-let lines = "\n"->Js.String.split(source)
+let lines = source->String.split("\n")
 
 let nextLine = lnum =>
   switch lines[lnum] {
-  | Some(line) =>
-    let trimEnd = %re("/^((\s*[^\s]+)*)\s*$/")
-    switch trimEnd->getMatches(line) {
-    | [_, line, _] => resolve((line, lnum + 1))
-    | _ => resolve(("", lnum + 1))
-    }
+  | Some(line) => resolve((line->String.trimEnd, lnum + 1))
   | None => reject(EndOfFile("EOF"))
   }
 
@@ -133,9 +125,9 @@ let outputFormat = Html
 let specialCharsStep = text =>
   switch outputFormat {
   | Html =>
-    let result = Js.String.replaceByRe(%re("/&/g"), "&amp;", text)
-    let result = Js.String.replaceByRe(%re("/</g"), "&lt;", result)
-    Js.String.replaceByRe(%re("/>/g"), "&gt;", result)
+    let result = text->String.replaceAllRegExp(%re("/&/g"), "&amp;")
+    let result = result->String.replaceAllRegExp(%re("/</g"), "&lt;")
+    result->String.replaceAllRegExp(%re("/>/g"), "&gt;")
   | Asciidoc => text
   }
 
@@ -173,7 +165,7 @@ type lineType =
   | List
 
 let consumeSpaces = line => {
-  let spacesIndent = %re("/^[ ]+/")
+  let spacesIndent = %re("/^([ ]+)/")
   switch spacesIndent->getMatches(line) {
   | [indent] => [Spaces(indent->String.length)]
   | _ => []
@@ -183,8 +175,8 @@ let consumeSpaces = line => {
 let consumeIndentSign = line => {
   let indentSign = %re("/^(>>|>\s+)/")
   switch indentSign->getMatches(line) {
-  | [_, ">>"] => [IndentSign(1)]
-  | [_, indent] => [IndentSign(indent->String.length)]
+  | [">>"] => [IndentSign(1)]
+  | [indent] => [IndentSign(indent->String.length)]
   | _ => []
   }
 }
@@ -192,7 +184,7 @@ let consumeIndentSign = line => {
 let consumeBlockTitle = line => {
   let blockTitleLine = %re("/^=\s+(.*)$/")
   switch blockTitleLine->getMatches(line) {
-  | [_, title] => [BlockTitle(title)]
+  | [title] => [BlockTitle(title)]
   | _ => []
   }
 }
@@ -200,7 +192,7 @@ let consumeBlockTitle = line => {
 let consumeHeading = line => {
   let titleLine = %re("/^(#+)\s+([^\s].*)$/")
   switch titleLine->getMatches(line) {
-  | [_, signs, title] =>
+  | [signs, title] =>
     let level = signs->String.length
     [Heading(level), Text(title)]
   | _ => []
@@ -209,9 +201,9 @@ let consumeHeading = line => {
 
 let consumeReplacement = line => {
   let pattern = `^:key:([${alpha}][_${alnum}]*(\\.[_${alnum}]+)*)\\s+(.*)\$`
-  let substLine = Js.Re.fromString(pattern)
+  let substLine = RegExp.fromString(pattern)
   switch substLine->getMatches(line) {
-  | [_, name, _, value] => [ReplacementKey(name), Text(value)]
+  | [name, _, value] => [ReplacementKey(name), Text(value)]
   | _ => []
   }
 }
@@ -219,7 +211,7 @@ let consumeReplacement = line => {
 let consumeAttribute = line => {
   let attrLine = %re("/^\[\s*([^\[\]]*)\]$/")
   switch attrLine->getMatches(line) {
-  | [_, attributes] => [Attribute(attributes)]
+  | [attributes] => [Attribute(attributes)]
   | _ => []
   }
 }
@@ -227,7 +219,7 @@ let consumeAttribute = line => {
 let consumeHyperlink = line => {
   let hlinkLine = %re("/\[\s*([^\]]*)\]\(\s*([^\s\)]*)\s*\)/")
   switch hlinkLine->getMatches(line) {
-  | [_, text, link] => [Hyperlink(link), Text(text)] // do NOT merge text token with the next
+  | [text, link] => [Hyperlink(link), Text(text)] // do NOT merge text token with the next
   | _ => []
   }
 }
@@ -235,7 +227,7 @@ let consumeHyperlink = line => {
 let consumeMarker = line => {
   let markerLine = %re("/^\[\s*([^\]]+)\]:\s*$/")
   switch markerLine->getMatches(line) {
-  | [_, marker] => [Marker(marker)]
+  | [marker] => [Marker(marker)]
   | _ => []
   }
 }
@@ -243,9 +235,9 @@ let consumeMarker = line => {
 let consumeBulletListItem = line => {
   let itemLine = %re("/^([*]+)\s+(.*)$/")
   switch itemLine->getMatches(line) {
-  | [_, stars, text] =>
+  | [stars, text] =>
     let level = stars->String.length
-    switch Js.String.charAt(0, line) {
+    switch line->String.charAt(0) {
     | "*" => [BulletListItem(level), Text(text)]
     | _ => [IndentedBulletListItem(level), IndentedText(text)]
     }
@@ -256,9 +248,9 @@ let consumeBulletListItem = line => {
 let consumeNumberedListItem = line => {
   let itemLine = %re("/^1?([.]+)\s+(.*)$/")
   switch itemLine->getMatches(line) {
-  | [_, dots, text] =>
+  | [dots, text] =>
     let level = dots->String.length
-    switch Js.String.charAt(0, line) {
+    switch line->String.charAt(0) {
     | "." | "1" => [NumberedListItem(level), Text(text)]
     | _ => [IndentedNumberedListItem(level), IndentedText(text)]
     }
@@ -269,7 +261,7 @@ let consumeNumberedListItem = line => {
 let consumeNestingSigns = line => {
   let itemLine = %re("/^([.]+)\s*$/")
   switch itemLine->getMatches(line) {
-  | [_, dots] =>
+  | [dots] =>
     let level = dots->String.length
     [Nesting(level)]
   | _ => []
@@ -289,7 +281,7 @@ let consumeBlockDelimiter = line =>
   }
 
 let consumeRegularLine = line => {
-  let chara = Js.String.charAt(0, line)
+  let chara = line->String.charAt(0)
   let tok = switch chara {
   | "[" => consumeHyperlink(line)
   | "*" => consumeBulletListItem(line)
@@ -317,7 +309,7 @@ let rec tokeniseInitialLine = (line, tok, lnum) => {
   | [CodeBlockDelimiter] => resolve((tok->Array.concat(tokens), Code, lnum))
   | [_] => resolve((tok->Array.concat(tokens), Initial, lnum))
   | _ => {
-      let chara = Js.String.charAt(0, line)
+      let chara = line->String.charAt(0)
       switch chara {
       | "=" =>
         let tokens = consumeBlockTitle(line)
@@ -364,11 +356,11 @@ let rec tokeniseInitialLine = (line, tok, lnum) => {
         let tokens = consumeSpaces(line)
         switch tokens {
         | [Spaces(count)] =>
-          let rest = Js.String.sliceToEnd(line, ~from=count)
+          let rest = String.sliceToEnd(line, ~start=count)
           let tok = tok->Array.concat(tokens)
           tokeniseInitialLine(rest, tok, lnum)
         | _ =>
-          assert(Js.String.startsWith("\t", line))
+          assert(line->String.startsWith("\t"))
           resolve((tok->Array.concat([Spaces(1)]), Indented, lnum))
         }
       | _ =>
@@ -418,7 +410,7 @@ let consumeCodeLine = (tok, lnum) =>
 
 let consumeIndentedLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum)) => {
-    let chara = Js.String.charAt(0, line)
+    let chara = line->String.charAt(0)
     if chara == " " || chara == "\t" {
       let tokens = [IndentedText(line)]
       resolve((tok->Array.concat(tokens), Indented, lnum))
@@ -430,7 +422,7 @@ let consumeIndentedLine = (tok, lnum) => {
 
 let consumeListLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum)) => {
-    let chara = Js.String.charAt(0, line)
+    let chara = line->String.charAt(0)
     if chara == " " || chara == "\t" {
       let tokens = consumeBulletListItem(line)
       if tokens == [] {
@@ -451,21 +443,21 @@ let consumeListLine = (tok, lnum) => {
 
 let parseAttribute = (atext, attributes) => {
   let pattern = `^\\s*([.]?[${alpha}]([.]?[${alnum}])*)`
-  let attrExpr = Js.Re.fromString(pattern)
+  let attrExpr = RegExp.fromString(pattern)
   switch attrExpr->getMatches(atext) {
-  | [_, name, _] =>
-    Js.log2("Parse: attribute", name)
-    attributes->HashMap.String.set(name, "")
-  | k => Js.log2("Failed to parse:", k)
+  | [name, _] =>
+    Console.log2("Parse: attribute", name)
+    attributes->Map.set(name, "")
+  | k => Console.log2("Failed to parse:", k)
   }
 }
 
 let parseMarker = atext => {
   let pattern = `^\\s*([!-@[-${backtick}|~][${alpha}]([${alnum}])*)`
-  let markerExpr = Js.Re.fromString(pattern)
+  let markerExpr = RegExp.fromString(pattern)
   switch markerExpr->getMatches(atext) {
-  | [_, name, _] => Js.log2("Parse: marker", name)
-  | k => Js.log2("Failed to parse:", k)
+  | [name, _] => Console.log2("Parse: marker", name)
+  | k => Console.log2("Failed to parse:", k)
   }
 }
 
@@ -474,8 +466,8 @@ type parseState =
   | Replacement(string)
 
 let parseDocument = tok => {
-  let _attributes = HashMap.String.make(~hintSize=10)
-  let _substitutions = HashMap.String.make(~hintSize=30)
+  let _attributes = Map.make()
+  let _substitutions = Map.make()
   let state = ref(General)
   tok->Array.forEach(token =>
     switch token {
@@ -485,9 +477,9 @@ let parseDocument = tok => {
     | Text(value) =>
       switch state.contents {
       | Replacement(name) =>
-        Js.log4("Parse: will replace reference", name, "with", value)
+        Console.log4("Parse: will replace reference", name, "with", value)
         state := General
-        _substitutions->HashMap.String.set(name, value)
+        _substitutions->Map.set(name, value)
       | General =>
         // do nothing
         assert(true)
@@ -517,12 +509,12 @@ let rec promi = ((tok, ltype, lnum)) =>
   ->catch(err =>
     switch err {
     | EndOfFile(_) =>
-      tok->Array.forEach(token => Js.log2("T: ", token))
-      Js.log(`DONE ${tok->Array.length->string_of_int}`)
+      tok->Array.forEach(token => Console.log2("T: ", token))
+      Console.log(`DONE ${tok->Array.length->string_of_int}`)
       tok->parseDocument
       resolve()
     | _ =>
-      Js.log("Unexpected error")
+      Console.log("Unexpected error")
       resolve()
     }
   )
