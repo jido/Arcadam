@@ -50,9 +50,9 @@ Paragraph:
 multi line
 * Second&&
 > * first sublist
-    ** sublist
-    ** one more
-      1... nested numbered list
+>   > ** sublist
+>>    ** one more
+    >  1... nested numbered list
       on two lines
       ... nested 2
 ..
@@ -107,12 +107,22 @@ let getMatches = (regex, someline) =>
   | None => []
   }
 
+let countSpaces = line => {
+  let spacesIndent = %re("/^([ ]+)/")
+  switch spacesIndent->getMatches(line) {
+  | [indent] => indent->String.length
+  | _ => 0
+  }
+}
+
 exception EndOfFile(string)
 let lines = source->String.split("\n")
 
 let nextLine = lnum =>
   switch lines[lnum] {
-  | Some(line) => resolve((line->String.trimEnd, lnum + 1))
+  | Some(line) =>
+    let count = countSpaces(line)
+    resolve((line->String.trim, lnum + 1, count))
   | None => reject(EndOfFile("EOF"))
   }
 
@@ -142,7 +152,7 @@ type token =
   | NumberedListItem(int) // . List item
   | IndentedBulletListItem(int) // * List item
   | IndentedNumberedListItem(int) // . List item
-  | IndentSign(int) // >
+  | IndentSigns(int, int) // >
   | Spaces(int)
   | Nesting(int) // Dots alone
   | Marker(string) // [marker]:
@@ -164,19 +174,12 @@ type lineType =
   | Indented
   | List
 
-let consumeSpaces = line => {
-  let spacesIndent = %re("/^([ ]+)/")
-  switch spacesIndent->getMatches(line) {
-  | [indent] => [Spaces(indent->String.length)]
-  | _ => []
-  }
-}
-
-let consumeIndentSign = line => {
-  let indentSign = %re("/^(>>|>\s+)/")
+let consumeIndentSigns = line => {
+  let indentSign = %re("/^((>\s*)*>\s+)/")
   switch indentSign->getMatches(line) {
-  | [">>"] => [IndentSign(1)]
-  | [indent] => [IndentSign(indent->String.length)]
+  | [indent, _] =>
+    let onlySigns = indent->String.replaceAllRegExp(%re("/\s+/g"), "")
+    [IndentSigns(onlySigns->String.length, indent->String.length)]
   | _ => []
   }
 }
@@ -280,12 +283,19 @@ let consumeBlockDelimiter = line =>
   | _ => []
   }
 
-let consumeRegularLine = line => {
+let rec consumeRegularLine = line => {
   let chara = line->String.charAt(0)
   let tok = switch chara {
   | "[" => consumeHyperlink(line)
   | "*" => consumeBulletListItem(line)
-  | ">" => consumeIndentSign(line)
+  | ">" =>
+    let indents = consumeIndentSigns(line)
+    switch indents {
+    | [IndentSigns(_num, nchars)] =>
+      let rest = line->String.sliceToEnd(~start=nchars)
+      indents->Array.concat(consumeRegularLine(rest))
+    | _ => [Text(line)]
+    }
   | "." =>
     let nesting = consumeNestingSigns(line)
     switch nesting {
@@ -303,7 +313,7 @@ let consumeRegularLine = line => {
 
 exception EndOfBlock(array<token>)
 
-let rec tokeniseInitialLine = (line, tok, lnum) => {
+let tokeniseInitialLine = (line, tok, lnum) => {
   let tokens = consumeBlockDelimiter(line)
   switch tokens {
   | [CodeBlockDelimiter] => resolve((tok->Array.concat(tokens), Code, lnum))
@@ -352,17 +362,6 @@ let rec tokeniseInitialLine = (line, tok, lnum) => {
             resolve((tok->Array.concat(tokens), Following, lnum))
           }
         }
-      | " " | "\t" =>
-        let tokens = consumeSpaces(line)
-        switch tokens {
-        | [Spaces(count)] =>
-          let rest = String.sliceToEnd(line, ~start=count)
-          let tok = tok->Array.concat(tokens)
-          tokeniseInitialLine(rest, tok, lnum)
-        | _ =>
-          assert(line->String.startsWith("\t"))
-          resolve((tok->Array.concat([Spaces(1)]), Indented, lnum))
-        }
       | _ =>
         let tokens = consumeRegularLine(line)
         resolve((tok->Array.concat(tokens), Following, lnum))
@@ -372,12 +371,18 @@ let rec tokeniseInitialLine = (line, tok, lnum) => {
 }
 
 let consumeInitialLine = (tok, lnum) =>
-  nextLine(lnum)->then(((line, lnum)) => {
-    tokeniseInitialLine(line, tok, lnum)
+  nextLine(lnum)->then(((line, lnum, nspaces)) => {
+    if nspaces > 0 {
+      let tokens = [Spaces(nspaces), CodeText(line)]
+      resolve((tok->Array.concat(tokens), Code, lnum))
+    } else {
+      tokeniseInitialLine(line, tok, lnum)
+    }
   })
 
 let consumeLine = (tok, lnum) =>
-  nextLine(lnum)->then(((line, lnum)) => {
+  nextLine(lnum)->then(((line, lnum, nspaces)) => {
+    let tok = nspaces > 0 ? tok->Array.concat([Spaces(nspaces)]) : tok
     let tokens = consumeBlockDelimiter(line)
     if tokens->Array.length != 0 {
       resolve((tok->Array.concat(tokens), Initial, lnum))
@@ -400,7 +405,8 @@ let consumeLine = (tok, lnum) =>
   })
 
 let consumeCodeLine = (tok, lnum) =>
-  nextLine(lnum)->then(((line, lnum)) => {
+  nextLine(lnum)->then(((line, lnum, nspaces)) => {
+    let tok = nspaces > 0 ? tok->Array.concat([Spaces(nspaces)]) : tok
     if line == "```" {
       resolve((tok->Array.concat([CodeBlockDelimiter]), Initial, lnum))
     } else {
@@ -409,10 +415,9 @@ let consumeCodeLine = (tok, lnum) =>
   })
 
 let consumeIndentedLine = (tok, lnum) => {
-  nextLine(lnum)->then(((line, lnum)) => {
-    let chara = line->String.charAt(0)
-    if chara == " " || chara == "\t" {
-      let tokens = [IndentedText(line)]
+  nextLine(lnum)->then(((line, lnum, nspaces)) => {
+    if nspaces > 0 {
+      let tokens = [Spaces(nspaces), IndentedText(line)]
       resolve((tok->Array.concat(tokens), Indented, lnum))
     } else {
       tokeniseInitialLine(line, tok, lnum)
@@ -421,9 +426,9 @@ let consumeIndentedLine = (tok, lnum) => {
 }
 
 let consumeListLine = (tok, lnum) => {
-  nextLine(lnum)->then(((line, lnum)) => {
-    let chara = line->String.charAt(0)
-    if chara == " " || chara == "\t" {
+  nextLine(lnum)->then(((line, lnum, nspaces)) => {
+    let tok = nspaces > 0 ? tok->Array.concat([Spaces(nspaces)]) : tok
+    if line != "" {
       let tokens = consumeBulletListItem(line)
       if tokens == [] {
         let tokens = consumeNumberedListItem(line)
@@ -436,7 +441,7 @@ let consumeListLine = (tok, lnum) => {
         resolve((tok->Array.concat(tokens), List, lnum))
       }
     } else {
-      tokeniseInitialLine(line, tok, lnum)
+      consumeInitialLine(tok->Array.concat([Empty]), lnum)
     }
   })
 }

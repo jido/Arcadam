@@ -7,7 +7,7 @@ var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
 var backtick = "`";
 
-var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\nNested block<\nA small example\n====\n====\n\n:key:subs value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n___\nQuote text using\nunderscores\n___\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n> * first sublist\n    ** sublist\n    ** one more\n      1... nested numbered list\n      on two lines\n      ... nested 2\n..\n    That was all for first sublist.\n* Third\n[list]\n. Number one\n\n= Block title\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text is added\n  * to a code block\n\n  code block continued\n\n// comment\n\n\tAnother code block\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[-begin region]:\nThis text can be included\non its own.\n[-end region]:\nNew block starts after marker\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
+var source = "\n[NOTE]\n====\nThis is how to start a new example\nblock within this block:\n\n[example]\n====\nNested block<\nA small example\n====\n====\n\n:key:subs value&more\n## Arcadam Test ->> part 1\n\n[Go to " + backtick + "Products page" + backtick + " on this site](/Products.html)\n\n[Go to _Offers page_ in current path](Offers.html)\n\n[Go to an arbitrary webpage](https://www.github.com)\n\n[#anchor]:\nPart 1: This text is selected by the anchor.\n\n[<Go to *Part 1*>](#anchor)\n\n[Arcadam Test ->> part 1]()\n\n___\nQuote text using\nunderscores\n___\n\n====\nExample block used to\nenclose an example\n====\n\n****\nSidebar block used to\nexpand on a topic or\nhighlight an idea\n****\n\nParagraph:\n* First<\nmulti line\n* Second&&\n> * first sublist\n>   > ** sublist\n>>    ** one more\n    >  1... nested numbered list\n      on two lines\n      ... nested 2\n..\n    That was all for first sublist.\n* Third\n[list]\n. Number one\n\n= Block title\n" + backtick + backtick + backtick + "\nunindented code block\n  indented line inside code block\n" + backtick + backtick + backtick + "\n\n  Indented text is added\n  * to a code block\n\n  code block continued\n\n// comment\n\n\tAnother code block\n\n" + backtick + backtick + backtick + "\nAnother way to create\na code block delimited\nwith " + backtick + backtick + backtick + "\n\n****\nThis is not a new block\n" + backtick + backtick + backtick + "\n\n[-begin region]:\nThis text can be included\non its own.\n[-end region]:\nNew block starts after marker\n\n[.styleclass]\n[mylist.first]\nTesting dotted attributes\n";
 
 var alpha = "A-Za-z";
 
@@ -22,23 +22,34 @@ function getMatches(regex, someline) {
   }
 }
 
+function countSpaces(line) {
+  var spacesIndent = /^([ ]+)/;
+  var match = getMatches(spacesIndent, line);
+  if (match.length !== 1) {
+    return 0;
+  } else {
+    return match[0].length;
+  }
+}
+
 var EndOfFile = /* @__PURE__ */Caml_exceptions.create("Arcadam.EndOfFile");
 
 var lines = source.split("\n");
 
 function nextLine(lnum) {
   var line = lines[lnum];
-  if (line !== undefined) {
-    return Promise.resolve([
-                line.trimEnd(),
-                lnum + 1 | 0
-              ]);
-  } else {
+  if (line === undefined) {
     return Promise.reject({
                 RE_EXN_ID: EndOfFile,
                 _1: "EOF"
               });
   }
+  var count = countSpaces(line);
+  return Promise.resolve([
+              line.trim(),
+              lnum + 1 | 0,
+              count
+            ]);
 }
 
 function specialCharsStep(text) {
@@ -47,37 +58,19 @@ function specialCharsStep(text) {
   return result$1.replaceAll(/>/g, "&gt;");
 }
 
-function consumeSpaces(line) {
-  var spacesIndent = /^([ ]+)/;
-  var match = getMatches(spacesIndent, line);
-  if (match.length !== 1) {
-    return [];
-  }
-  var indent = match[0];
-  return [{
-            TAG: "Spaces",
-            _0: indent.length
-          }];
-}
-
-function consumeIndentSign(line) {
-  var indentSign = /^(>>|>\s+)/;
+function consumeIndentSigns(line) {
+  var indentSign = /^((>\s*)*>\s+)/;
   var match = getMatches(indentSign, line);
-  if (match.length !== 1) {
+  if (match.length !== 2) {
     return [];
   }
   var indent = match[0];
-  if (indent === ">>") {
-    return [{
-              TAG: "IndentSign",
-              _0: 1
-            }];
-  } else {
-    return [{
-              TAG: "IndentSign",
-              _0: indent.length
-            }];
-  }
+  var onlySigns = indent.replaceAll(/\s+/g, "");
+  return [{
+            TAG: "IndentSigns",
+            _0: onlySigns.length,
+            _1: indent.length
+          }];
 }
 
 function consumeBlockTitle(line) {
@@ -305,7 +298,29 @@ function consumeRegularLine(line) {
         }
         break;
     case ">" :
-        tok = consumeIndentSign(line);
+        var indents = consumeIndentSigns(line);
+        if (indents.length !== 1) {
+          tok = [{
+              TAG: "Text",
+              _0: line
+            }];
+        } else {
+          var match = indents[0];
+          if (typeof match !== "object") {
+            tok = [{
+                TAG: "Text",
+                _0: line
+              }];
+          } else if (match.TAG === "IndentSigns") {
+            var rest = line.slice(match._1);
+            tok = indents.concat(consumeRegularLine(rest));
+          } else {
+            tok = [{
+                TAG: "Text",
+                _0: line
+              }];
+          }
+        }
         break;
     case "[" :
         tok = consumeHyperlink(line);
@@ -325,250 +340,192 @@ function consumeRegularLine(line) {
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcadam.EndOfBlock");
 
-function tokeniseInitialLine(_line, _tok, lnum) {
-  while(true) {
-    var tok = _tok;
-    var line = _line;
-    var tokens = consumeBlockDelimiter(line);
-    if (tokens.length !== 1) {
-      var chara = line.charAt(0);
-      var exit = 0;
-      switch (chara) {
-        case "#" :
-            var tokens$1 = consumeHeading(line);
-            if (Caml_obj.notequal(tokens$1, [])) {
-              return Promise.resolve([
-                          tok.concat(tokens$1),
-                          "Following",
-                          lnum
-                        ]);
-            }
-            var tokens$2 = consumeRegularLine(line);
+function tokeniseInitialLine(line, tok, lnum) {
+  var tokens = consumeBlockDelimiter(line);
+  if (tokens.length !== 1) {
+    var chara = line.charAt(0);
+    switch (chara) {
+      case "#" :
+          var tokens$1 = consumeHeading(line);
+          if (Caml_obj.notequal(tokens$1, [])) {
             return Promise.resolve([
-                        tok.concat(tokens$2),
+                        tok.concat(tokens$1),
                         "Following",
                         lnum
                       ]);
-        case ":" :
-            var tokens$3 = consumeReplacement(line);
-            var exit$1 = 0;
-            if (tokens$3.length !== 2) {
-              exit$1 = 2;
-            } else {
-              var _name = tokens$3[0];
-              if (typeof _name !== "object" || _name.TAG !== "ReplacementKey") {
-                exit$1 = 2;
-              } else {
-                var _value = tokens$3[1];
-                if (typeof _value !== "object") {
-                  exit$1 = 2;
-                } else {
-                  if (_value.TAG === "Text") {
-                    return Promise.resolve([
-                                tok.concat(tokens$3),
-                                "Initial",
-                                lnum
-                              ]);
-                  }
-                  exit$1 = 2;
-                }
-              }
-            }
-            if (exit$1 === 2) {
-              if (!Caml_obj.equal(tokens$3, [])) {
-                throw {
-                      RE_EXN_ID: "Assert_failure",
-                      _1: [
-                        "arcadam.res",
-                        338,
-                        10
-                      ],
-                      Error: new Error()
-                    };
-              }
-              return Promise.resolve([
-                          consumeRegularLine(line),
-                          "Following",
-                          lnum
-                        ]);
-            }
-            break;
-        case "=" :
-            var tokens$4 = consumeBlockTitle(line);
-            var exit$2 = 0;
-            if (tokens$4.length !== 1) {
-              exit$2 = 2;
-            } else {
-              var _title = tokens$4[0];
-              if (typeof _title !== "object") {
-                exit$2 = 2;
-              } else {
-                if (_title.TAG === "BlockTitle") {
-                  return Promise.resolve([
-                              tok.concat(tokens$4),
-                              "Initial",
-                              lnum
-                            ]);
-                }
-                exit$2 = 2;
-              }
-            }
-            if (exit$2 === 2) {
-              if (!Caml_obj.equal(tokens$4, [])) {
-                throw {
-                      RE_EXN_ID: "Assert_failure",
-                      _1: [
-                        "arcadam.res",
-                        319,
-                        10
-                      ],
-                      Error: new Error()
-                    };
-              }
-              var tokens$5 = consumeRegularLine(line);
-              return Promise.resolve([
-                          tok.concat(tokens$5),
-                          "Following",
-                          lnum
-                        ]);
-            }
-            break;
-        case "[" :
-            var tokens$6 = consumeAttribute(line);
-            var exit$3 = 0;
-            if (tokens$6.length !== 1) {
-              exit$3 = 2;
-            } else {
-              var _attributes = tokens$6[0];
-              if (typeof _attributes !== "object") {
-                exit$3 = 2;
-              } else {
-                if (_attributes.TAG === "Attribute") {
-                  return Promise.resolve([
-                              tok.concat(tokens$6),
-                              "Following",
-                              lnum
-                            ]);
-                }
-                exit$3 = 2;
-              }
-            }
-            if (exit$3 === 2) {
-              if (!Caml_obj.equal(tokens$6, [])) {
-                throw {
-                      RE_EXN_ID: "Assert_failure",
-                      _1: [
-                        "arcadam.res",
-                        346,
-                        10
-                      ],
-                      Error: new Error()
-                    };
-              }
-              var tokens$7 = consumeMarker(line);
-              if (Caml_obj.notequal(tokens$7, [])) {
+          }
+          var tokens$2 = consumeRegularLine(line);
+          return Promise.resolve([
+                      tok.concat(tokens$2),
+                      "Following",
+                      lnum
+                    ]);
+      case ":" :
+          var tokens$3 = consumeReplacement(line);
+          if (tokens$3.length === 2) {
+            var _name = tokens$3[0];
+            if (typeof _name === "object" && _name.TAG === "ReplacementKey") {
+              var _value = tokens$3[1];
+              if (typeof _value === "object" && _value.TAG === "Text") {
                 return Promise.resolve([
-                            tok.concat(tokens$7),
+                            tok.concat(tokens$3),
                             "Initial",
                             lnum
                           ]);
               }
-              var tokens$8 = consumeRegularLine(line);
-              return Promise.resolve([
-                          tok.concat(tokens$8),
-                          "Following",
-                          lnum
-                        ]);
+              
             }
-            break;
-        case " " :
-        case "\t" :
-            exit = 1;
-            break;
-        default:
-          var tokens$9 = consumeRegularLine(line);
-          return Promise.resolve([
-                      tok.concat(tokens$9),
-                      "Following",
-                      lnum
-                    ]);
-      }
-      if (exit === 1) {
-        var tokens$10 = consumeSpaces(line);
-        var exit$4 = 0;
-        if (tokens$10.length !== 1) {
-          exit$4 = 2;
-        } else {
-          var count = tokens$10[0];
-          if (typeof count !== "object") {
-            exit$4 = 2;
-          } else {
-            if (count.TAG === "Spaces") {
-              var rest = line.slice(count._0);
-              var tok$1 = tok.concat(tokens$10);
-              _tok = tok$1;
-              _line = rest;
-              continue ;
-            }
-            exit$4 = 2;
+            
           }
-        }
-        if (exit$4 === 2) {
-          if (!line.startsWith("\t")) {
+          if (!Caml_obj.equal(tokens$3, [])) {
             throw {
                   RE_EXN_ID: "Assert_failure",
                   _1: [
                     "arcadam.res",
-                    363,
+                    348,
                     10
                   ],
                   Error: new Error()
                 };
           }
           return Promise.resolve([
-                      tok.concat([{
-                              TAG: "Spaces",
-                              _0: 1
-                            }]),
-                      "Indented",
+                      consumeRegularLine(line),
+                      "Following",
                       lnum
                     ]);
-        }
-        
-      }
-      
-    } else {
-      var match = tokens[0];
-      if (typeof match !== "object" && match === "CodeBlockDelimiter") {
+      case "=" :
+          var tokens$4 = consumeBlockTitle(line);
+          if (tokens$4.length === 1) {
+            var _title = tokens$4[0];
+            if (typeof _title === "object" && _title.TAG === "BlockTitle") {
+              return Promise.resolve([
+                          tok.concat(tokens$4),
+                          "Initial",
+                          lnum
+                        ]);
+            }
+            
+          }
+          if (!Caml_obj.equal(tokens$4, [])) {
+            throw {
+                  RE_EXN_ID: "Assert_failure",
+                  _1: [
+                    "arcadam.res",
+                    329,
+                    10
+                  ],
+                  Error: new Error()
+                };
+          }
+          var tokens$5 = consumeRegularLine(line);
+          return Promise.resolve([
+                      tok.concat(tokens$5),
+                      "Following",
+                      lnum
+                    ]);
+      case "[" :
+          var tokens$6 = consumeAttribute(line);
+          if (tokens$6.length === 1) {
+            var _attributes = tokens$6[0];
+            if (typeof _attributes === "object" && _attributes.TAG === "Attribute") {
+              return Promise.resolve([
+                          tok.concat(tokens$6),
+                          "Following",
+                          lnum
+                        ]);
+            }
+            
+          }
+          if (!Caml_obj.equal(tokens$6, [])) {
+            throw {
+                  RE_EXN_ID: "Assert_failure",
+                  _1: [
+                    "arcadam.res",
+                    356,
+                    10
+                  ],
+                  Error: new Error()
+                };
+          }
+          var tokens$7 = consumeMarker(line);
+          if (Caml_obj.notequal(tokens$7, [])) {
+            return Promise.resolve([
+                        tok.concat(tokens$7),
+                        "Initial",
+                        lnum
+                      ]);
+          }
+          var tokens$8 = consumeRegularLine(line);
+          return Promise.resolve([
+                      tok.concat(tokens$8),
+                      "Following",
+                      lnum
+                    ]);
+          break;
+      default:
+        var tokens$9 = consumeRegularLine(line);
         return Promise.resolve([
-                    tok.concat(tokens),
-                    "Code",
+                    tok.concat(tokens$9),
+                    "Following",
                     lnum
                   ]);
-      }
+    }
+  } else {
+    var match = tokens[0];
+    if (typeof match !== "object" && match === "CodeBlockDelimiter") {
       return Promise.resolve([
                   tok.concat(tokens),
-                  "Initial",
+                  "Code",
                   lnum
                 ]);
     }
-  };
+    return Promise.resolve([
+                tok.concat(tokens),
+                "Initial",
+                lnum
+              ]);
+  }
 }
 
 function consumeInitialLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
-              return tokeniseInitialLine(param[0], tok, param[1]);
+              var nspaces = param[2];
+              var lnum = param[1];
+              var line = param[0];
+              if (nspaces <= 0) {
+                return tokeniseInitialLine(line, tok, lnum);
+              }
+              var tokens = [
+                {
+                  TAG: "Spaces",
+                  _0: nspaces
+                },
+                {
+                  TAG: "CodeText",
+                  _0: line
+                }
+              ];
+              return Promise.resolve([
+                          tok.concat(tokens),
+                          "Code",
+                          lnum
+                        ]);
             });
 }
 
 function consumeLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
+              var nspaces = param[2];
               var lnum = param[1];
               var line = param[0];
+              var tok$1 = nspaces > 0 ? tok.concat([{
+                        TAG: "Spaces",
+                        _0: nspaces
+                      }]) : tok;
               var tokens = consumeBlockDelimiter(line);
               if (tokens.length !== 0) {
                 return Promise.resolve([
-                            tok.concat(tokens),
+                            tok$1.concat(tokens),
                             "Initial",
                             lnum
                           ]);
@@ -584,7 +541,7 @@ function consumeLine(tok, lnum) {
                 } else {
                   if (_attributes.TAG === "Attribute") {
                     return Promise.resolve([
-                                tok.concat(tokens$1),
+                                tok$1.concat(tokens$1),
                                 "Following",
                                 lnum
                               ]);
@@ -598,7 +555,7 @@ function consumeLine(tok, lnum) {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
                           "arcadam.res",
-                          389,
+                          394,
                           8
                         ],
                         Error: new Error()
@@ -615,7 +572,7 @@ function consumeLine(tok, lnum) {
                   } else {
                     if (_marker.TAG === "Marker") {
                       return Promise.resolve([
-                                  tok.concat(tokens$2),
+                                  tok$1.concat(tokens$2),
                                   "Initial",
                                   lnum
                                 ]);
@@ -629,7 +586,7 @@ function consumeLine(tok, lnum) {
                           RE_EXN_ID: "Assert_failure",
                           _1: [
                             "arcadam.res",
-                            394,
+                            399,
                             10
                           ],
                           Error: new Error()
@@ -637,7 +594,7 @@ function consumeLine(tok, lnum) {
                   }
                   var tokens$3 = consumeRegularLine(line);
                   return Promise.resolve([
-                              tok.concat(tokens$3),
+                              tok$1.concat(tokens$3),
                               "Following",
                               lnum
                             ]);
@@ -650,17 +607,22 @@ function consumeLine(tok, lnum) {
 
 function consumeCodeLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
+              var nspaces = param[2];
               var lnum = param[1];
               var line = param[0];
+              var tok$1 = nspaces > 0 ? tok.concat([{
+                        TAG: "Spaces",
+                        _0: nspaces
+                      }]) : tok;
               if (line === "```") {
                 return Promise.resolve([
-                            tok.concat(["CodeBlockDelimiter"]),
+                            tok$1.concat(["CodeBlockDelimiter"]),
                             "Initial",
                             lnum
                           ]);
               } else {
                 return Promise.resolve([
-                            tok.concat([{
+                            tok$1.concat([{
                                     TAG: "CodeText",
                                     _0: line
                                   }]),
@@ -673,16 +635,22 @@ function consumeCodeLine(tok, lnum) {
 
 function consumeIndentedLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
+              var nspaces = param[2];
               var lnum = param[1];
               var line = param[0];
-              var chara = line.charAt(0);
-              if (!(chara === " " || chara === "\t")) {
+              if (nspaces <= 0) {
                 return tokeniseInitialLine(line, tok, lnum);
               }
-              var tokens = [{
+              var tokens = [
+                {
+                  TAG: "Spaces",
+                  _0: nspaces
+                },
+                {
                   TAG: "IndentedText",
                   _0: line
-                }];
+                }
+              ];
               return Promise.resolve([
                           tok.concat(tokens),
                           "Indented",
@@ -693,16 +661,20 @@ function consumeIndentedLine(tok, lnum) {
 
 function consumeListLine(tok, lnum) {
   return nextLine(lnum).then(function (param) {
+              var nspaces = param[2];
               var lnum = param[1];
               var line = param[0];
-              var chara = line.charAt(0);
-              if (!(chara === " " || chara === "\t")) {
-                return tokeniseInitialLine(line, tok, lnum);
+              var tok$1 = nspaces > 0 ? tok.concat([{
+                        TAG: "Spaces",
+                        _0: nspaces
+                      }]) : tok;
+              if (line === "") {
+                return consumeInitialLine(tok$1.concat(["Empty"]), lnum);
               }
               var tokens = consumeBulletListItem(line);
               if (!Caml_obj.equal(tokens, [])) {
                 return Promise.resolve([
-                            tok.concat(tokens),
+                            tok$1.concat(tokens),
                             "List",
                             lnum
                           ]);
@@ -710,7 +682,7 @@ function consumeListLine(tok, lnum) {
               var tokens$1 = consumeNumberedListItem(line);
               if (Caml_obj.equal(tokens$1, [])) {
                 return Promise.resolve([
-                            tok.concat([{
+                            tok$1.concat([{
                                     TAG: "IndentedText",
                                     _0: line
                                   }]),
@@ -719,7 +691,7 @@ function consumeListLine(tok, lnum) {
                           ]);
               } else {
                 return Promise.resolve([
-                            tok.concat(tokens$1),
+                            tok$1.concat(tokens$1),
                             "List",
                             lnum
                           ]);
@@ -848,13 +820,13 @@ exports.source = source;
 exports.alpha = alpha;
 exports.alnum = alnum;
 exports.getMatches = getMatches;
+exports.countSpaces = countSpaces;
 exports.EndOfFile = EndOfFile;
 exports.lines = lines;
 exports.nextLine = nextLine;
 exports.outputFormat = outputFormat;
 exports.specialCharsStep = specialCharsStep;
-exports.consumeSpaces = consumeSpaces;
-exports.consumeIndentSign = consumeIndentSign;
+exports.consumeIndentSigns = consumeIndentSigns;
 exports.consumeBlockTitle = consumeBlockTitle;
 exports.consumeHeading = consumeHeading;
 exports.consumeReplacement = consumeReplacement;
