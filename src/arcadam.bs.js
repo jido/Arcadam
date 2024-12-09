@@ -183,30 +183,16 @@ function consumeBulletListItem(line) {
   var stars = match[0];
   var text = match[1];
   var level = stars.length;
-  var match$1 = line.charAt(0);
-  if (match$1 === "*") {
-    return [
-            {
-              TAG: "BulletListItem",
-              _0: level
-            },
-            {
-              TAG: "Text",
-              _0: text
-            }
-          ];
-  } else {
-    return [
-            {
-              TAG: "IndentedBulletListItem",
-              _0: level
-            },
-            {
-              TAG: "IndentedText",
-              _0: text
-            }
-          ];
-  }
+  return [
+          {
+            TAG: "BulletListItem",
+            _0: level
+          },
+          {
+            TAG: "Text",
+            _0: text
+          }
+        ];
 }
 
 function consumeNumberedListItem(line) {
@@ -218,32 +204,16 @@ function consumeNumberedListItem(line) {
   var dots = match[0];
   var text = match[1];
   var level = dots.length;
-  var match$1 = line.charAt(0);
-  switch (match$1) {
-    case "." :
-    case "1" :
-        return [
-                {
-                  TAG: "NumberedListItem",
-                  _0: level
-                },
-                {
-                  TAG: "Text",
-                  _0: text
-                }
-              ];
-    default:
-      return [
-              {
-                TAG: "IndentedNumberedListItem",
-                _0: level
-              },
-              {
-                TAG: "IndentedText",
-                _0: text
-              }
-            ];
-  }
+  return [
+          {
+            TAG: "NumberedListItem",
+            _0: level
+          },
+          {
+            TAG: "Text",
+            _0: text
+          }
+        ];
 }
 
 function consumeNestingSigns(line) {
@@ -382,7 +352,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                   RE_EXN_ID: "Assert_failure",
                   _1: [
                     "arcadam.res",
-                    348,
+                    342,
                     10
                   ],
                   Error: new Error()
@@ -411,7 +381,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                   RE_EXN_ID: "Assert_failure",
                   _1: [
                     "arcadam.res",
-                    329,
+                    323,
                     10
                   ],
                   Error: new Error()
@@ -441,7 +411,7 @@ function tokeniseInitialLine(line, tok, lnum) {
                   RE_EXN_ID: "Assert_failure",
                   _1: [
                     "arcadam.res",
-                    356,
+                    350,
                     10
                   ],
                   Error: new Error()
@@ -501,13 +471,13 @@ function consumeInitialLine(tok, lnum) {
                   _0: nspaces
                 },
                 {
-                  TAG: "CodeText",
+                  TAG: "IndentedCode",
                   _0: line
                 }
               ];
               return Promise.resolve([
                           tok.concat(tokens),
-                          "Code",
+                          "Indented",
                           lnum
                         ]);
             });
@@ -555,7 +525,7 @@ function consumeLine(tok, lnum) {
                         RE_EXN_ID: "Assert_failure",
                         _1: [
                           "arcadam.res",
-                          394,
+                          388,
                           8
                         ],
                         Error: new Error()
@@ -586,7 +556,7 @@ function consumeLine(tok, lnum) {
                           RE_EXN_ID: "Assert_failure",
                           _1: [
                             "arcadam.res",
-                            399,
+                            393,
                             10
                           ],
                           Error: new Error()
@@ -633,7 +603,7 @@ function consumeCodeLine(tok, lnum) {
             });
 }
 
-function consumeIndentedLine(tok, lnum) {
+function consumeIndentedCode(tok, lnum) {
   return nextLine(lnum).then(function (param) {
               var nspaces = param[2];
               var lnum = param[1];
@@ -647,7 +617,7 @@ function consumeIndentedLine(tok, lnum) {
                   _0: nspaces
                 },
                 {
-                  TAG: "IndentedText",
+                  TAG: "IndentedCode",
                   _0: line
                 }
               ];
@@ -683,7 +653,7 @@ function consumeListLine(tok, lnum) {
               if (Caml_obj.equal(tokens$1, [])) {
                 return Promise.resolve([
                             tok$1.concat([{
-                                    TAG: "IndentedText",
+                                    TAG: "Text",
                                     _0: line
                                   }]),
                             "List",
@@ -779,7 +749,7 @@ function promi(param) {
         tmp = consumeCodeLine(tok, lnum);
         break;
     case "Indented" :
-        tmp = consumeIndentedLine(tok, lnum);
+        tmp = consumeIndentedCode(tok, lnum);
         break;
     case "List" :
         tmp = consumeListLine(tok, lnum);
@@ -843,7 +813,7 @@ exports.tokeniseInitialLine = tokeniseInitialLine;
 exports.consumeInitialLine = consumeInitialLine;
 exports.consumeLine = consumeLine;
 exports.consumeCodeLine = consumeCodeLine;
-exports.consumeIndentedLine = consumeIndentedLine;
+exports.consumeIndentedCode = consumeIndentedCode;
 exports.consumeListLine = consumeListLine;
 exports.parseAttribute = parseAttribute;
 exports.parseMarker = parseMarker;

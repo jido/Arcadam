@@ -144,8 +144,8 @@ let specialCharsStep = text =>
 type token =
   | Empty
   | Text(string)
-  | IndentedText(string)
   | CodeText(string)
+  | IndentedCode(string)
   | Heading(int) // ## Heading text
   | Attribute(string) // [attributes]
   | BulletListItem(int) // * List item
@@ -240,10 +240,7 @@ let consumeBulletListItem = line => {
   switch itemLine->getMatches(line) {
   | [stars, text] =>
     let level = stars->String.length
-    switch line->String.charAt(0) {
-    | "*" => [BulletListItem(level), Text(text)]
-    | _ => [IndentedBulletListItem(level), IndentedText(text)]
-    }
+    [BulletListItem(level), Text(text)]
   | _ => []
   }
 }
@@ -253,10 +250,7 @@ let consumeNumberedListItem = line => {
   switch itemLine->getMatches(line) {
   | [dots, text] =>
     let level = dots->String.length
-    switch line->String.charAt(0) {
-    | "." | "1" => [NumberedListItem(level), Text(text)]
-    | _ => [IndentedNumberedListItem(level), IndentedText(text)]
-    }
+    [NumberedListItem(level), Text(text)]
   | _ => []
   }
 }
@@ -373,8 +367,8 @@ let tokeniseInitialLine = (line, tok, lnum) => {
 let consumeInitialLine = (tok, lnum) =>
   nextLine(lnum)->then(((line, lnum, nspaces)) => {
     if nspaces > 0 {
-      let tokens = [Spaces(nspaces), CodeText(line)]
-      resolve((tok->Array.concat(tokens), Code, lnum))
+      let tokens = [Spaces(nspaces), IndentedCode(line)]
+      resolve((tok->Array.concat(tokens), Indented, lnum))
     } else {
       tokeniseInitialLine(line, tok, lnum)
     }
@@ -414,10 +408,10 @@ let consumeCodeLine = (tok, lnum) =>
     }
   })
 
-let consumeIndentedLine = (tok, lnum) => {
+let consumeIndentedCode = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum, nspaces)) => {
     if nspaces > 0 {
-      let tokens = [Spaces(nspaces), IndentedText(line)]
+      let tokens = [Spaces(nspaces), IndentedCode(line)]
       resolve((tok->Array.concat(tokens), Indented, lnum))
     } else {
       tokeniseInitialLine(line, tok, lnum)
@@ -433,7 +427,7 @@ let consumeListLine = (tok, lnum) => {
       if tokens == [] {
         let tokens = consumeNumberedListItem(line)
         if tokens == [] {
-          resolve((tok->Array.concat([IndentedText(line)]), List, lnum))
+          resolve((tok->Array.concat([Text(line)]), List, lnum))
         } else {
           resolve((tok->Array.concat(tokens), List, lnum))
         }
@@ -507,7 +501,7 @@ let rec promi = ((tok, ltype, lnum)) =>
   | Initial => consumeInitialLine(tok, lnum)
   | Following => consumeLine(tok, lnum)
   | Code => consumeCodeLine(tok, lnum)
-  | Indented => consumeIndentedLine(tok, lnum)
+  | Indented => consumeIndentedCode(tok, lnum)
   | List => consumeListLine(tok, lnum)
   }
   ->then(promi)
