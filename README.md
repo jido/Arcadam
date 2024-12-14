@@ -137,6 +137,15 @@ Arcadam tries to break the text at a natural place between pages, like the end o
 Add ">>>" at the end of the line to prevent this behaviour in a specific place.
 That may force a page break in the middle of a paragraph.
 
+Boxed break:
+
+```
++++
+```
+
+That type of break makes the text jump to the next position which is not constrained in width.
+It is useful to get past a floating image, for example.
+
 ### Escape character
 
 The backslash "\\" is used to prevent the generator from interpreting the
