@@ -54,12 +54,19 @@ multi line
 >>    ** one more
     >  1... nested numbered list
       on two lines
+
       ... nested 2
 ..
     That was all for first sublist.
 * Third
+
 [list]
 . Number one
+
+> = Block title
+  ${backtick}${backtick}${backtick}
+  indented line in code block
+  ${backtick}${backtick}${backtick}
 
 = Block title
 ${backtick}${backtick}${backtick}
@@ -277,33 +284,69 @@ let consumeBlockDelimiter = line =>
   | _ => []
   }
 
-let rec consumeRegularLine = line => {
-  let chara = line->String.charAt(0)
-  let tok = switch chara {
-  | "[" => consumeHyperlink(line)
-  | "*" => consumeBulletListItem(line)
-  | ">" =>
-    let indents = consumeIndentSigns(line)
-    switch indents {
-    | [IndentSigns(_num, nchars)] =>
-      let rest = line->String.sliceToEnd(~start=nchars)
-      indents->Array.concat(consumeRegularLine(rest))
-    | _ => [Text(line)]
+let consumeRegularLine = line => {
+  let tokens = consumeBlockDelimiter(line)
+  switch tokens {
+  | [CodeBlockDelimiter] => [Text(line)]
+  | [_] => tokens
+  | _ =>
+    let chara = line->String.charAt(0)
+    let tok = switch chara {
+    | "[" =>
+      let tokens = consumeMarker(line)
+      if tokens != [] {
+        tokens
+      } else {
+        consumeHyperlink(line)
+      }
+    | "*" => consumeBulletListItem(line)
+    | "." | "1" => consumeNumberedListItem(line)
+    | _ => []
     }
-  | "." =>
-    let nesting = consumeNestingSigns(line)
-    switch nesting {
-    | [Nesting(_level)] => nesting
-    | _ => consumeNumberedListItem(line)
+    if tok == [] {
+      [Text(line)]
+    } else {
+      tok
     }
-  | _ => []
-  }
-  if tok == [] {
-    [Text(line)]
-  } else {
-    tok
   }
 }
+
+let tokeniseLine = (line, tok, lnum) =>
+  if line == "" {
+    resolve((tok->Array.concat([Empty]), Initial, lnum))
+  } else {
+    let chara = line->String.charAt(0)
+    let tokens = switch chara {
+    | "." => consumeNestingSigns(line)
+    | ">" =>
+      let indents = consumeIndentSigns(line)
+      switch indents {
+      | [IndentSigns(_num, nchars)] =>
+        let rest = line->String.sliceToEnd(~start=nchars)
+        indents->Array.concat(consumeRegularLine(rest))
+      | _ => consumeRegularLine(line)
+      }
+    | _ => []
+    }
+    switch tokens {
+    | [BulletListItem(_level) | NumberedListItem(_level), _] =>
+      resolve((tok->Array.concat(tokens), List, lnum))
+    | [] =>
+      let tokens = consumeRegularLine(line)
+      resolve((tok->Array.concat(tokens), Following, lnum))
+    | _ => resolve((tok->Array.concat(tokens), Following, lnum))
+    }
+  }
+
+let consumeLine = (tok, lnum) =>
+  nextLine(lnum)->then(((line, lnum, nspaces)) => {
+    if nspaces > 0 {
+      let tokens = [Spaces(nspaces), IndentedCode(line)]
+      resolve((tok->Array.concat(tokens), Indented, lnum))
+    } else {
+      tokeniseLine(line, tok, lnum)
+    }
+  })
 
 exception EndOfBlock(array<token>)
 
@@ -356,9 +399,7 @@ let tokeniseInitialLine = (line, tok, lnum) => {
             resolve((tok->Array.concat(tokens), Following, lnum))
           }
         }
-      | _ =>
-        let tokens = consumeRegularLine(line)
-        resolve((tok->Array.concat(tokens), Following, lnum))
+      | _ => tokeniseLine(line, tok, lnum)
       }
     }
   }
@@ -371,30 +412,6 @@ let consumeInitialLine = (tok, lnum) =>
       resolve((tok->Array.concat(tokens), Indented, lnum))
     } else {
       tokeniseInitialLine(line, tok, lnum)
-    }
-  })
-
-let consumeLine = (tok, lnum) =>
-  nextLine(lnum)->then(((line, lnum, nspaces)) => {
-    let tok = nspaces > 0 ? tok->Array.concat([Spaces(nspaces)]) : tok
-    let tokens = consumeBlockDelimiter(line)
-    if tokens->Array.length != 0 {
-      resolve((tok->Array.concat(tokens), Initial, lnum))
-    } else {
-      let tokens = consumeAttribute(line)
-      switch tokens {
-      | [Attribute(_attributes)] => resolve((tok->Array.concat(tokens), Following, lnum))
-      | _ =>
-        assert(tokens == []) // Appease the compiler
-        let tokens = consumeMarker(line)
-        switch tokens {
-        | [Marker(_marker)] => resolve((tok->Array.concat(tokens), Initial, lnum))
-        | _ =>
-          assert(tokens == []) // Appease the compiler
-          let tokens = consumeRegularLine(line)
-          resolve((tok->Array.concat(tokens), Following, lnum))
-        }
-      }
     }
   })
 
@@ -421,8 +438,8 @@ let consumeIndentedCode = (tok, lnum) => {
 
 let consumeListLine = (tok, lnum) => {
   nextLine(lnum)->then(((line, lnum, nspaces)) => {
-    let tok = nspaces > 0 ? tok->Array.concat([Spaces(nspaces)]) : tok
     if line != "" {
+      let tok = nspaces > 0 ? tok->Array.concat([Spaces(nspaces)]) : tok
       let tokens = consumeBulletListItem(line)
       if tokens == [] {
         let tokens = consumeNumberedListItem(line)
@@ -435,7 +452,7 @@ let consumeListLine = (tok, lnum) => {
         resolve((tok->Array.concat(tokens), List, lnum))
       }
     } else {
-      consumeInitialLine(tok->Array.concat([Empty]), lnum)
+      tokeniseInitialLine(line, tok, lnum)
     }
   })
 }
