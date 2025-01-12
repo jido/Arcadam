@@ -360,8 +360,7 @@ let consumeLine = consumeLineFactory(tokeniseLine)
 
 exception EndOfBlock(array<token>)
 
-let tokeniseInitialLine = (line, tok, lnum, codeIndent) => {
-  Console.log2("consumeInitialLine: ", line)
+let rec tokeniseInitialLine = (line, tok, lnum, codeIndent) => {
   let tokens = consumeBlockDelimiter(line)
   switch tokens {
   | [CodeBlockDelimiter] => resolve((tok->Array.concat(tokens), Code(codeIndent), lnum))
@@ -410,6 +409,14 @@ let tokeniseInitialLine = (line, tok, lnum, codeIndent) => {
             let tokens = consumeRegularLine(line)
             resolve((tok->Array.concat(tokens), Following(codeIndent), lnum))
           }
+        }
+      | ">" =>
+        let indents = consumeIndentSigns(line)
+        switch indents {
+        | [IndentSigns(_num, nchars)] =>
+          let rest = line->String.sliceToEnd(~start=nchars)
+          tokeniseInitialLine(rest, tok->Array.concat(indents), lnum, false)
+        | _ => tokeniseLine(line, tok, lnum, codeIndent)
         }
       | _ => tokeniseLine(line, tok, lnum, codeIndent)
       }

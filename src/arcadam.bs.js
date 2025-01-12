@@ -419,42 +419,82 @@ var consumeLine = consumeLineFactory(tokeniseLine);
 
 var EndOfBlock = /* @__PURE__ */Caml_exceptions.create("Arcadam.EndOfBlock");
 
-function tokeniseInitialLine(line, tok, lnum, codeIndent) {
-  console.log("consumeInitialLine: ", line);
-  var tokens = consumeBlockDelimiter(line);
-  if (tokens.length !== 1) {
-    var chara = line.charAt(0);
-    switch (chara) {
-      case "#" :
-          var tokens$1 = consumeHeading(line);
-          if (Caml_obj.notequal(tokens$1, [])) {
+function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
+  while(true) {
+    var codeIndent = _codeIndent;
+    var tok = _tok;
+    var line = _line;
+    var tokens = consumeBlockDelimiter(line);
+    if (tokens.length !== 1) {
+      var chara = line.charAt(0);
+      switch (chara) {
+        case "#" :
+            var tokens$1 = consumeHeading(line);
+            if (Caml_obj.notequal(tokens$1, [])) {
+              return Promise.resolve([
+                          tok.concat(tokens$1),
+                          {
+                            TAG: "Following",
+                            _0: codeIndent
+                          },
+                          lnum
+                        ]);
+            }
+            var tokens$2 = consumeRegularLine(line);
             return Promise.resolve([
-                        tok.concat(tokens$1),
+                        tok.concat(tokens$2),
                         {
                           TAG: "Following",
                           _0: codeIndent
                         },
                         lnum
                       ]);
-          }
-          var tokens$2 = consumeRegularLine(line);
-          return Promise.resolve([
-                      tok.concat(tokens$2),
-                      {
-                        TAG: "Following",
-                        _0: codeIndent
-                      },
-                      lnum
-                    ]);
-      case ":" :
-          var tokens$3 = consumeReplacement(line);
-          if (tokens$3.length === 2) {
-            var _name = tokens$3[0];
-            if (typeof _name === "object" && _name.TAG === "ReplacementKey") {
-              var _value = tokens$3[1];
-              if (typeof _value === "object" && _value.TAG === "Text") {
+        case ":" :
+            var tokens$3 = consumeReplacement(line);
+            if (tokens$3.length === 2) {
+              var _name = tokens$3[0];
+              if (typeof _name === "object" && _name.TAG === "ReplacementKey") {
+                var _value = tokens$3[1];
+                if (typeof _value === "object" && _value.TAG === "Text") {
+                  return Promise.resolve([
+                              tok.concat(tokens$3),
+                              {
+                                TAG: "Initial",
+                                _0: codeIndent
+                              },
+                              lnum
+                            ]);
+                }
+                
+              }
+              
+            }
+            if (!Caml_obj.equal(tokens$3, [])) {
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "arcadam.res",
+                      395,
+                      10
+                    ],
+                    Error: new Error()
+                  };
+            }
+            return Promise.resolve([
+                        consumeRegularLine(line),
+                        {
+                          TAG: "Following",
+                          _0: codeIndent
+                        },
+                        lnum
+                      ]);
+        case "=" :
+            var tokens$4 = consumeBlockTitle(line);
+            if (tokens$4.length === 1) {
+              var _title = tokens$4[0];
+              if (typeof _title === "object" && _title.TAG === "BlockTitle") {
                 return Promise.resolve([
-                            tok.concat(tokens$3),
+                            tok.concat(tokens$4),
                             {
                               TAG: "Initial",
                               _0: codeIndent
@@ -464,34 +504,71 @@ function tokeniseInitialLine(line, tok, lnum, codeIndent) {
               }
               
             }
-            
-          }
-          if (!Caml_obj.equal(tokens$3, [])) {
-            throw {
-                  RE_EXN_ID: "Assert_failure",
-                  _1: [
-                    "arcadam.res",
-                    396,
-                    10
-                  ],
-                  Error: new Error()
-                };
-          }
-          return Promise.resolve([
-                      consumeRegularLine(line),
-                      {
-                        TAG: "Following",
-                        _0: codeIndent
-                      },
-                      lnum
-                    ]);
-      case "=" :
-          var tokens$4 = consumeBlockTitle(line);
-          if (tokens$4.length === 1) {
-            var _title = tokens$4[0];
-            if (typeof _title === "object" && _title.TAG === "BlockTitle") {
+            if (!Caml_obj.equal(tokens$4, [])) {
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "arcadam.res",
+                      376,
+                      10
+                    ],
+                    Error: new Error()
+                  };
+            }
+            var tokens$5 = consumeRegularLine(line);
+            return Promise.resolve([
+                        tok.concat(tokens$5),
+                        {
+                          TAG: "Following",
+                          _0: codeIndent
+                        },
+                        lnum
+                      ]);
+        case ">" :
+            var indents = consumeIndentSigns(line);
+            if (indents.length === 1) {
+              var match = indents[0];
+              if (typeof match === "object" && match.TAG === "IndentSigns") {
+                var rest = line.slice(match._1);
+                _codeIndent = false;
+                _tok = tok.concat(indents);
+                _line = rest;
+                continue ;
+              }
+              
+            }
+            return tokeniseLine(line, tok, lnum, codeIndent);
+        case "[" :
+            var tokens$6 = consumeAttribute(line);
+            if (tokens$6.length === 1) {
+              var _attributes = tokens$6[0];
+              if (typeof _attributes === "object" && _attributes.TAG === "Attribute") {
+                return Promise.resolve([
+                            tok.concat(tokens$6),
+                            {
+                              TAG: "Following",
+                              _0: codeIndent
+                            },
+                            lnum
+                          ]);
+              }
+              
+            }
+            if (!Caml_obj.equal(tokens$6, [])) {
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "arcadam.res",
+                      404,
+                      10
+                    ],
+                    Error: new Error()
+                  };
+            }
+            var tokens$7 = consumeMarker(line);
+            if (Caml_obj.notequal(tokens$7, [])) {
               return Promise.resolve([
-                          tok.concat(tokens$4),
+                          tok.concat(tokens$7),
                           {
                             TAG: "Initial",
                             _0: codeIndent
@@ -499,100 +576,41 @@ function tokeniseInitialLine(line, tok, lnum, codeIndent) {
                           lnum
                         ]);
             }
-            
-          }
-          if (!Caml_obj.equal(tokens$4, [])) {
-            throw {
-                  RE_EXN_ID: "Assert_failure",
-                  _1: [
-                    "arcadam.res",
-                    377,
-                    10
-                  ],
-                  Error: new Error()
-                };
-          }
-          var tokens$5 = consumeRegularLine(line);
-          return Promise.resolve([
-                      tok.concat(tokens$5),
-                      {
-                        TAG: "Following",
-                        _0: codeIndent
-                      },
-                      lnum
-                    ]);
-      case "[" :
-          var tokens$6 = consumeAttribute(line);
-          if (tokens$6.length === 1) {
-            var _attributes = tokens$6[0];
-            if (typeof _attributes === "object" && _attributes.TAG === "Attribute") {
-              return Promise.resolve([
-                          tok.concat(tokens$6),
-                          {
-                            TAG: "Following",
-                            _0: codeIndent
-                          },
-                          lnum
-                        ]);
-            }
-            
-          }
-          if (!Caml_obj.equal(tokens$6, [])) {
-            throw {
-                  RE_EXN_ID: "Assert_failure",
-                  _1: [
-                    "arcadam.res",
-                    405,
-                    10
-                  ],
-                  Error: new Error()
-                };
-          }
-          var tokens$7 = consumeMarker(line);
-          if (Caml_obj.notequal(tokens$7, [])) {
+            var tokens$8 = consumeRegularLine(line);
             return Promise.resolve([
-                        tok.concat(tokens$7),
+                        tok.concat(tokens$8),
                         {
-                          TAG: "Initial",
+                          TAG: "Following",
                           _0: codeIndent
                         },
                         lnum
                       ]);
-          }
-          var tokens$8 = consumeRegularLine(line);
-          return Promise.resolve([
-                      tok.concat(tokens$8),
-                      {
-                        TAG: "Following",
-                        _0: codeIndent
-                      },
-                      lnum
-                    ]);
-          break;
-      default:
-        return tokeniseLine(line, tok, lnum, codeIndent);
-    }
-  } else {
-    var match = tokens[0];
-    if (typeof match !== "object" && match === "CodeBlockDelimiter") {
+            break;
+        default:
+          return tokeniseLine(line, tok, lnum, codeIndent);
+      }
+    } else {
+      var match$1 = tokens[0];
+      if (typeof match$1 !== "object" && match$1 === "CodeBlockDelimiter") {
+        return Promise.resolve([
+                    tok.concat(tokens),
+                    {
+                      TAG: "Code",
+                      _0: codeIndent
+                    },
+                    lnum
+                  ]);
+      }
       return Promise.resolve([
                   tok.concat(tokens),
                   {
-                    TAG: "Code",
+                    TAG: "Initial",
                     _0: codeIndent
                   },
                   lnum
                 ]);
     }
-    return Promise.resolve([
-                tok.concat(tokens),
-                {
-                  TAG: "Initial",
-                  _0: codeIndent
-                },
-                lnum
-              ]);
-  }
+  };
 }
 
 var consumeInitialLine = consumeLineFactory(tokeniseInitialLine);
