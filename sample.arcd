@@ -1,0 +1,101 @@
+[NOTE]
+====
+This is how to start a new example
+block within this block:
+
+[example]
+====
+Nested block<
+A small example
+====
+====
+
+:key:subs value&more
+## Arcadam Test ->> part 1
+
+[Go to `Products page` on this site](/Products.html)
+
+[Go to _Offers page_ in current path](Offers.html)
+
+[Go to an arbitrary webpage](https://www.github.com)
+
+[#anchor]:
+Part 1: This text is selected by the anchor.
+
+[<Go to *Part 1*>](#anchor)
+
+[Arcadam Test ->> part 1]()
+
+___
+Quote text using
+underscores
+___
+
+====
+Example block used to
+enclose an example
+====
+
+****
+Sidebar block used to
+expand on a topic or
+highlight an idea
+****
+
+Paragraph:
+* First<
+  multi line
+* Second&&
+> * first sublist
+    >   > ** sublist
+>>    ** one more
+>  1... nested numbered list
+on two lines
+
+      ... nested 2
+..
+That was all for first sublist.
+* Third
+
+[list]
+. Number one
+
+
+> = Block title 1
+```
+indented line in code block
+```
+
+= Block title 2
+```
+unindented code block
+indented line inside code block
+```
+
+Indented text is added
+* to a code block
+
+code block continued
+
+// comment
+
+\tAnother code block
+
+```
+Another way to create
+a code block delimited
+with ```
+
+****
+This is not a new block
+```
+
+[-begin region]:
+This text can be included
+on its own.
+[-end region]:
+New block starts after marker
+
+[.styleclass]
+[mylist.first]
+Testing dotted attributes

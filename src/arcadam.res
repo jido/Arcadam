@@ -1,113 +1,17 @@
-let backtick = "`"
+type blob
+@send external text: blob => string = "text"
+@module("fs") external openFile: string => promise<blob> = "openAsBlob"
 
-let source = `
-[NOTE]
-====
-This is how to start a new example
-block within this block:
-
-[example]
-====
-Nested block<
-A small example
-====
-====
-
-:key:subs value&more
-## Arcadam Test ->> part 1
-
-[Go to ${backtick}Products page${backtick} on this site](/Products.html)
-
-[Go to _Offers page_ in current path](Offers.html)
-
-[Go to an arbitrary webpage](https://www.github.com)
-
-[#anchor]:
-Part 1: This text is selected by the anchor.
-
-[<Go to *Part 1*>](#anchor)
-
-[Arcadam Test ->> part 1]()
-
-___
-Quote text using
-underscores
-___
-
-====
-Example block used to
-enclose an example
-====
-
-****
-Sidebar block used to
-expand on a topic or
-highlight an idea
-****
-
-Paragraph:
-* First<
-multi line
-* Second&&
-> * first sublist
->   > ** sublist
->>    ** one more
-    >  1... nested numbered list
-      on two lines
-
-      ... nested 2
-..
-    That was all for first sublist.
-* Third
-
-[list]
-. Number one
-
-
-> = Block title 1
-  ${backtick}${backtick}${backtick}
-  indented line in code block
-  ${backtick}${backtick}${backtick}
-
-= Block title 2
-${backtick}${backtick}${backtick}
-unindented code block
-  indented line inside code block
-${backtick}${backtick}${backtick}
-
-  Indented text is added
-  * to a code block
-
-  code block continued
-
-// comment
-
-\tAnother code block
-
-${backtick}${backtick}${backtick}
-Another way to create
-a code block delimited
-with ${backtick}${backtick}${backtick}
-
-****
-This is not a new block
-${backtick}${backtick}${backtick}
-
-[-begin region]:
-This text can be included
-on its own.
-[-end region]:
-New block starts after marker
-
-[.styleclass]
-[mylist.first]
-Testing dotted attributes
-`
+let loadSample = async () => {
+  let v = await openFile("sample.arcd")
+  v->text
+}
 
 open Promise
 
 let alpha = "A-Za-z"
 let alnum = "0-9" ++ alpha
+let backtick = "`"
 
 let getMatches = (regex, someline) =>
   switch regex->RegExp.exec(someline) {
@@ -124,19 +28,21 @@ let countSpaces = line => {
 }
 
 exception EndOfFile(string)
-let lines = source->String.split("\n")
+let lines = loadSample()->then(text => resolve(text->String.split("\n")))
 
-let nextLine = (lnum, codeIndent) =>
-  switch lines[lnum] {
+let nextLine = async (lnum, codeIndent) => {
+  let l = await lines
+  switch l[lnum] {
   | Some(line) =>
     let count = countSpaces(line)
     let codeIndent =
       count > 0 || line->String.length == 0
         ? codeIndent
         : String.indexOf(">.", line->String.charAt(0)) == -1
-    resolve((line->String.trim, lnum + 1, codeIndent, count))
-  | None => reject(EndOfFile("EOF"))
+    (line->String.trim, lnum + 1, codeIndent, count)
+  | None => raise(EndOfFile("EOF"))
   }
+}
 
 type formats =
   | Html
