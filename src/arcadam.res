@@ -1,10 +1,6 @@
-type blob
-@send external text: blob => string = "text"
-@module("fs") external openFile: string => promise<blob> = "openAsBlob"
-
-let loadSample = async () => {
-  let v = await openFile("sample.arcd")
-  v->text
+let loadSample = () => {
+  let v = NodeJs.Fs.readFileSyncWith("sample.arcd", {encoding: "utf8"})
+  v->NodeJs.Buffer.toString
 }
 
 open Promise
@@ -28,11 +24,10 @@ let countSpaces = line => {
 }
 
 exception EndOfFile(string)
-let lines = loadSample()->then(text => resolve(text->String.split("\n")))
+let lines = loadSample()->String.split("\n")
 
 let nextLine = async (lnum, codeIndent) => {
-  let l = await lines
-  switch l[lnum] {
+  switch lines[lnum] {
   | Some(line) =>
     let count = countSpaces(line)
     let codeIndent =
