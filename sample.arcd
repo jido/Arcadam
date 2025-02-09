@@ -50,11 +50,11 @@ Paragraph:
     >   > ** sublist
 >>    ** one more
 >  1... nested numbered list
-on two lines
+       on two lines
 
       ... nested 2
 ..
-That was all for first sublist.
+  That was all for first sublist.
 * Third
 
 [list]
@@ -62,9 +62,9 @@ That was all for first sublist.
 
 
 > = Block title 1
-```
-indented line in code block
-```
+> ```
+  indented line in code block
+  ```
 
 = Block title 2
 ```
@@ -72,10 +72,10 @@ unindented code block
 indented line inside code block
 ```
 
-Indented text is added
-* to a code block
+    Indented text is added
+    * to a code block
 
-code block continued
+    code block continued
 
 // comment
 

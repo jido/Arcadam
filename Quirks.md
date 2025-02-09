@@ -98,7 +98,6 @@ The following are equivalent:
 ```
 
 Note: since the last line doesn't start with spaces, its only nesting is due to the indent sign ">".
-If you were to move this code into an indented item you would need to add one more ">" in front of that last line.
 
 An alternative way to write the same is with the nesting sign ".":
 
@@ -152,19 +151,18 @@ Unlike AsciiDoctor, all the lines of the code block must be indented. The second
 and there should be an empty line before.
 
 ~~~
-> indented line
-
-  ```
+> ```
   Indented and delimited
   code block
 it is missing an end delimiter
   ```
-  Start of a new code block
+  Start of a paragraph
 ~~~
 
+Note that only the opening delimiter of a code block can have an indent sign in front.
+
 This document is really broken. Because of the non-indented line, the code block ends early. 
-The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes the start of an indented code block instead.
-In addition, an empty line is missing after the end delimiter.
+The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes the first line of an indented code block instead.
 
 Hopefully the issue is easy to spot for writers.
 
@@ -180,7 +178,7 @@ A line with no indent after an indented line always starts a new paragraph, even
 There should be an empty line between the paragraphs.
 
 ```
-. Item in a numbered list
+1. Item in a numbered list
 > continued on the next line
 
   Another paragraph attached
