@@ -39,7 +39,7 @@ This is how to link to a heading in Markdown, which requires knowledge of how th
 [Title Text](#title-text)
 ```
 
-## Indented code block
+## Indented text and nesting
 
 A notable difference with Markdown and AsciiDoc is the way indented text is handled.
 The number of spaces doesn't have any effect in Arcadam.
