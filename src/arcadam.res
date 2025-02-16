@@ -8,6 +8,7 @@ open Promise
 let alpha = "A-Za-z"
 let alnum = "0-9" ++ alpha
 let backtick = "`"
+let tablen = 4
 
 let getMatches = (regex, someline) =>
   switch regex->RegExp.exec(someline) {
@@ -16,9 +17,20 @@ let getMatches = (regex, someline) =>
   }
 
 let countSpaces = line => {
-  let spacesIndent = %re("/^([ ]+)/")
-  switch spacesIndent->getMatches(line) {
-  | [indent] => indent->String.length
+  let initialSpaces = %re("/^([ \t]+)/")
+  switch getMatches(initialSpaces, line) {
+  | [spaces] => {
+      let count = ref(0)
+      for i in 0 to spaces->String.length - 1 {
+        let c = spaces->String.charAt(i)
+        switch c {
+        | " " => count := count.contents + 1
+        | "\t" => count := tablen * (count.contents / tablen) + tablen
+        | _ => Console.error("unreachable")
+        }
+      }
+      count.contents
+    }
   | _ => 0
   }
 }
@@ -228,7 +240,7 @@ let tokeniseLine = (line, tok, lnum, codeIndent) =>
       | [IndentSigns(_num, nchars)] =>
         let rest = line->String.sliceToEnd(~start=nchars)
         indents->Array.concat(consumeRegularLine(rest))
-      | _ => consumeRegularLine(line)
+      | _ => []
       }
     | _ => []
     }
@@ -300,7 +312,7 @@ let rec tokeniseInitialLine = (line, tok, lnum, codeIndent) => {
         let tokens = consumeAttribute(line)
         switch tokens {
         | [Attribute(_attributes)] =>
-          resolve((tok->Array.concat(tokens), Following(codeIndent), lnum))
+          resolve((tok->Array.concat(tokens), Initial(codeIndent), lnum))
         | _ =>
           assert(tokens == [])
           let tokens = consumeMarker(line)

@@ -28,13 +28,27 @@ function getMatches(regex, someline) {
 }
 
 function countSpaces(line) {
-  var spacesIndent = /^([ ]+)/;
-  var match = getMatches(spacesIndent, line);
+  var initialSpaces = /^([ \t]+)/;
+  var match = getMatches(initialSpaces, line);
   if (match.length !== 1) {
     return 0;
-  } else {
-    return match[0].length;
   }
+  var spaces = match[0];
+  var count = 0;
+  for(var i = 0 ,i_finish = spaces.length; i < i_finish; ++i){
+    var c = spaces.charAt(i);
+    switch (c) {
+      case " " :
+          count = count + 1 | 0;
+          break;
+      case "\t" :
+          count = ((count / 4 | 0) << 2) + 4 | 0;
+          break;
+      default:
+        console.error("unreachable");
+    }
+  }
+  return count;
 }
 
 var EndOfFile = /* @__PURE__ */Caml_exceptions.create("Arcadam.EndOfFile");
@@ -319,14 +333,16 @@ function tokeniseLine(line, tok, lnum, codeIndent) {
     case ">" :
         var indents = consumeIndentSigns(line);
         if (indents.length !== 1) {
-          tokens = consumeRegularLine(line);
+          tokens = [];
         } else {
           var match = indents[0];
-          if (typeof match !== "object" || match.TAG !== "IndentSigns") {
-            tokens = consumeRegularLine(line);
-          } else {
+          if (typeof match !== "object") {
+            tokens = [];
+          } else if (match.TAG === "IndentSigns") {
             var rest = line.slice(match._1);
             tokens = indents.concat(consumeRegularLine(rest));
+          } else {
+            tokens = [];
           }
         }
         break;
@@ -480,7 +496,7 @@ function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      296,
+                      308,
                       10
                     ],
                     Error: new Error()
@@ -515,7 +531,7 @@ function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      277,
+                      289,
                       10
                     ],
                     Error: new Error()
@@ -552,7 +568,7 @@ function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
                 return Promise.resolve([
                             tok.concat(tokens$6),
                             {
-                              TAG: "Following",
+                              TAG: "Initial",
                               _0: codeIndent
                             },
                             lnum
@@ -565,7 +581,7 @@ function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      305,
+                      317,
                       10
                     ],
                     Error: new Error()
@@ -845,6 +861,8 @@ promi([
       0
     ]);
 
+var tablen = 4;
+
 var outputFormat = "Html";
 
 var subs = /* [] */0;
@@ -857,6 +875,7 @@ exports.loadSample = loadSample;
 exports.alpha = alpha;
 exports.alnum = alnum;
 exports.backtick = backtick;
+exports.tablen = tablen;
 exports.getMatches = getMatches;
 exports.countSpaces = countSpaces;
 exports.EndOfFile = EndOfFile;

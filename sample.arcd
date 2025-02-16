@@ -1,7 +1,7 @@
 [NOTE]
 ====
 This is how to start a new example
-block within this block:
+> block within this block:
 
 [example]
 ====
@@ -44,12 +44,12 @@ highlight an idea
 
 Paragraph:
 * First<
-  multi line
+multi line
 * Second&&
 > * first sublist
     >   > ** sublist
 >>    ** one more
->  1... nested numbered list
+    >  1... nested numbered list
        on two lines
 
       ... nested 2
@@ -79,12 +79,12 @@ indented line inside code block
 
 // comment
 
-\tAnother code block
+ 	Another code block
 
 ```
 Another way to create
 a code block delimited
-with ```
+   with ```
 
 ****
 This is not a new block

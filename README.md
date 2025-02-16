@@ -229,7 +229,7 @@ Choose a size:
 
 The dash "-" at the start of a line is reserved for an enumeration or a quotation.
 An enumeration item does not behave like a list item.
-In particular it does not allow nesting and can appear in the middle of an indented paragraph.
+In particular it does not allow nesting.
 
 An empty line should separate an enumeration from the text that follows.
 
