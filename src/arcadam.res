@@ -392,33 +392,38 @@ let parseAttribute = (atext, attributes) => {
 }
 
 let parseMarker = atext => {
-  let pattern = `^\\s*([!-@[-${backtick}|~][${alpha}]([${alnum}])*)`
+  let pattern = `^\\s*([!-@\[-${backtick}|~])\\s*([${alpha}]([${alnum}])*)(.*)`
   let markerExpr = RegExp.fromString(pattern)
   switch markerExpr->getMatches(atext) {
-  | [name, _] => Console.log2("Parse: marker", name)
-  | k => Console.log2("Failed to parse:", k)
+  | [symbol, name, _, args] => Console.log6("Parse: marker", name, "prefix:", symbol, "rest:", args)
+  | _ => Console.log2("Failed to parse:", atext)
   }
 }
 
 type parseState =
   | General
   | Replacement(string)
+  | Hyperlink(string)
 
 let parseDocument = tok => {
   let _attributes = Map.make()
-  let _substitutions = Map.make()
+  let _replacements = Map.make()
   let state = ref(General)
   tok->Array.forEach(token =>
     switch token {
     | Attribute(attributeList) => parseAttribute(attributeList, _attributes)
     | Marker(marker) => parseMarker(marker)
     | ReplacementKey(name) => state := Replacement(name)
+    | Hyperlink(target) => state := Hyperlink(target)
     | Text(value) =>
       switch state.contents {
       | Replacement(name) =>
-        Console.log4("Parse: will replace reference", name, "with", value)
+        //Console.log4("Parse: will replace reference", name, "with", value)
         state := General
-        _substitutions->Map.set(name, value)
+        _replacements->Map.set(name, value)
+      | Hyperlink(target) =>
+        Console.log4("Parse: hyperlink with text:", value, "linked to:", target)
+        state := General
       | General =>
         // do nothing
         assert(true)
@@ -428,6 +433,7 @@ let parseDocument = tok => {
       assert(true)
     }
   )
+  _replacements->Map.forEachWithKey((value, name) => Console.log4("Key:", name, "Value:", value))
 }
 
 let subs = list{}

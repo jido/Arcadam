@@ -40,11 +40,14 @@ enclose an example
 Sidebar block used to
 expand on a topic or
 highlight an idea
+{test}
+
+:key:test foo
 ****
 
 Paragraph:
 * First<
-multi line
+multi line {test}
 * Second&&
 > * first sublist
     >   > ** sublist
@@ -99,3 +102,5 @@ New block starts after marker
 [.styleclass]
 [mylist.first]
 Testing dotted attributes
+
+:key:name.of.substitution test value 1

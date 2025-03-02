@@ -762,20 +762,22 @@ function parseAttribute(atext, attributes) {
 }
 
 function parseMarker(atext) {
-  var pattern = "^\\s*([!-@[-" + backtick + "|~][" + alpha + "]([" + alnum + "])*)";
+  var pattern = "^\\s*([!-@\[-" + backtick + "|~])\\s*([" + alpha + "]([" + alnum + "])*)(.*)";
   var markerExpr = new RegExp(pattern);
-  var k = getMatches(markerExpr, atext);
-  if (k.length !== 2) {
-    console.log("Failed to parse:", k);
+  var match = getMatches(markerExpr, atext);
+  if (match.length !== 4) {
+    console.log("Failed to parse:", atext);
     return ;
   }
-  var name = k[0];
-  console.log("Parse: marker", name);
+  var symbol = match[0];
+  var name = match[1];
+  var args = match[3];
+  console.log("Parse: marker", name, "prefix:", symbol, "rest:", args);
 }
 
 function parseDocument(tok) {
   var _attributes = new Map();
-  var _substitutions = new Map();
+  var _replacements = new Map();
   var state = {
     contents: "General"
   };
@@ -790,10 +792,13 @@ function parseDocument(tok) {
               if (typeof name !== "object") {
                 return ;
               }
-              var name$1 = name._0;
-              console.log("Parse: will replace reference", name$1, "with", value);
+              if (name.TAG === "Replacement") {
+                state.contents = "General";
+                _replacements.set(name._0, value);
+                return ;
+              }
+              console.log("Parse: hyperlink with text:", value, "linked to:", name._0);
               state.contents = "General";
-              _substitutions.set(name$1, value);
               return ;
           case "Attribute" :
               return parseAttribute(token._0, _attributes);
@@ -805,9 +810,18 @@ function parseDocument(tok) {
                 _0: token._0
               };
               return ;
+          case "Hyperlink" :
+              state.contents = {
+                TAG: "Hyperlink",
+                _0: token._0
+              };
+              return ;
           default:
             return ;
         }
+      });
+  _replacements.forEach(function (value, name) {
+        console.log("Key:", name, "Value:", value);
       });
 }
 
