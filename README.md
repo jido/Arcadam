@@ -616,7 +616,7 @@ Arcadam offers custom content blocks, custom controls, custom elements and custo
 When the content block type contains "/" it is considered a MIME type.
 
 A standalone custom control must be on its own line and the end brackets are optional.
-On the other hands, the end brackets are required even if they are empty for an inline custom control.
+On the other hand, the end brackets are required even if they are empty for an inline custom control.
 
 A custom element can be used anywhere. It always starts with a special character.
 A custom marker applies to the following paragraph or block. It must be on its own line.

@@ -23,7 +23,13 @@ function getMatches(regex, someline) {
   if (result == null) {
     return [];
   } else {
-    return result.slice(1);
+    return result.slice(1).map(function (opt) {
+                if (opt !== undefined) {
+                  return opt;
+                } else {
+                  return "";
+                }
+              });
   }
 }
 
@@ -109,8 +115,8 @@ function consumeBlockTitle(line) {
 }
 
 function consumeHeading(line) {
-  var titleLine = /^(#+)\s+([^\s].*)$/;
-  var match = getMatches(titleLine, line);
+  var headingLine = /^(#+)\s+([^\s].*)$/;
+  var match = getMatches(headingLine, line);
   if (match.length !== 2) {
     return [];
   }
@@ -151,7 +157,7 @@ function consumeReplacement(line) {
 }
 
 function consumeAttribute(line) {
-  var attrLine = /^\[\s*([^\[\]]*)\]$/;
+  var attrLine = /^\[\s*([^\[\]]*)\]\s*$/;
   var match = getMatches(attrLine, line);
   if (match.length !== 1) {
     return [];
@@ -161,6 +167,66 @@ function consumeAttribute(line) {
             TAG: "Attribute",
             _0: attributes
           }];
+}
+
+function consumeInlineControl(line) {
+  var controlLine = /\[\s*\?\s*([^ \]]*)(\s+[^\]]+)?\s*\]\((.*)\)/;
+  var match = getMatches(controlLine, line);
+  if (match.length !== 3) {
+    return [];
+  }
+  var controlType = match[0];
+  var params = match[1];
+  var options = match[2];
+  if (options === "") {
+    return [{
+              TAG: "InlineControl",
+              _0: controlType,
+              _1: params
+            }];
+  } else {
+    return [
+            {
+              TAG: "InlineControl",
+              _0: controlType,
+              _1: params
+            },
+            {
+              TAG: "ControlOptions",
+              _0: options
+            }
+          ];
+  }
+}
+
+function consumeStandaloneControl(line) {
+  var controlLine = /^\[\s*!\s*([^ \]]*)(\s+[^\]]+)?\s*\](\((.*)\))?\s*$/;
+  var match = getMatches(controlLine, line);
+  if (match.length !== 4) {
+    return [];
+  }
+  var controlType = match[0];
+  var params = match[1];
+  var options = match[3];
+  if (options === "") {
+    return [{
+              TAG: "StandaloneControl",
+              _0: controlType,
+              _1: params
+            }];
+  } else {
+    return [
+            {
+              TAG: "StandaloneControl",
+              _0: controlType,
+              _1: params
+            },
+            {
+              TAG: "ControlOptions",
+              _0: options
+            }
+          ];
+  }
 }
 
 function consumeHyperlink(line) {
@@ -288,7 +354,17 @@ function consumeRegularLine(line) {
           break;
       case "[" :
           var tokens$1 = consumeMarker(line);
-          tok = Caml_obj.notequal(tokens$1, []) ? tokens$1 : consumeHyperlink(line);
+          if (Caml_obj.notequal(tokens$1, [])) {
+            tok = tokens$1;
+          } else {
+            var tokens$2 = consumeStandaloneControl(line);
+            if (Caml_obj.notequal(tokens$2, [])) {
+              tok = tokens$2;
+            } else {
+              var tokens$3 = consumeInlineControl(line);
+              tok = Caml_obj.notequal(tokens$3, []) ? tokens$3 : consumeHyperlink(line);
+            }
+          }
           break;
       default:
         tok = [];
@@ -496,7 +572,7 @@ function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      308,
+                      352,
                       10
                     ],
                     Error: new Error()
@@ -531,7 +607,7 @@ function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      289,
+                      333,
                       10
                     ],
                     Error: new Error()
@@ -581,7 +657,7 @@ function tokeniseInitialLine(_line, _tok, lnum, _codeIndent) {
                     RE_EXN_ID: "Assert_failure",
                     _1: [
                       "arcadam.res",
-                      317,
+                      361,
                       10
                     ],
                     Error: new Error()
@@ -902,6 +978,8 @@ exports.consumeBlockTitle = consumeBlockTitle;
 exports.consumeHeading = consumeHeading;
 exports.consumeReplacement = consumeReplacement;
 exports.consumeAttribute = consumeAttribute;
+exports.consumeInlineControl = consumeInlineControl;
+exports.consumeStandaloneControl = consumeStandaloneControl;
 exports.consumeHyperlink = consumeHyperlink;
 exports.consumeMarker = consumeMarker;
 exports.consumeBulletListItem = consumeBulletListItem;

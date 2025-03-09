@@ -104,3 +104,19 @@ New block starts after marker
 Testing dotted attributes
 
 :key:name.of.substitution test value 1
+
+[form]
+====
+= Field label
+[!input input-id= Default value]()
+
+[checkbox]
+|+| Checkbox description | value
+| | Unchecked checkbox description
+
+[options,value="choice 2"]
+* choice 1
+* choice 2
+* choice 3
+
+====

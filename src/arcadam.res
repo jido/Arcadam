@@ -12,7 +12,15 @@ let tablen = 4
 
 let getMatches = (regex, someline) =>
   switch regex->RegExp.exec(someline) {
-  | Some(result) => result->RegExp.Result.matches
+  | Some(result) =>
+    result
+    ->Array.sliceToEnd(~start=1)
+    ->Array.map(opt =>
+      switch opt {
+      | None => ""
+      | Some(text) => text
+      }
+    )
   | None => []
   }
 
@@ -89,6 +97,9 @@ type token =
   | ContentBlockDelimiter // ~~~~
   | BlockTitle(string) // = Block title
   | ReplacementUse(string) // {name}
+  | StandaloneControl(string, string) // [!type params](options)
+  | InlineControl(string, string) // [?type params](options)
+  | ControlOptions(string)
 
 type lineType =
   | Initial(bool)
@@ -116,8 +127,8 @@ let consumeBlockTitle = line => {
 }
 
 let consumeHeading = line => {
-  let titleLine = %re("/^(#+)\s+([^\s].*)$/")
-  switch titleLine->getMatches(line) {
+  let headingLine = %re("/^(#+)\s+([^\s].*)$/")
+  switch headingLine->getMatches(line) {
   | [signs, title] =>
     let level = signs->String.length
     [Heading(level), Text(title)]
@@ -135,9 +146,32 @@ let consumeReplacement = line => {
 }
 
 let consumeAttribute = line => {
-  let attrLine = %re("/^\[\s*([^\[\]]*)\]$/")
+  let attrLine = %re("/^\[\s*([^\[\]]*)\]\s*$/")
   switch attrLine->getMatches(line) {
   | [attributes] => [Attribute(attributes)]
+  | _ => []
+  }
+}
+
+let consumeInlineControl = line => {
+  // TODO: handle brackets inside quotes
+  let controlLine = %re("/\[\s*\?\s*([^ \]]*)(\s+[^\]]+)?\s*\]\((.*)\)/")
+  switch controlLine->getMatches(line) {
+  | [controlType, params, ""] => [InlineControl(controlType, params)]
+  | [controlType, params, options] => [InlineControl(controlType, params), ControlOptions(options)]
+  | _ => []
+  }
+}
+
+let consumeStandaloneControl = line => {
+  // TODO: handle brackets inside quotes
+  let controlLine = %re("/^\[\s*!\s*([^ \]]*)(\s+[^\]]+)?\s*\](\((.*)\))?\s*$/")
+  switch controlLine->getMatches(line) {
+  | [controlType, params, _, ""] => [StandaloneControl(controlType, params)]
+  | [controlType, params, _, options] => [
+      StandaloneControl(controlType, params),
+      ControlOptions(options),
+    ]
   | _ => []
   }
 }
@@ -213,7 +247,17 @@ let consumeRegularLine = line => {
       if tokens != [] {
         tokens
       } else {
-        consumeHyperlink(line)
+        let tokens = consumeStandaloneControl(line)
+        if tokens != [] {
+          tokens
+        } else {
+          let tokens = consumeInlineControl(line)
+          if tokens != [] {
+            tokens
+          } else {
+            consumeHyperlink(line)
+          }
+        }
       }
     | "*" => consumeBulletListItem(line)
     | "." | "1" => consumeNumberedListItem(line)
