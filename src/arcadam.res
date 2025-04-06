@@ -449,7 +449,12 @@ type parseState =
   | Replacement(string)
   | Hyperlink(string)
 
-let parseDocument = tok => {
+module type ParserOutput = {
+  let outputHyperlink: (string, string) => unit
+  let outputText: string => unit
+}
+
+let parseDocument = (tok, module(Output: ParserOutput)) => {
   let _attributes = Map.make()
   let _replacements = Map.make()
   let state = ref(General)
@@ -466,10 +471,10 @@ let parseDocument = tok => {
         state := General
         _replacements->Map.set(name, value)
       | Hyperlink(target) =>
-        Console.log4("Parse: hyperlink with text:", value, "linked to:", target)
+        Output.outputHyperlink(target, value)
         state := General
       | General =>
-        // do nothing
+        Output.outputText(value)
         assert(true)
       }
     | _ =>
@@ -500,7 +505,7 @@ let rec promi = ((tok, ltype, lnum)) =>
     | EndOfFile(_) =>
       tok->Array.forEach(token => Console.log2("T: ", token))
       Console.log(`DONE ${tok->Array.length->string_of_int}`)
-      tok->parseDocument
+      tok->parseDocument(module(HtmlOutput))
       resolve()
     | _ =>
       Console.log("Unexpected error")

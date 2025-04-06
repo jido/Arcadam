@@ -3,6 +3,7 @@
 
 var Nodefs = require("node:fs");
 var Caml_obj = require("rescript/lib/js/caml_obj.js");
+var HtmlOutput = require("./htmlOutput.bs.js");
 var Core__Promise = require("@rescript/core/src/Core__Promise.bs.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
@@ -851,7 +852,7 @@ function parseMarker(atext) {
   console.log("Parse: marker", name, "prefix:", symbol, "rest:", args);
 }
 
-function parseDocument(tok) {
+function parseDocument(tok, Output) {
   var _attributes = new Map();
   var _replacements = new Map();
   var state = {
@@ -866,6 +867,7 @@ function parseDocument(tok) {
               var value = token._0;
               var name = state.contents;
               if (typeof name !== "object") {
+                Output.outputText(value);
                 return ;
               }
               if (name.TAG === "Replacement") {
@@ -873,7 +875,7 @@ function parseDocument(tok) {
                 _replacements.set(name._0, value);
                 return ;
               }
-              console.log("Parse: hyperlink with text:", value, "linked to:", name._0);
+              Output.outputHyperlink(name._0, value);
               state.contents = "General";
               return ;
           case "Attribute" :
@@ -933,7 +935,7 @@ function promi(param) {
                         console.log("T: ", token);
                       });
                   console.log("DONE " + String(tok.length));
-                  parseDocument(tok);
+                  parseDocument(tok, HtmlOutput);
                   return Promise.resolve();
                 } else {
                   console.log("Unexpected error");
