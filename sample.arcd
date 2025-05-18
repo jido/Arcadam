@@ -22,9 +22,10 @@ A small example
 [#anchor]:
 Part 1: This text is selected by the anchor.
 
+Two links:
 [<Go to *Part 1*>](#anchor)
-
 [Arcadam Test ->> part 1]()
+done.
 
 ___
 Quote text using

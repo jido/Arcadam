@@ -56,44 +56,66 @@ let parseMarker = atext => {
   }
 }
 
-type parseState =
-  | General
-  | Replacement(string)
-  | Hyperlink(string)
-
 module type ParserOutput = {
+  let outputHeading: (int, string) => unit
   let outputHyperlink: (string, string) => unit
+  let startText: unit => unit
   let outputText: string => unit
+  let endText: unit => unit
+}
+
+let doOutput = (tokens, module(Output: ParserOutput)) => {
+  tokens->Option.forEach(token =>
+    switch token {
+    | Tokenizer.Text(value) =>
+      Output.outputText(value)
+      Output.endText()
+    | _ => assert(false)
+    }
+  )
 }
 
 let parseDocument = (tok, module(Output: ParserOutput)) => {
   let _attributes = Map.make()
   let _replacements = Map.make()
-  let state = ref(General)
-  tok->Array.forEach(token =>
+  let final = tok->Array.reduce(None, (acc, token) =>
     switch token {
-    | Tokenizer.Attribute(attributeList) => parseAttribute(attributeList, _attributes)
-    | Tokenizer.Marker(marker) => parseMarker(marker)
-    | Tokenizer.ReplacementKey(name) => state := Replacement(name)
-    | Tokenizer.Hyperlink(target) => state := Hyperlink(target)
     | Tokenizer.Text(value) =>
-      switch state.contents {
-      | Replacement(name) =>
+      switch acc {
+      | Some(Tokenizer.ReplacementKey(name)) =>
         //Console.log4("Parse: will replace reference", name, "with", value)
-        state := General
         _replacements->Map.set(name, value)
-      | Hyperlink(target) =>
+        None
+      | Some(Tokenizer.Hyperlink(target)) =>
         Output.outputHyperlink(target, value)
-        state := General
-      | General =>
-        Output.outputText(value)
-        assert(true)
+        None
+      | Some(Tokenizer.Text(current)) =>
+        Some(Tokenizer.Text(current->String.concatMany(["\n", value])))
+      | Some(Tokenizer.Heading(level)) =>
+        Output.outputHeading(level, value)
+        None
+      | Some(_) => assert(false)
+      | None =>
+        Output.startText()
+        Some(token)
       }
+    | Tokenizer.Hyperlink(_) => Some(token)
     | _ =>
-      // do nothing
-      assert(true)
+      doOutput(acc, module(Output))
+      switch token {
+      | Tokenizer.Attribute(attributeList) =>
+        parseAttribute(attributeList, _attributes)
+        None
+      | Tokenizer.Marker(marker) =>
+        parseMarker(marker)
+        None
+      | Tokenizer.ReplacementKey(_) => Some(token)
+      | Tokenizer.Heading(_) => Some(token)
+      | _ => None
+      }
     }
   )
+  doOutput(final, module(Output))
   _replacements->Map.forEachWithKey((value, name) => Console.log4("Key:", name, "Value:", value))
 }
 

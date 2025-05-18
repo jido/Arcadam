@@ -4,6 +4,8 @@
 var Nodefs = require("node:fs");
 var Tokenizer = require("./tokenizer.bs.js");
 var HtmlOutput = require("./htmlOutput.bs.js");
+var Core__Array = require("@rescript/core/src/Core__Array.bs.js");
+var Core__Option = require("@rescript/core/src/Core__Option.bs.js");
 var Core__Promise = require("@rescript/core/src/Core__Promise.bs.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
@@ -69,52 +71,110 @@ function parseMarker(atext) {
   console.log("Parse: marker", name, "prefix:", symbol, "rest:", args);
 }
 
+function doOutput(tokens, Output) {
+  Core__Option.forEach(tokens, (function (token) {
+          if (typeof token !== "object") {
+            throw {
+                  RE_EXN_ID: "Assert_failure",
+                  _1: [
+                    "arcadam.res",
+                    73,
+                    11
+                  ],
+                  Error: new Error()
+                };
+          }
+          if (token.TAG === "Text") {
+            Output.outputText(token._0);
+            return Output.endText();
+          }
+          throw {
+                RE_EXN_ID: "Assert_failure",
+                _1: [
+                  "arcadam.res",
+                  73,
+                  11
+                ],
+                Error: new Error()
+              };
+        }));
+}
+
 function parseDocument(tok, Output) {
   var _attributes = new Map();
   var _replacements = new Map();
-  var state = {
-    contents: "General"
-  };
-  tok.forEach(function (token) {
-        if (typeof token !== "object") {
-          return ;
-        }
-        switch (token.TAG) {
-          case "Text" :
-              var value = token._0;
-              var name = state.contents;
-              if (typeof name !== "object") {
-                Output.outputText(value);
-                return ;
-              }
-              if (name.TAG === "Replacement") {
-                state.contents = "General";
-                _replacements.set(name._0, value);
-                return ;
-              }
-              Output.outputHyperlink(name._0, value);
-              state.contents = "General";
-              return ;
-          case "Attribute" :
-              return parseAttribute(token._0, _attributes);
-          case "Marker" :
-              return parseMarker(token._0);
-          case "ReplacementKey" :
-              state.contents = {
-                TAG: "Replacement",
-                _0: token._0
-              };
-              return ;
-          case "Hyperlink" :
-              state.contents = {
-                TAG: "Hyperlink",
-                _0: token._0
-              };
-              return ;
-          default:
+  var $$final = Core__Array.reduce(tok, undefined, (function (acc, token) {
+          if (typeof token === "object") {
+            switch (token.TAG) {
+              case "Text" :
+                  var value = token._0;
+                  if (acc !== undefined) {
+                    if (typeof acc !== "object") {
+                      throw {
+                            RE_EXN_ID: "Assert_failure",
+                            _1: [
+                              "arcadam.res",
+                              97,
+                              19
+                            ],
+                            Error: new Error()
+                          };
+                    }
+                    switch (acc.TAG) {
+                      case "Text" :
+                          return {
+                                  TAG: "Text",
+                                  _0: acc._0.concat("\n", value)
+                                };
+                      case "Heading" :
+                          Output.outputHeading(acc._0, value);
+                          return ;
+                      case "ReplacementKey" :
+                          _replacements.set(acc._0, value);
+                          return ;
+                      case "Hyperlink" :
+                          Output.outputHyperlink(acc._0, value);
+                          return ;
+                      default:
+                        throw {
+                              RE_EXN_ID: "Assert_failure",
+                              _1: [
+                                "arcadam.res",
+                                97,
+                                19
+                              ],
+                              Error: new Error()
+                            };
+                    }
+                  } else {
+                    Output.startText();
+                    return token;
+                  }
+              case "Hyperlink" :
+                  return token;
+              default:
+                
+            }
+          }
+          doOutput(acc, Output);
+          if (typeof token !== "object") {
             return ;
-        }
-      });
+          }
+          switch (token.TAG) {
+            case "Attribute" :
+                parseAttribute(token._0, _attributes);
+                return ;
+            case "Marker" :
+                parseMarker(token._0);
+                return ;
+            case "Heading" :
+            case "ReplacementKey" :
+                return token;
+            default:
+              return ;
+          }
+        }));
+  doOutput($$final, Output);
   _replacements.forEach(function (value, name) {
         console.log("Key:", name, "Value:", value);
       });
@@ -164,7 +224,13 @@ function promi(param) {
                         console.log("T: ", token);
                       });
                   console.log("DONE " + String(tok.length));
-                  parseDocument(tok, HtmlOutput);
+                  parseDocument(tok, {
+                        outputHeading: HtmlOutput.outputHeading,
+                        outputHyperlink: HtmlOutput.outputHyperlink,
+                        startText: HtmlOutput.startText,
+                        outputText: HtmlOutput.outputText,
+                        endText: HtmlOutput.endText
+                      });
                   return Promise.resolve();
                 } else {
                   console.log("Unexpected error");
@@ -198,6 +264,7 @@ exports.outputFormat = outputFormat;
 exports.specialCharsStep = specialCharsStep;
 exports.parseAttribute = parseAttribute;
 exports.parseMarker = parseMarker;
+exports.doOutput = doOutput;
 exports.parseDocument = parseDocument;
 exports.subs = subs;
 exports.attrs = attrs;
