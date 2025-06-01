@@ -114,7 +114,7 @@ function parseDocument(tok, Output) {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcadam.res",
-                              97,
+                              98,
                               19
                             ],
                             Error: new Error()
@@ -122,10 +122,8 @@ function parseDocument(tok, Output) {
                     }
                     switch (acc.TAG) {
                       case "Text" :
-                          return {
-                                  TAG: "Text",
-                                  _0: acc._0.concat("\n", value)
-                                };
+                          Output.outputText(acc._0);
+                          return token;
                       case "Heading" :
                           Output.outputHeading(acc._0, value);
                           return ;
@@ -134,13 +132,16 @@ function parseDocument(tok, Output) {
                           return ;
                       case "Hyperlink" :
                           Output.outputHyperlink(acc._0, value);
-                          return ;
+                          return {
+                                  TAG: "Text",
+                                  _0: ""
+                                };
                       default:
                         throw {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcadam.res",
-                                97,
+                                98,
                                 19
                               ],
                               Error: new Error()
@@ -150,7 +151,34 @@ function parseDocument(tok, Output) {
                     Output.startText();
                     return token;
                   }
+              case "Spaces" :
+                  return acc;
               case "Hyperlink" :
+                  Core__Option.forEach(acc, (function (token) {
+                          if (typeof token !== "object") {
+                            throw {
+                                  RE_EXN_ID: "Assert_failure",
+                                  _1: [
+                                    "arcadam.res",
+                                    107,
+                                    15
+                                  ],
+                                  Error: new Error()
+                                };
+                          }
+                          if (token.TAG === "Text") {
+                            return Output.outputText(token._0);
+                          }
+                          throw {
+                                RE_EXN_ID: "Assert_failure",
+                                _1: [
+                                  "arcadam.res",
+                                  107,
+                                  15
+                                ],
+                                Error: new Error()
+                              };
+                        }));
                   return token;
               default:
                 
