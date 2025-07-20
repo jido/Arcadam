@@ -86,13 +86,13 @@ let parseDocument = (tok, module(Output: ParserOutput)) => {
         //Console.log4("Parse: will replace reference", name, "with", value)
         _replacements->Map.set(name, value)
         None
-      | Some(Tokenizer.Hyperlink(target)) =>
+      | Some(Hyperlink(target)) =>
         Output.outputHyperlink(target, value)
-        Some(Tokenizer.Text(""))
-      | Some(Tokenizer.Text(saved)) =>
+        Some(Text(""))
+      | Some(Text(saved)) =>
         Output.outputText(saved)
         Some(token)
-      | Some(Tokenizer.Heading(level)) =>
+      | Some(Heading(level)) =>
         Output.outputHeading(level, value)
         None
       | Some(_) => assert(false)
@@ -100,25 +100,25 @@ let parseDocument = (tok, module(Output: ParserOutput)) => {
         Output.startText()
         Some(token)
       }
-    | Tokenizer.Hyperlink(_) =>
+    | Hyperlink(_) =>
       switch acc {
-      | Some(Tokenizer.Text(saved)) => Output.outputText(saved)
+      | Some(Text(saved)) => Output.outputText(saved)
       | None => Output.startText()
       | _ => assert(false)
       }
       Some(token)
-    | Tokenizer.Spaces(_) => acc
+    | Spaces(_) => acc
     | _ =>
       doOutput(acc, module(Output))
       switch token {
-      | Tokenizer.Attribute(attributeList) =>
+      | Attribute(attributeList) =>
         parseAttribute(attributeList, _attributes)
         None
-      | Tokenizer.Marker(marker) =>
+      | Marker(marker) =>
         parseMarker(marker)
         None
-      | Tokenizer.ReplacementKey(_) => Some(token)
-      | Tokenizer.Heading(_) => Some(token)
+      | ReplacementKey(_) => Some(token)
+      | Heading(_) => Some(token)
       | _ => None
       }
     }
@@ -142,11 +142,10 @@ let rec promi = ((tok, ltype, lnum)) =>
   switch ltype {
   | Tokenizer.Initial(codeIndent) =>
     nextTokens(lnum, codeIndent, tok)->then(Tokenizer.consumeInitialLine)
-  | Tokenizer.Following(codeIndent) =>
-    nextTokens(lnum, codeIndent, tok)->then(Tokenizer.consumeLine)
-  | Tokenizer.Code(codeIndent) => nextTokens(lnum, codeIndent, tok)->then(Tokenizer.consumeCodeLine)
-  | Tokenizer.Indented => nextTokens(lnum, true, tok)->then(Tokenizer.consumeIndentedCode)
-  | Tokenizer.List(codeIndent) => nextTokens(lnum, codeIndent, tok)->then(Tokenizer.consumeListLine)
+  | Following(codeIndent) => nextTokens(lnum, codeIndent, tok)->then(Tokenizer.consumeLine)
+  | Code(codeIndent) => nextTokens(lnum, codeIndent, tok)->then(Tokenizer.consumeCodeLine)
+  | Indented => nextTokens(lnum, true, tok)->then(Tokenizer.consumeIndentedCode)
+  | List(codeIndent) => nextTokens(lnum, codeIndent, tok)->then(Tokenizer.consumeListLine)
   }
   ->then(promi)
   ->catch(err =>
