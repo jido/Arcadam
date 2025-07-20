@@ -154,31 +154,34 @@ function parseDocument(tok, Output) {
               case "Spaces" :
                   return acc;
               case "Hyperlink" :
-                  Core__Option.forEach(acc, (function (token) {
-                          if (typeof token !== "object") {
-                            throw {
-                                  RE_EXN_ID: "Assert_failure",
-                                  _1: [
-                                    "arcadam.res",
-                                    107,
-                                    15
-                                  ],
-                                  Error: new Error()
-                                };
-                          }
-                          if (token.TAG === "Text") {
-                            return Output.outputText(token._0);
-                          }
-                          throw {
-                                RE_EXN_ID: "Assert_failure",
-                                _1: [
-                                  "arcadam.res",
-                                  107,
-                                  15
-                                ],
-                                Error: new Error()
-                              };
-                        }));
+                  if (acc !== undefined) {
+                    if (typeof acc !== "object") {
+                      throw {
+                            RE_EXN_ID: "Assert_failure",
+                            _1: [
+                              "arcadam.res",
+                              107,
+                              13
+                            ],
+                            Error: new Error()
+                          };
+                    }
+                    if (acc.TAG === "Text") {
+                      Output.outputText(acc._0);
+                    } else {
+                      throw {
+                            RE_EXN_ID: "Assert_failure",
+                            _1: [
+                              "arcadam.res",
+                              107,
+                              13
+                            ],
+                            Error: new Error()
+                          };
+                    }
+                  } else {
+                    Output.startText();
+                  }
                   return token;
               default:
                 

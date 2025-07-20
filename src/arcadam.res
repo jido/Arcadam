@@ -89,8 +89,8 @@ let parseDocument = (tok, module(Output: ParserOutput)) => {
       | Some(Tokenizer.Hyperlink(target)) =>
         Output.outputHyperlink(target, value)
         Some(Tokenizer.Text(""))
-      | Some(Tokenizer.Text(current)) =>
-        Output.outputText(current)
+      | Some(Tokenizer.Text(saved)) =>
+        Output.outputText(saved)
         Some(token)
       | Some(Tokenizer.Heading(level)) =>
         Output.outputHeading(level, value)
@@ -101,12 +101,11 @@ let parseDocument = (tok, module(Output: ParserOutput)) => {
         Some(token)
       }
     | Tokenizer.Hyperlink(_) =>
-      acc->Option.forEach(token =>
-        switch token {
-        | Tokenizer.Text(value) => Output.outputText(value)
-        | _ => assert(false)
-        }
-      )
+      switch acc {
+      | Some(Tokenizer.Text(saved)) => Output.outputText(saved)
+      | None => Output.startText()
+      | _ => assert(false)
+      }
       Some(token)
     | Tokenizer.Spaces(_) => acc
     | _ =>
