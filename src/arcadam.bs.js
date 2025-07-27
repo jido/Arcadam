@@ -58,17 +58,16 @@ function parseAttribute(atext, attributes) {
 }
 
 function parseMarker(atext) {
-  var pattern = "^\\s*([!-@\[-" + Tokenizer.backtick + "|~])\\s*([" + Tokenizer.alpha + "]([" + Tokenizer.alnum + "])*)(.*)";
+  var pattern = "^\\s*([!-@\[-" + Tokenizer.backtick + "|~])\\s*(.*)";
   var markerExpr = new RegExp(pattern);
   var match = Tokenizer.getMatches(markerExpr, atext);
-  if (match.length !== 4) {
+  if (match.length !== 2) {
     console.log("Failed to parse:", atext);
     return ;
   }
   var symbol = match[0];
-  var name = match[1];
-  var args = match[3];
-  console.log("Parse: marker", name, "prefix:", symbol, "rest:", args);
+  var args = match[1];
+  console.log("Parse: marker prefix:", symbol, "rest:", args);
 }
 
 function doOutput(tokens, Output) {
@@ -78,25 +77,29 @@ function doOutput(tokens, Output) {
                   RE_EXN_ID: "Assert_failure",
                   _1: [
                     "arcadam.res",
-                    73,
+                    74,
                     11
                   ],
                   Error: new Error()
                 };
           }
-          if (token.TAG === "Text") {
-            Output.outputText(token._0);
-            return Output.endText();
+          switch (token.TAG) {
+            case "Text" :
+                Output.outputText(token._0);
+                return Output.endText();
+            case "Marker" :
+                return parseMarker(token._0);
+            default:
+              throw {
+                    RE_EXN_ID: "Assert_failure",
+                    _1: [
+                      "arcadam.res",
+                      74,
+                      11
+                    ],
+                    Error: new Error()
+                  };
           }
-          throw {
-                RE_EXN_ID: "Assert_failure",
-                _1: [
-                  "arcadam.res",
-                  73,
-                  11
-                ],
-                Error: new Error()
-              };
         }));
 }
 
@@ -104,7 +107,10 @@ function parseDocument(tok, Output) {
   var _attributes = new Map();
   var _replacements = new Map();
   var $$final = Core__Array.reduce(tok, undefined, (function (acc, token) {
-          if (typeof token === "object") {
+          var exit = 0;
+          if (typeof token !== "object") {
+            exit = 1;
+          } else {
             switch (token.TAG) {
               case "Text" :
                   var value = token._0;
@@ -114,7 +120,7 @@ function parseDocument(tok, Output) {
                             RE_EXN_ID: "Assert_failure",
                             _1: [
                               "arcadam.res",
-                              98,
+                              102,
                               19
                             ],
                             Error: new Error()
@@ -127,6 +133,9 @@ function parseDocument(tok, Output) {
                       case "Heading" :
                           Output.outputHeading(acc._0, value);
                           return ;
+                      case "Marker" :
+                          parseMarker(acc._0);
+                          return token;
                       case "ReplacementKey" :
                           _replacements.set(acc._0, value);
                           return ;
@@ -141,7 +150,7 @@ function parseDocument(tok, Output) {
                               RE_EXN_ID: "Assert_failure",
                               _1: [
                                 "arcadam.res",
-                                98,
+                                102,
                                 19
                               ],
                               Error: new Error()
@@ -153,56 +162,66 @@ function parseDocument(tok, Output) {
                   }
               case "Spaces" :
                   return acc;
+              case "Marker" :
               case "Hyperlink" :
-                  if (acc !== undefined) {
-                    if (typeof acc !== "object") {
-                      throw {
-                            RE_EXN_ID: "Assert_failure",
-                            _1: [
-                              "arcadam.res",
-                              107,
-                              13
-                            ],
-                            Error: new Error()
-                          };
-                    }
-                    if (acc.TAG === "Text") {
-                      Output.outputText(acc._0);
-                    } else {
-                      throw {
-                            RE_EXN_ID: "Assert_failure",
-                            _1: [
-                              "arcadam.res",
-                              107,
-                              13
-                            ],
-                            Error: new Error()
-                          };
-                    }
-                  } else {
-                    Output.startText();
-                  }
-                  return token;
+                  exit = 2;
+                  break;
               default:
-                
+                exit = 1;
             }
           }
-          doOutput(acc, Output);
-          if (typeof token !== "object") {
-            return ;
-          }
-          switch (token.TAG) {
-            case "Attribute" :
-                parseAttribute(token._0, _attributes);
-                return ;
-            case "Marker" :
-                parseMarker(token._0);
-                return ;
-            case "Heading" :
-            case "ReplacementKey" :
+          switch (exit) {
+            case 1 :
+                doOutput(acc, Output);
+                if (typeof token !== "object") {
+                  return ;
+                }
+                switch (token.TAG) {
+                  case "Attribute" :
+                      parseAttribute(token._0, _attributes);
+                      return ;
+                  case "Heading" :
+                  case "ReplacementKey" :
+                      return token;
+                  default:
+                    return ;
+                }
+            case 2 :
+                if (acc !== undefined) {
+                  if (typeof acc !== "object") {
+                    throw {
+                          RE_EXN_ID: "Assert_failure",
+                          _1: [
+                            "arcadam.res",
+                            113,
+                            13
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  switch (acc.TAG) {
+                    case "Text" :
+                        Output.outputText(acc._0);
+                        break;
+                    case "Marker" :
+                        parseMarker(acc._0);
+                        break;
+                    default:
+                      throw {
+                            RE_EXN_ID: "Assert_failure",
+                            _1: [
+                              "arcadam.res",
+                              113,
+                              13
+                            ],
+                            Error: new Error()
+                          };
+                  }
+                } else {
+                  Output.startText();
+                }
                 return token;
-            default:
-              return ;
+            
           }
         }));
   doOutput($$final, Output);

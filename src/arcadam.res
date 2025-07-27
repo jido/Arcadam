@@ -48,10 +48,10 @@ let parseAttribute = (atext, attributes) => {
 }
 
 let parseMarker = atext => {
-  let pattern = `^\\s*([!-@\[-${Tokenizer.backtick}|~])\\s*([${Tokenizer.alpha}]([${Tokenizer.alnum}])*)(.*)`
+  let pattern = `^\\s*([!-@\[-${Tokenizer.backtick}|~])\\s*(.*)`
   let markerExpr = RegExp.fromString(pattern)
   switch markerExpr->Tokenizer.getMatches(atext) {
-  | [symbol, name, _, args] => Console.log6("Parse: marker", name, "prefix:", symbol, "rest:", args)
+  | [symbol, args] => Console.log4("Parse: marker prefix:", symbol, "rest:", args)
   | _ => Console.log2("Failed to parse:", atext)
   }
 }
@@ -70,6 +70,7 @@ let doOutput = (tokens, module(Output: ParserOutput)) => {
     | Tokenizer.Text(value) =>
       Output.outputText(value)
       Output.endText()
+    | Marker(marker) => parseMarker(marker)
     | _ => assert(false)
     }
   )
@@ -95,14 +96,19 @@ let parseDocument = (tok, module(Output: ParserOutput)) => {
       | Some(Heading(level)) =>
         Output.outputHeading(level, value)
         None
+      | Some(Marker(marker)) =>
+        parseMarker(marker)
+        Some(token)
       | Some(_) => assert(false)
       | None =>
         Output.startText()
         Some(token)
       }
-    | Hyperlink(_) =>
+    | Hyperlink(_)
+    | Marker(_) =>
       switch acc {
       | Some(Text(saved)) => Output.outputText(saved)
+      | Some(Marker(marker)) => parseMarker(marker)
       | None => Output.startText()
       | _ => assert(false)
       }
@@ -113,9 +119,6 @@ let parseDocument = (tok, module(Output: ParserOutput)) => {
       switch token {
       | Attribute(attributeList) =>
         parseAttribute(attributeList, _attributes)
-        None
-      | Marker(marker) =>
-        parseMarker(marker)
         None
       | ReplacementKey(_) => Some(token)
       | Heading(_) => Some(token)
