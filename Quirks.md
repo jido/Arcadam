@@ -31,7 +31,7 @@ AsciiDoc also has a link-like syntax for these, for example setting an anchor ta
 anchor:target[]
 ```
 
-Markdown in Github flavour recently added footnotes with a syntax similar to Arcadam.
+Markdown in Github flavour added footnotes with a syntax similar to Arcadam.
 Most other features are not natively supported including setting a named anchor.
 This is how to link to a heading in Markdown, which requires knowledge of how the anchor name is built:
 
@@ -42,116 +42,87 @@ This is how to link to a heading in Markdown, which requires knowledge of how th
 ## Indented text and nesting
 
 A notable difference with Markdown and AsciiDoc is the way indented text is handled.
-The number of spaces doesn't have any effect in Arcadam.
 
-The rule is:
+The Arcadam rule is:
 
+> *If an indented block follows a non-indented item then it nests inside it (when applicable)*
+> 
 > *If an indented block follows another indented block then it continues it*
 > 
-> *If an indented block follows a line which starts with ">" or "." then it is treated as a normal paragraph*
-> 
-> *If the line starts with anything else then an indented block is treated as a code block*
+> *The number of spaces doesn't have any effect on nesting*
 
-Any number of indented blocks after a line which doesn't start with ">" or "." are code blocks.
+Leading spaces can be used purely for aesthetic reasons (indent), or to indicate the nesting level after a nesting element.
 
-These two symbols are the indent and nesting signs respectively.
-The lines that follow are expected to start with ">" or with spaces.
+List items and custom markers are nesting elements. Blocks also increase the nesting level.
 
-The indent sign can be used purely for aesthetic reasons (indent), or to indicate the nesting level after a nesting element.
-
-List items and custom markers are nesting elements.
-
-To tell the Arcadam processor that the next paragraph should be nested, use the indent sign:
+To tell the Arcadam processor that the next paragraph should be nested, use indentation:
 
 ```
 * A bullet point
 
-> This is part of the bullet point too!
+ This is part of the bullet point too!
 ```
 
-Without the indent sign the paragraph would be outside the list (or it would become a code block if it had spaces in front).
+Without the leading space the paragraph would be outside the list.
 
-All the indented lines that follow are at the same nesting level, unless a line uses an extra ">" after an nesting element.
+All the indented lines that follow are at the same nesting level, unless a nesting element or a block is used.
 
 The following are equivalent:
 
 ```
 * A bullet point
-> * a nested item
-> > * more nesting
-> > that is part of previous line
-> >
-> > > adding a paragraph to most
-> > > nested item
-> another line of the bullet point
-```
-
-```
-* A bullet point
-> * a nested item
-  > * more nesting
-    that is part of previous line
-
-    > adding a paragraph to most
-      nested item
-> another line of the bullet point 
-```
-
-Note: since the last line doesn't start with spaces, its only nesting is due to the indent sign ">".
-
-An alternative way to write the same is with the nesting sign ".":
-
-```
-* A bullet point
-.
+--
   * a nested item
-..
-    * more nesting -
+  --
+    * more nesting,
     that is part of previous line
-...
-      adding a paragraph to most
-      nested item
-.
+
+    adding a paragraph to most
+    nested item
+  --
+--
   another line of the bullet point
 ```
 
-The two can be combined, but since indent signs can be used without adding to the nesting and nesting can happen without indent signs the number of them needed to achieve the same effect as nesting signs can vary.
-
-Example:
-
 ```
-A paragraph
+* A bullet point
+--
+** a nested item
+*** more nesting,
+that is part of previous line
 
-> Just indenting no nesting
->
-> * A list item
-  > * nested list item
-      1. inside list
-    
->>  Part of the outside list item
+  adding a paragraph to most
+  nested item
+--
+  another line of the bullet point 
 ```
+
+Note: 
+The inner block is required because the number of spaces does not count. The outer block is required to attach the final line to the top-level bullet point.
 
 ### More notes:
 
-```
+~~~
+``
     This code block indent
    reduces
   on each line
-```
+~~~
 
 A code block indent is decided by the first line, so the code block above is considered incorrectly formatted.
 In the output all three lines will be at the same level.
 
-```
+~~~
+``
    A code block
 no-indent text is not part of the code block
-```
+~~~
 
 Unlike AsciiDoctor, all the lines of the code block must be indented. The second line above is a normal paragraph
 and there should be an empty line before.
 
 ~~~
-> ```
+  ```
   Indented and delimited
   code block
 it is missing an end delimiter
@@ -159,15 +130,13 @@ it is missing an end delimiter
   Start of a paragraph
 ~~~
 
-Note that only the opening delimiter of a code block can have an indent sign in front.
-
 This document is really broken. Because of the non-indented line, the code block ends early. 
 The document writer probably intended to include the non-indented line in the code block but the intended end block delimiter becomes the first line of an indented code block instead.
 
 Hopefully the issue is easy to spot for writers.
 
 ```
-> An indented paragraph
+  An indented paragraph
   
   A normal paragraph
     with uneven indent
@@ -179,17 +148,17 @@ There should be an empty line between the paragraphs.
 
 ```
 1. Item in a numbered list
-> continued on the next line
+  continued on the next line
 
   Another paragraph attached
 
 // Non-indented line
-  That is a code block
+  That is a separate paragraph
 ```
 
 A list item can contain multiple indented paragraphs or delimited code blocks.
 
-Any non-indented line which doesn't start with ">" or "." unsets the nesting level, even a comment.
+Any non-indented line unsets the nesting level, even a comment.
 
 ## Tables
 
@@ -282,7 +251,7 @@ A small example
 
 in the note
 
-> = Using indent
+  = Using indent
   ====
   Another example
   ====
@@ -297,7 +266,7 @@ A block header could look like:
 ```
 = Title
 [#anchor]:
-:key:replacement value
+:key:replacement: value
 [group]
 --
 ```
@@ -317,7 +286,7 @@ It can be used when some text is expected but you don't want to provide any.
 It can be used to unset a replacement value:
 
 ```
-:key:toc {:drop}
+:key:toc: {:drop}
 ```
 
 Or to add a list item without any text:
