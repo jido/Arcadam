@@ -30,8 +30,8 @@ Example:
 
 ```IDL
 = Document title
-:key:authors Author Name <author@email.org>
-:key:revision v2.0, 2019-03-22
+:key:authors: Author Name <author@email.org>
+:key:revision: v2.0, 2019-03-22
 :key:toc
 ---
 ```
@@ -176,47 +176,51 @@ being interpreted over a span of text using "+" or "`".
 + Item 3: Third description
 ```
 
-Number 1 for the first item is optional and no other number is permitted.
+Number 1 for a numbered list item is optional and no other number is permitted.
 A list that immediately follows an item from another list is automatically
-nested. The ">" indent sign can be used to mark the nesting level, and it
-can be replaced with spaces after the first line. The count of spaces has
-no importance.
+nested. An indented list that follows a non-indented list item is automatically
+nested. The count of spaces has no importance.
 
-The list markers can be repeated to indicate the level,
+The list markers can be repeated to indicate the nesting level,
 just like [headings](#headings).
 
 Example:
 
 ```
 1. This is item number one
-> * It has two bullet points
-> * That is the second bullet
+ * It has two bullet points
+ * That is the second bullet
 . This is item number two
-> 1. This is a sublist
-  . Repeating ">" is optional
+  1. This is a sublist
+  . Repeating "1" is optional
     .. Other list nested inside
-  . Third element of item
-   number two sublist
-  > 1. Nested sublist with
+  . Third element of item number
+   two
+    * Nested sublist with
     multiline content
+      ** More nesting
 . This is item number three
 
 [list]
 1. The list attribute forces a
-> new list to start up
+ new list to start up
 ```
 
 Indented paragraphs that follow an indented list item are automatically attached to it.
 The list ends when a non-indented paragraph starts.
 
-Additional lines of a non-indented list item can optionally be indented using an indent
-sign at the beginning of each, which can be replaced with spaces after the first line.
-The indent sign is required when adding a paragraph if there are no indented lines before,
-to signify its nesting.
+A free block can be used to group list items into a sublist:
 
-Alternatively a sequence of nesting dots at the start of an empty line sets the
-nesting level for the next indented block or paragraph.
-Repeated indent signs can optionally be separated by spaces.
+```
+* Top-level bullet list
+--
+* First bullet of nested list
+* Second bullet
+* Third bullet
+--
+* Second bullet of top-level
+ list
+```
 
 ### Enumerations
 
@@ -261,17 +265,14 @@ Example:
 There are contractual implications to this statement.{^terms}
 
 [^terms]:
-> Please refer to our Terms and Conditions {>T&C} for more information.
+  Please refer to our Terms and Conditions {>T&C} for more information.
 ```
-
-> [!NOTE]
-> The initial ">" on the lines that follows a marker is optional.
 
 ### Inline Content
 
 ```markdown
 = sample image
-[!image Arcadam logo](Arcadam-logo.png)
+  [!image Arcadam logo](Arcadam-logo.png)
 
 The Github mascot: [?image Github](octocat.jpg)
 ```
@@ -288,18 +289,17 @@ Content captions are set using a block title.
 
 ```markdown
 = Fruit basket
-,===
-apples,oranges,pears
-,===
+  ,===
+  apples,oranges,pears
+  ,===
 
 = A mountain sunset on [Flickr](https://www.flickr.com/photos/javh/5448336655)
-[width=200,height=100]
-[!image Sunset](sunset.jpg)
+  [width=200,height=100]
+  [!image Sunset](sunset.jpg)
 ```
 
 A block title starts with "=" and a space. It comes before the
-attributes. A block title can continue on more than one line;
-then any additional line must begin with a ">".
+attributes. A block title can continue on more than one line.
 
 If a document starts with a block title applied to
 a horizontal line, it is used as the document title.
@@ -311,19 +311,22 @@ image loads the (first) link.
 ### Replacement values
 
 ```IDL
-:key:key-name value to be inserted
+:key:key-name: value to be inserted
 ```
 
-If the value continues on more than one line then the additional lines must
-be introduced with ">" at the start. Arcadam blocks and commands cannot be used.
-Once defined, replacement values can be added anywhere using the key name.
+Arcadam blocks and commands cannot be used. The value can continue on more
+than one line.
+Once defined, replacement values can be added in the following block by
+using the key name inside braces.
 
 Example:
 
 ```markdown
+--
 Using the {key-name}
 
 [{key-name}](/index.html)
+--
 ```
 
 The key name is replaced with the value to be inserted.
@@ -333,10 +336,9 @@ The key name is replaced with the value to be inserted.
 Code blocks (monospaced):
 
 ~~~
-  Indented text is added to
-  a code block unless the
-  previous line starts with
-  "." or ">"
+``
+  Indented paragraph that makes
+  up a code block
 
 ```
 Another way to create a code
@@ -344,15 +346,6 @@ block is to use the ``` block
 delimiter
 ```
 ~~~
-
-A paragraph of indented text which is not attached becomes a code block.
-Indented text attaches to the previous paragraph if it is an indented
-paragraph, including indented with ">", or it contains only nesting
-signs ".".
-
-For simplicity the processor only looks at the first character of the
-line: ">", "." and whitespace prevent the next paragraph from becoming a code
-block.
 
 Other blocks:
 
@@ -405,9 +398,7 @@ Each new row should start on a new line. If a row is split in multiple lines
 there should be an empty line before the next row.
 
 Arcadam markup can be used inside a table cell.
-When the contents of a cell are written on multiple lines they can optionally be
-indented with a ">" indent sign at the beginning of each. The start of
-next cell must be in a normal paragraph or on a new line.
+The start of next cell must be in a normal paragraph or on a new line.
 
 Other table styles:
 
@@ -419,19 +410,19 @@ Other table styles:
 
 ```
 ,===
-Header 1,Header 2,Header 3
-|-
-Row 1 Column 1,Row 1 Column 2,Row 1 Column 3
-Row 2 Column 1,Row 2 Column 2,Row 2 Column 3
+  Header 1,Header 2,Header 3
+  --
+  Row 1 Column 1,Row 1 Column 2,Row 1 Column 3
+  Row 2 Column 1,Row 2 Column 2,Row 2 Column 3
 ,===
 ```
 
 ```
 :===
-Header 1:Header 2:Header 3
-|-
-Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
-Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
+  Header 1:Header 2:Header 3
+  --
+  Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
+  Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
 ```
 
@@ -441,20 +432,20 @@ Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 [form]
 ====
 = Field label
-[!input input-id= Default value]
+  [!input inputid = Default value]
 
 [checkbox]
-|+| Checkbox description | value
-| | Unchecked checkbox description
+  |+| Checkbox description | value
+  | | Unchecked checkbox description
 
 [options,value="choice 2"]
-* choice 1
-* choice 2
-* choice 3
+  * choice 1
+  * choice 2
+  * choice 3
 
 = Picker label
 [picker]
-Any valid Arcadam content
+  Any valid Arcadam content
 
 [?submit Send](target)
 [?cancel](home)
@@ -493,8 +484,9 @@ and the parameter value that follow.
 Example:
 
 ```
-:key:submit-button [?image](submit-button.png)
-:key:submit-action [?call my-function](param)
+:key:submit-button: [?image](submit-button.png)
+:key:submit-action: [?call my-function](param)
+
 [?submit {submit-button}]({submit-action})
 ```
 
@@ -504,9 +496,9 @@ Example:
 [tabset]
 --
 [tablist,id=maintab,value=Products]
-* Products
-* Portfolio
-* Contact
+  * Products
+  * Portfolio
+  * Contact
 
 [tab="maintab:Products"]
 ****
@@ -545,7 +537,7 @@ an item. The tablist "value" attribute defines the initial tab selection.
 
 ```C
 = Proof for [this triangle](http://www.cut-the-knot.org/pythagoras/proof31.gif)
-> where {`a}, {`b} and {`c} are the side lengths. 
+ where {`a}, {`b} and {`c} are the side lengths. 
 ~~~~
 // Comments, replacement values and callouts are allowed
 mtable(
@@ -562,7 +554,7 @@ mtable(
 ~~~~
 
 Using half angle formula:
-{`tan #(mfrac(π 12)) = mfrac(1 - cos #(mfrac(π 6)) : sin #(mfrac(π 6))) = 2 - msqrt(3)}
+  {`tan #(mfrac(π 12)) = mfrac(1 - cos #(mfrac(π 6)) : sin #(mfrac(π 6))) = 2 - msqrt(3)}
 ```
 
 [Result](lab/MathML.jpg)
@@ -599,7 +591,7 @@ _     horizontal space
 ```
 [content=text/html]
 ~~~~
-<strong>&quot;Hello!&quot;</strong>
+  <strong>&quot;Hello!&quot;</strong>
 ~~~~
 
 [!type Standalone control](additional info)
@@ -621,7 +613,6 @@ On the other hand, the end brackets are required even if they are empty for an i
 A custom element can be used anywhere. It always starts with a special character.
 A custom marker applies to the following paragraph or block. It must be on its own line.
 A custom marker always starts with a special character.
-The optional ">" indent sign at the beginning of the lines that follow is removed in the output.
 
 A custom marker can be followed by a single character on the same line to change the paragraph or block visibility.
 
@@ -716,6 +707,7 @@ the line.
 ### Callouts
 
 ~~~Eiffel
+[code=ruby]
 ```
 require 'sinatra'
 # {1}```
@@ -725,17 +717,14 @@ get '/hi' do
   "Hello World!"
   # {3}```
 end
-
-#   {:in ruby}```
 ```
 
-> + [?info Import](1): Library import
+  + [?info Import](1): Library import
   + [?info Mapping](2): URL mapping
   + [?info Response](3): HTTP response body
 ~~~
 
 For automatic callout numbering use `{#}` and `(#)` instead of numbers.
-Allowed numbers go from 0 to 9 and can be replaced in the output to keep them in sequence.
 The same number can be used multiple times to indicate that the information relates to more than one line.
 
 When it encounters callouts in a code block, the generator inserts
@@ -767,7 +756,7 @@ Arcadam documents can be localised for an international audience.
 Define the "translations" replacement value to enable it:
 
 ```
-:key:translations cn en es fr jp kr ru
+:key:translations: cn en es fr jp kr ru
 ```
 
 This tells the generator to look for translations in the listed
@@ -854,5 +843,5 @@ a special replacement value called "steps" followed by the style class.
 Example:
 
 ```IDL
-:key:steps.formatted replace, format, symbols
+:key:steps.formatted: replace, format, symbols
 ```
