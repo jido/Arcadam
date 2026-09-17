@@ -71,16 +71,16 @@ The following are equivalent:
 
 ```
 * A bullet point
---
-  * a nested item
   --
+  * a nested item
+    --
     * more nesting,
     that is part of previous line
 
     adding a paragraph to most
     nested item
+    --
   --
---
   another line of the bullet point
 ```
 
@@ -170,7 +170,7 @@ There should be an empty line between the paragraphs.
 
 A list item can contain multiple indented paragraphs or delimited code blocks.
 
-Any non-indented line unsets the nesting level, even a comment.
+Any non-indented line unsets the nesting level, unless it is a free group delimiter.
 
 ## Tables
 
