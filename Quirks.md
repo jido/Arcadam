@@ -103,7 +103,7 @@ The inner block is required because the number of spaces does not count. The out
 ### More notes:
 
 ~~~
-``
+>
     This code block indent
    reduces
   on each line
@@ -113,7 +113,7 @@ A code block indent is decided by the first line, so the code block above is con
 In the output all three lines will be at the same level.
 
 ~~~
-``
+>
    A code block
 no-indent text is not part of the code block
 ~~~
@@ -173,7 +173,7 @@ If it is combined with other formatting "h" must be added after the alignment sy
 || jan | feb | mar | apr | may | jun
 |:::
 | Quarter +
-> 2022
+  2022
 3+^| Q1
 3+^| Q2
 
