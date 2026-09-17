@@ -100,6 +100,18 @@ that is part of previous line
 Note: 
 The inner block is required because the number of spaces does not count. The outer block is required to attach the final line to the top-level bullet point.
 
+Result:
+
+* A bullet point
+  * a nested item
+    * more nesting,
+    that is part of previous line
+
+      adding a paragraph to most
+      nested item
+      
+  another line of the bullet point
+
 ### More notes:
 
 ~~~
@@ -118,7 +130,7 @@ In the output all three lines will be at the same level.
 no-indent text is not part of the code block
 ~~~
 
-Unlike AsciiDoctor, all the lines of the code block must be indented. The second line above is a normal paragraph
+Unlike AsciiDoctor, all the lines of the code block must be indented. The third line above is a normal paragraph
 and there should be an empty line before.
 
 ~~~
@@ -221,7 +233,7 @@ The attributes for the default use of each kind of block are:
 ___
 
 [example]
-====
+++++
 
 [sidebar]
 ****
@@ -239,24 +251,24 @@ Example:
 
 ```
 [NOTE]
-====
+++++
 This is how to start a new example 
 block within this block:
 
 = Nested block
 [example]
-====
+++++
 A small example
-====
+++++
 
 in the note
 
   = Using indent
-  ====
+  ++++
   Another example
-  ====
+  ++++
 
-====
+++++
 ```
 
 A block can start after different elements, but attributes must be last before the start of the block or they are ignored.
