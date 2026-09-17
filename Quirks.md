@@ -65,7 +65,7 @@ To tell the Arcadam processor that the next paragraph should be nested, use inde
 
 Without the leading space the paragraph would be outside the list.
 
-All the indented lines that follow are at the same nesting level, unless a nesting element or a block is used.
+All the indented lines that follow are at the same nesting level, unless a nesting element or a free block is used.
 
 The following are equivalent:
 
@@ -170,7 +170,7 @@ There should be an empty line between the paragraphs.
 
 A list item can contain multiple indented paragraphs or delimited code blocks.
 
-Any non-indented line unsets the nesting level, unless it is a free group delimiter.
+Any non-indented line unsets the nesting level, unless it is the start delimiter of a free group.
 
 ## Tables
 
