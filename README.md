@@ -336,7 +336,7 @@ The key name is replaced with the value to be inserted.
 Code blocks (monospaced):
 
 ~~~
-``
+>
   Indented paragraph that makes
   up a code block
 
@@ -388,6 +388,12 @@ plug-in or external app
 2+| Row 2 Merged columns 2, 3
 |===
 ```
+
+Result:
+
+| Header 1 | Header 2 | Header 3 |
+|---       |---       |---       |
+| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 </td></tr><tr><td> Row 2 Column 1 </td><td colspan=2> Row 2 Merged columns 2, 3 |
 
 A line starting with "|:" separates the header row from the following rows.
 If that line is missing the table has no headers by default.
@@ -844,4 +850,7 @@ Example:
 
 ```IDL
 :key:steps.formatted: replace, format, symbols
+---
+
+[.formatted]
 ```
