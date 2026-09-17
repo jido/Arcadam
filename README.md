@@ -83,6 +83,8 @@ This is ^superscript^
 
 This is ~subscript~
 
+This is ~~strike-through~~
+
 This is #highlighted#
 
 This is +_normal text_ (no style)+
@@ -90,7 +92,7 @@ This is +_normal text_ (no style)+
 
 Styles can be combined. Any style can be used in the middle of a word by
 doubling the format markers (loose formatting), except for superscript and subscript which
-don't require doubling. Single format markers are applied first then
+don't require doubling and strike-through which is always double. Single format markers are applied first then
 loose format markers, from left to right. Format markers cannot cross a
 boundary.
 
@@ -101,7 +103,7 @@ Example:
 
 the "it" is __it__alic
 
-superscri^pt^ for "pt"
+super^script^ for "script"
 ```
 
 To enter text which contains format markers, enclose the text with "`" (monospaced text)
@@ -112,6 +114,7 @@ When applying multiple styles in combination they must be in the following order
 |  Format marker | Style                 |
 |:--------------:|-----------------------|
 |      `#`       | highlighted           |
+|     `~~`       | strike-through        |
 |     `~ ^`      | subscript, superscript |
 |      `*`       | bold                  |
 |      `_`       | italic                |
@@ -140,7 +143,7 @@ That may force a page break in the middle of a paragraph.
 Boxed break:
 
 ```
-+++
+^^^
 ```
 
 That type of break makes the text jump to the next position which is not constrained in width.
@@ -221,6 +224,15 @@ A free block can be used to group list items into a sublist:
 * Second bullet of top-level
  list
 ```
+
+Result:
+
+* Top-level bullet list
+  * First bullet of nested list
+  * Second bullet
+  * Third bullet
+* Second bullet of top-level list
+
 
 ### Enumerations
 
@@ -355,10 +367,10 @@ Quote text using
 three underscores
 ___
 
-====
+++++
 Example block used to
 enclose an example
-====
+++++
 
 ****
 Sidebar block used to
@@ -417,7 +429,7 @@ Other table styles:
 ```
 ,===
   Header 1,Header 2,Header 3
-  --
+ +
   Row 1 Column 1,Row 1 Column 2,Row 1 Column 3
   Row 2 Column 1,Row 2 Column 2,Row 2 Column 3
 ,===
@@ -426,7 +438,7 @@ Other table styles:
 ```
 :===
   Header 1:Header 2:Header 3
-  --
+ +
   Row 1 Column 1:Row 1 Column 2:Row 1 Column 3
   Row 2 Column 1:Row 2 Column 2:Row 2 Column 3
 :===
@@ -436,7 +448,7 @@ Other table styles:
 
 ```
 [form]
-====
+++++
 = Field label
   [!input inputid = Default value]
 
@@ -456,7 +468,7 @@ Other table styles:
 [?submit Send](target)
 [?cancel](home)
 [?clear]()
-====
+++++
 ```
 
 A form layout has two columns, one for labels and one for form elements.
@@ -500,7 +512,7 @@ Example:
 
 ```
 [tabset]
---
+___
 [tablist,id=maintab,value=Products]
   * Products
   * Portfolio
@@ -520,7 +532,7 @@ This is the portfolio tab
 ****
 This is the contact tab
 ****
---
+___
 ```
 
 If a block title is defined for a tab then that replaces the item in the
@@ -652,9 +664,9 @@ Example:
     </element>
 
 [NOTE]
-====
+++++
 This is important.
-====
+++++
 ```
 
 Some attributes can take a value. If the value contains any special characters it should be enclosed in double quotes.
